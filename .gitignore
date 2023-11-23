@@ -1,0 +1,9 @@
+bin/
+tmp/
+.air.toml
+.DS_Store
+.vscode/
+.idea/
+
+.env
+.env.local
