@@ -1,20 +1,18 @@
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/aikintech/scim/pkg/dto"
 	"github.com/aikintech/scim/pkg/utils"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/validate"
-	"github.com/labstack/echo/v4"
 )
 
-func SignIn(c echo.Context) error {
+func SignIn(c *fiber.Ctx) error {
 	input := new(dto.SignInDTO)
 
 	// Parse request body
-	if err := c.Bind(input); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
+	if err := c.BodyParser(input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(map[string]string{
 			"message": "An error occurred while parsing your request",
 		})
 	}
@@ -23,10 +21,10 @@ func SignIn(c echo.Context) error {
 	validator := validate.Struct(input)
 
 	if validator.Validate() {
-		return c.JSON(http.StatusOK, input)
+		return c.JSON(input)
 	}
 
-	return c.JSON(http.StatusUnprocessableEntity, map[string]interface{}{
+	return c.Status(fiber.StatusUnprocessableEntity).JSON(map[string]interface{}{
 		"errors": utils.FormatValidationErrors(validator.Errors.All()),
 	})
 }

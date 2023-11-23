@@ -1,17 +1,15 @@
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/aikintech/scim/pkg/config"
 	"github.com/aikintech/scim/pkg/models"
-	"github.com/labstack/echo/v4"
+	"github.com/gofiber/fiber/v2"
 )
 
-func GetUsers(c echo.Context) error {
+func GetUsers(c *fiber.Ctx) error {
 	var users []models.User
 
 	config.DB.Find(&users)
 
-	return c.JSON(http.StatusOK, users)
+	return c.JSON(users)
 }

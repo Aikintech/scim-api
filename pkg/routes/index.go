@@ -1,8 +1,10 @@
 package routes
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
-func LoadRoutes(app *echo.Echo) {
+func LoadRoutes(app *fiber.App) {
 	// Central routes
 	LoadCentralRoutes(app)
 
