@@ -36,6 +36,4 @@ func main() {
 	// Start the app
 	// app.Logger.Fatal(app.Start(fmt.Sprintf(":%s", os.Getenv("PORT"))))
 	app.Logger.Fatal(app.Start(":9000"))
-
-	println("Hello, World!")
 }

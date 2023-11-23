@@ -12,17 +12,21 @@ import (
 func SignIn(c echo.Context) error {
 	input := new(dto.SignInDTO)
 
+	// Parse request body
 	if err := c.Bind(input); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "An error occurred while parsing your request",
 		})
 	}
 
+	// Validate request body
 	validator := validate.Struct(input)
 
 	if validator.Validate() {
 		return c.JSON(http.StatusOK, input)
 	}
 
-	return c.JSON(http.StatusUnprocessableEntity, utils.FormatValidationErrors(validator.Errors.All()))
+	return c.JSON(http.StatusUnprocessableEntity, map[string]interface{}{
+		"errors": utils.FormatValidationErrors(validator.Errors.All()),
+	})
 }
