@@ -13,7 +13,8 @@ func LoadCentralRoutes(app *fiber.App) {
 
 	// Auth routes
 	auth := app.Group("/auth")
-	auth.Post("/sign-in", controllers.SignIn)
+	auth.Post("/login", controllers.Login)
+	auth.Post("/register", controllers.Register)
 
 	// User routes
 	app.Get("/users", controllers.GetUsers)

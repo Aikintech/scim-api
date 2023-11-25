@@ -6,6 +6,8 @@ require (
 	github.com/gofiber/contrib/fiberzerolog v0.2.2
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/gookit/validate v1.5.1
+	github.com/matthewhartstonge/argon2 v0.3.4
+	github.com/oklog/ulid/v2 v2.1.0
 	github.com/rs/zerolog v1.31.0
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/mysql v1.5.2
@@ -30,6 +32,5 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
-	golang.org/x/term v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 )
