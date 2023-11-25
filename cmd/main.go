@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/routes"
-	"github.com/gookit/validate"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/gofiber/contrib/fiberzerolog"
+	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog"
 )
 
 func init() {
@@ -15,25 +17,23 @@ func init() {
 	// Load database
 	config.ConnectDB()
 	config.MigrateDB()
-
-	// Configure validation
-	validate.Config(func(opt *validate.GlobalOption) {
-		opt.StopOnError = false
-		opt.SkipOnEmpty = false
-	})
 }
 
 func main() {
 	// Instantiate the app
-	app := echo.New()
+	app := fiber.New()
 
 	// Global middleware
-	app.Use(middleware.Logger())
+	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
 
-	// Load routes
-	routes.LoadRoutes(app)
+	app.Use(fiberzerolog.New(fiberzerolog.Config{
+		Logger: &logger,
+	}))
+
+	// Routes
 
 	// Start the app
-	// app.Logger.Fatal(app.Start(fmt.Sprintf(":%s", os.Getenv("PORT"))))
-	app.Logger.Fatal(app.Start(":9000"))
+	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
+		logger.Fatal().Err(err).Msg("Fiber app error")
+	}
 }
