@@ -1,13 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/routes"
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gookit/validate"
 	"github.com/rs/zerolog"
 )
 
@@ -18,12 +17,6 @@ func init() {
 	// Load database
 	config.ConnectDB()
 	config.MigrateDB()
-
-	// Configure validation
-	validate.Config(func(opt *validate.GlobalOption) {
-		opt.StopOnError = false
-		opt.SkipOnEmpty = false
-	})
 }
 
 func main() {
@@ -37,11 +30,10 @@ func main() {
 		Logger: &logger,
 	}))
 
-	// Load routes
-	routes.LoadRoutes(app)
+	// Routes
 
 	// Start the app
-	if err := app.Listen(":9000"); err != nil {
+	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
 		logger.Fatal().Err(err).Msg("Fiber app error")
 	}
 }

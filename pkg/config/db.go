@@ -23,7 +23,7 @@ func ConnectDB() {
 }
 
 func MigrateDB() {
-	err := DB.AutoMigrate(&models.User{})
+	err := DB.AutoMigrate(&models.User{}, &models.Podcast{})
 
 	if err != nil {
 		return
