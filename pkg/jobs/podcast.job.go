@@ -1,9 +1,9 @@
 package jobs
 
 import (
-	"fmt"
 	"github.com/aikintech/scim/pkg/config"
 	"github.com/mmcdole/gofeed"
+	"os"
 )
 
 func SeedPodcasts() {
@@ -14,5 +14,7 @@ func SeedPodcasts() {
 		panic(err.Error())
 	}
 
-	fmt.Println(feed.FeedVersion)
+	if err := os.WriteFile("podcast.json", []byte(feed.String()), 0777); err != nil {
+		panic(err.Error())
+	}
 }
