@@ -6,9 +6,11 @@ require (
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/gofiber/contrib/fiberzerolog v0.2.2
 	github.com/gofiber/fiber/v2 v2.51.0
+	github.com/matthewhartstonge/argon2 v0.3.4
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/rs/zerolog v1.31.0
+	github.com/samber/lo v1.38.1
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
@@ -39,6 +41,7 @@ require (
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.13.0 // indirect

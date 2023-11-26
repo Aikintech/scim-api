@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/aikintech/scim/pkg/routes"
 	"os"
 
 	"github.com/aikintech/scim/pkg/config"
@@ -31,6 +32,7 @@ func main() {
 	}))
 
 	// Routes
+	routes.LoadRoutes(app)
 
 	// Start the app
 	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
