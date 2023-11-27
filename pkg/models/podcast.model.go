@@ -19,11 +19,11 @@ type Podcast struct {
 	Duration    string     `gorm:"size:191;not null"`
 	Image       string     `gorm:"size:191;not null"`
 	Url         string     `gorm:"type:TEXT;not null"`
-	Published   bool       `gorm:"type:tinyint; not null;default:true"`
+	Published   bool       `gorm:"type:TINYINT;not null;default:true"`
 	PublishedAt *time.Time `gorm:"not null"`
 	Meta        datatypes.JSON
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	CreatedAt   time.Time `gorm:"not null"`
+	UpdatedAt   time.Time `gorm:"not null"`
 }
 
 func (p *Podcast) BeforeCreate(tx *gorm.DB) error {

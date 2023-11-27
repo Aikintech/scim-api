@@ -8,10 +8,17 @@ import (
 )
 
 func ClientGetPodcasts(c *fiber.Ctx) error {
-	var podcasts []models.PodcastResource
+	// Validate query params
+	sort := c.Query("sort", "newest")
+	orderBy := "published_at desc"
+
+	if sort != "newest" {
+		orderBy = "published_at asc"
+	}
 
 	// Fetch podcasts
-	results := config.DB.Debug().Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Find(&podcasts)
+	podcasts := make([]models.PodcastResource, 0)
+	results := config.DB.Debug().Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Order(orderBy).Find(&podcasts)
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{

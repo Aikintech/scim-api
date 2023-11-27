@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/aikintech/scim/pkg/models"
+	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -25,8 +26,7 @@ func ConnectDB() {
 		},
 	)
 
-	// dsn := "avnadmin:AVNS_H7JBDGn1LLrlQXCB84T@tcp(scim-app-test-dabeixin-8a11.a.aivencloud.com:14958)/scim-test?charset=utf8mb4&parseTime=True"
-	dsn := "dbuser:Password2020!@tcp(127.0.0.1:3306)/chms?charset=utf8mb4&parseTime=True"
+	dsn := viper.GetString("DB_URL")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})
@@ -39,7 +39,7 @@ func ConnectDB() {
 }
 
 func MigrateDB() {
-	err := DB.AutoMigrate(&models.User{}, &models.Podcast{})
+	err := DB.AutoMigrate(&models.User{}, &models.Podcast{}, &models.Post{})
 
 	if err != nil {
 		return
