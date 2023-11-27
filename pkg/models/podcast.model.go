@@ -1,10 +1,11 @@
 package models
 
 import (
+	"time"
+
 	"github.com/oklog/ulid/v2"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Podcast struct {
@@ -29,4 +30,17 @@ func (p *Podcast) BeforeCreate(tx *gorm.DB) error {
 	p.ID = ulid.Make().String()
 
 	return nil
+}
+
+type PodcastResource struct {
+	ID          string    `json:"id"`
+	Author      string    `json:"author"`
+	Title       string    `json:"title"`
+	Summary     string    `json:"summary"`
+	Description string    `json:"description"`
+	Duration    string    `json:"duration"`
+	Image       string    `json:"image"`
+	Url         string    `json:"url"`
+	Published   bool      `json:"published"`
+	PublishedAt time.Time `json:"publishedAt"`
 }

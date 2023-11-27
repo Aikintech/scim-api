@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/aikintech/scim/pkg/routes"
 	"os"
+
+	"github.com/aikintech/scim/pkg/routes"
 
 	"github.com/aikintech/scim/pkg/config"
 	"github.com/gofiber/contrib/fiberzerolog"
@@ -13,7 +14,7 @@ import (
 
 func init() {
 	// Load environment variables
-	// env.LoadEnv()
+	config.LoadEnv()
 
 	// Load database
 	config.ConnectDB()
@@ -21,6 +22,7 @@ func init() {
 }
 
 func main() {
+
 	// Instantiate the app
 	app := fiber.New()
 
