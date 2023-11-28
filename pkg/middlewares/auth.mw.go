@@ -2,17 +2,17 @@ package middlewares
 
 import (
 	"context"
+	"os"
 
 	"github.com/aikintech/scim/pkg/definitions"
 	"github.com/gofiber/fiber/v2"
 	"github.com/nedpals/supabase-go"
-	"github.com/spf13/viper"
 )
 
 func AuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		supabaseURL := viper.GetString("SUPABASE_URL")
-		supabaseKey := viper.GetString("SUPABASE_KEY")
+		supabaseURL := os.Getenv("SUPABASE_URL")
+		supabaseKey := os.Getenv("SUPABASE_KEY")
 		supabaseClient := supabase.CreateClient(supabaseURL, supabaseKey)
 
 		ctx := context.Background()
