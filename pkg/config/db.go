@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -14,6 +15,8 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() {
+	fmt.Println("DB_URL", os.Getenv("DB_URL"))
+
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
