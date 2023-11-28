@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/aikintech/scim/pkg/models"
-	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -26,7 +25,7 @@ func ConnectDB() {
 		},
 	)
 
-	dsn := viper.GetString("DB_URL")
+	dsn := os.Getenv("DB_URL")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})
