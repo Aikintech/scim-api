@@ -14,10 +14,10 @@ RUN go mod download
 COPY . .
 
 # Build the Go application
-RUN go build -o /app/main ./cmd
+RUN go build -o main .
 
 # Expose the port that the application will run on
 EXPOSE 9000
 
 # Command to run the application
-CMD ["/app/main"]
+CMD ["./main"]

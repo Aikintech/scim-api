@@ -2,11 +2,13 @@ package config
 
 import (
 	"errors"
+
 	"github.com/spf13/viper"
 )
 
 func LoadEnv() {
-	viper.SetConfigFile(".env")
+	viper.SetConfigName(".env")
+	viper.SetConfigType("env")
 
 	if err := viper.ReadInConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
