@@ -1,0 +1,182 @@
+openapi: 3.0.0
+x-stoplight:
+  id: lkd4mjwpm1z5y
+info:
+  title: API
+  version: '1.0'
+  description: Salvation Clinic International Minitries API Documentaion
+  contact:
+    name: Nana Kwesi Ofosu-Aikins
+    email: nanaaikinson24@gmail.com
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /client/podcasts:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientGetPodcastsResponse'
+      operationId: client-get-podcasts
+      description: 'Client: Get podcasts'
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: string
+          in: query
+          name: search
+        - schema:
+            type: string
+            enum:
+              - newest
+              - oldest
+          in: query
+          name: sort
+  '/client/podcasts/{podcastId}':
+    parameters:
+      - schema:
+          type: string
+        name: podcastId
+        in: path
+        required: true
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientGetPodcastResponse'
+      operationId: client-get-podcast
+      description: 'Client: Get podcast'
+  '/client/podcasts/{podcastId}/like':
+    parameters:
+      - schema:
+          type: string
+        name: podcastId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+      operationId: client-like-podcast
+      description: 'Client: Like podcast'
+      security:
+        - X-USER-TOKEN: []
+components:
+  schemas:
+    Podcast:
+      type: object
+      x-examples:
+        Example 1:
+          id: 01HG61Z2PRB10SHX1S6CPF8642
+          author: Evangelist Elijah Ben
+          title: THE SPIRIT OF UNDERSTANDING
+          summary: Message by Evang. Elijah-Ben Kusi Agyapong during Tuesday Teaching Service
+          description: Message by Evang. Elijah-Ben Kusi Agyapong during Tuesday Teaching Service
+          duration: '01:35:16'
+          image: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+          url: 'https://awscdn.podcasts.com/audio-F9RWjXUc39lIgJuaKFg4oPSvG.mp3'
+          published: true
+          publishedAt: '2023-11-21T21:16:12Z'
+      properties:
+        id:
+          type: string
+        author:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        description:
+          type: string
+        duration:
+          type: string
+        image:
+          type: string
+        url:
+          type: string
+        published:
+          type: boolean
+        publishedAt:
+          type: string
+      required:
+        - id
+        - author
+        - title
+        - summary
+        - description
+        - duration
+        - image
+        - url
+        - published
+        - publishedAt
+    ClientGetPodcastsResponse:
+      title: ClientGetPodcastsResponse
+      x-stoplight:
+        id: cpzser9oo2avs
+      type: object
+      properties:
+        code:
+          type: integer
+          x-stoplight:
+            id: ypxamztso971t
+        data:
+          type: array
+          x-stoplight:
+            id: wm4nqhlw4iogm
+          items:
+            $ref: '#/components/schemas/Podcast'
+        meta:
+          type: string
+          x-stoplight:
+            id: dwp5ppelnhamp
+      required:
+        - code
+        - data
+        - meta
+    ClientGetPodcastResponse:
+      title: ClientGetPodcastResponse
+      x-stoplight:
+        id: i0mil8u1vbb85
+      type: object
+      properties:
+        Code:
+          type: integer
+          x-stoplight:
+            id: w32kif2pc7mz9
+        data:
+          $ref: '#/components/schemas/Podcast'
+      required:
+        - Code
+        - data
+  securitySchemes:
+    X-USER-TOKEN:
+      type: apiKey
+      in: header
+      name: X-USER-TOKEN
+tags:
+  - name: admin
+  - name: client

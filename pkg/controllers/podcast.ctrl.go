@@ -41,5 +41,6 @@ func ClientShowPodcast(c *fiber.Ctx) error {
 }
 
 func ClientLikePodcast(c *fiber.Ctx) error {
+
 	return c.SendString("Like podcast")
 }

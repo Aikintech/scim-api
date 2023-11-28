@@ -1,4 +1,4 @@
-package validation_schemas
+package validation
 
 type LoginSchema struct {
 	Email    string `json:"email" validate:"required,email"`

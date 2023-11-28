@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/aikintech/scim/pkg/definitions"
-	validationschemas "github.com/aikintech/scim/pkg/validation-schemas"
+	validationschemas "github.com/aikintech/scim/pkg/validation"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/matthewhartstonge/argon2"
@@ -31,10 +31,12 @@ func ValidateStruct(schema interface{}) []definitions.ValidationErr {
 		errors.As(err, &validationErrors)
 
 		for i, err := range validationErrors {
-			if exists := existsInValidationErrs(err.Field(), errs); exists != false {
+			field := strings.ToLower(err.Field())
+
+			if exists := existsInValidationErrs(field, errs); exists != false {
 				errs[i].Reasons = append(errs[i].Reasons, getValidationMessage(err))
 			} else {
-				errs = append(errs, definitions.ValidationErr{Field: err.Field(), Reasons: []string{getValidationMessage(err)}})
+				errs = append(errs, definitions.ValidationErr{Field: field, Reasons: []string{getValidationMessage(err)}})
 			}
 		}
 	}

@@ -21,9 +21,11 @@ type Podcast struct {
 	Url         string     `gorm:"type:TEXT;not null"`
 	Published   bool       `gorm:"type:TINYINT;not null;default:true"`
 	PublishedAt *time.Time `gorm:"not null"`
+	ShortURL    string     `gorm:"size:191"`
 	Meta        datatypes.JSON
-	CreatedAt   time.Time `gorm:"not null"`
-	UpdatedAt   time.Time `gorm:"not null"`
+	CreatedAt   time.Time   `gorm:"not null"`
+	UpdatedAt   time.Time   `gorm:"not null"`
+	Playlists   []*Playlist `gorm:"many2many:podcast_playlist"`
 }
 
 func (p *Podcast) BeforeCreate(tx *gorm.DB) error {

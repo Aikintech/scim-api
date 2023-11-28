@@ -14,9 +14,17 @@ func AuthMiddleware() fiber.Handler {
 		supabaseURL := viper.GetString("SUPABASE_URL")
 		supabaseKey := viper.GetString("SUPABASE_KEY")
 		supabaseClient := supabase.CreateClient(supabaseURL, supabaseKey)
+		userToken := c.Get("Authorization", "")
+
+		if userToken == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(definitions.MessageResponse{
+				Code:    fiber.StatusUnauthorized,
+				Message: "Unauthorized",
+			})
+		}
 
 		ctx := context.Background()
-		user, err := supabaseClient.Auth.User(ctx, c.Get("Authorization"))
+		user, err := supabaseClient.Auth.User(ctx, c.Get("X-USER-TOKEN"))
 
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(definitions.MessageResponse{
