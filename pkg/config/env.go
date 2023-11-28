@@ -8,8 +8,8 @@ import (
 
 func LoadEnv() {
 	viper.SetConfigName(".env")
-	viper.AddConfigPath("/app")
 	viper.SetConfigType("env")
+	viper.AddConfigPath("./")
 
 	if err := viper.ReadInConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
