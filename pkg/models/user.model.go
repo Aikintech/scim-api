@@ -12,6 +12,7 @@ import (
 // User model
 type User struct {
 	ID              string `gorm:"primaryKey;size:191"`
+	ExternalId      string `gorm:"size:191;not null"`
 	FirstName       string `gorm:"size:191;not null"`
 	LastName        string `gorm:"size:191;not null"`
 	Email           string `gorm:"size:191;not null"`
