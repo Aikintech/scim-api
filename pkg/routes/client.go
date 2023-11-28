@@ -10,5 +10,6 @@ func ClientRoutes(app *fiber.App) {
 	client := app.Group("/client")
 
 	// Podcasts
-	client.Get("/Podcasts", controllers.ClientGetPodcasts)
+	client.Get("/podcasts", controllers.ClientListPodcasts)
+	client.Get("/podcasts/:podcastId", controllers.ClientShowPodcast)
 }

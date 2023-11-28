@@ -6,8 +6,6 @@ import (
 )
 
 func CentralRoutes(app *fiber.App) {
-	auth := app.Group("/auth")
-
-	auth.Post("/login", controllers.Login)
-	auth.Post("/register", controllers.Register)
+	// Health check
+	app.Get("/", controllers.HealthCheck)
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ClientGetPodcasts(c *fiber.Ctx) error {
+func ClientListPodcasts(c *fiber.Ctx) error {
 	// Validate query params
 	sort := c.Query("sort", "newest")
 	orderBy := "published_at desc"
@@ -32,4 +32,14 @@ func ClientGetPodcasts(c *fiber.Ctx) error {
 		Code: fiber.StatusOK,
 		Data: podcasts,
 	})
+}
+
+func ClientShowPodcast(c *fiber.Ctx) error {
+	podcastId := c.Params("podcastId")
+
+	return c.SendString("Get podcast " + podcastId)
+}
+
+func ClientLikePodcast(c *fiber.Ctx) error {
+	return c.SendString("Like podcast")
 }
