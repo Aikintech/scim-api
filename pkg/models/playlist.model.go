@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Playlist struct {
-	ID          string `gorm:"primaryKey"`
+	ID          string `gorm:"primaryKey;size:40"`
 	UserID      string
 	Title       string     `gorm:"size:191;not null"`
 	ShortURL    string     `gorm:"size:191"`

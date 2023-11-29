@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/aikintech/scim/pkg/config"
 	"github.com/aikintech/scim/pkg/definitions"
+	"github.com/aikintech/scim/pkg/jobs"
 	"github.com/aikintech/scim/pkg/models"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -82,4 +83,18 @@ func ClientLikePodcast(c *fiber.Ctx) error {
 func ClientCommentPodcast(c *fiber.Ctx) error {
 
 	return c.SendString("Like podcast")
+}
+
+// ClientUpdatePodcastComment - Update a podcast comment
+func ClientUpdatePodcastComment(c *fiber.Ctx) error {
+
+	return c.SendString("Like podcast")
+}
+
+// ClientSeedPodcasts - Seed podcasts
+func SeedPodcasts(c *fiber.Ctx) error {
+	// Background job
+	go jobs.SeedPodcasts()
+
+	return c.SendString("Podcasts seeding initiated")
 }

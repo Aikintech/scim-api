@@ -8,7 +8,7 @@ import (
 )
 
 type Post struct {
-	ID             string    `gorm:"primaryKey"`
+	ID             string    `gorm:"primaryKey;size:40"`
 	Title          string    `gorm:"not null"`
 	Slug           string    `gorm:"not null"`
 	Body           string    `gorm:"not null"`

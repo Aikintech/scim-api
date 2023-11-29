@@ -96,7 +96,7 @@ paths:
         name: podcastId
         in: path
         required: true
-    patch:
+    post:
       summary: ''
       tags:
         - client
@@ -114,6 +114,42 @@ paths:
       security:
         - X-USER-TOKEN: []
       requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentPodcastRequest'
+  '/client/podcasts/{podcastId}/comment/{commentId}':
+    parameters:
+      - schema:
+          type: string
+        name: podcastId
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: commentId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+      operationId: client-update-podcast-comment
+      description: 'Client: Update podcast comment'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -124,16 +160,16 @@ components:
       type: object
       x-examples:
         Example 1:
-          id: 01HG61Z2PRB10SHX1S6CPF8642
+          id: 01HGDRCWFG6A5ASHQHWZHN4R70
           author: Evangelist Elijah Ben
-          title: THE SPIRIT OF UNDERSTANDING
-          summary: Message by Evang. Elijah-Ben Kusi Agyapong during Tuesday Teaching Service
-          description: Message by Evang. Elijah-Ben Kusi Agyapong during Tuesday Teaching Service
-          duration: '01:35:16'
-          image: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
-          url: 'https://awscdn.podcasts.com/audio-F9RWjXUc39lIgJuaKFg4oPSvG.mp3'
+          title: SUNDAY ANOINTING SERVICE-THE SPIRIT OF UNDERSTANDING PART 2
+          summary: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
+          description: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
+          duration: '01:33:21'
+          imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+          audioUrl: 'https://awscdn.podcasts.com/audio-qCgqW7G68X5kJPLaWfZeGp47Z.mp3'
           published: true
-          publishedAt: '2023-11-21T21:16:12Z'
+          publishedAt: '2023-11-27T07:44:51Z'
       properties:
         id:
           type: string
@@ -147,9 +183,9 @@ components:
           type: string
         duration:
           type: string
-        image:
+        imageUrl:
           type: string
-        url:
+        audioUrl:
           type: string
         published:
           type: boolean
@@ -162,8 +198,8 @@ components:
         - summary
         - description
         - duration
-        - image
-        - url
+        - imageUrl
+        - audioUrl
         - published
         - publishedAt
     ClientGetPodcastsResponse:

@@ -14,10 +14,13 @@ func ClientRoutes(app *fiber.App) {
 	prayerRequests := client.Group("/prayer-requests")
 
 	// Podcasts
+	podcasts.Post("/seed", controllers.SeedPodcasts)
+
 	podcasts.Get("/", controllers.ClientListPodcasts)
 	podcasts.Get("/:podcastId", controllers.ClientShowPodcast)
 	podcasts.Patch("/:podcastId/like", middlewares.AuthMiddleware(), controllers.ClientLikePodcast)
 	podcasts.Post("/:podcastId/comment", middlewares.AuthMiddleware(), controllers.ClientCommentPodcast)
+	podcasts.Patch("/:podcastId/comment/:commentId", middlewares.AuthMiddleware(), controllers.ClientUpdatePodcastComment)
 
 	// Playlists
 	playlists.Post("/", controllers.ClientCreatePlaylist)

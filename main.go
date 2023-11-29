@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aikintech/scim/pkg/jobs"
 	"github.com/aikintech/scim/pkg/routes"
 
 	"github.com/aikintech/scim/pkg/config"
@@ -23,8 +22,6 @@ func init() {
 }
 
 func main() {
-	jobs.SeedPodcasts()
-
 	// Instantiate a new fiber app
 	app := fiber.New()
 
