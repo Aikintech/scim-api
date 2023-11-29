@@ -29,8 +29,8 @@ func SeedPodcasts() {
 				Summary:     item.ITunesExt.Summary,
 				Description: item.Description,
 				Duration:    item.ITunesExt.Duration,
-				Image:       item.Image.URL,
-				Url:         item.Enclosures[0].URL,
+				ImageURL:    item.Image.URL,
+				AudioURL:    item.Enclosures[0].URL,
 				Published:   true,
 				PublishedAt: item.PublishedParsed,
 			}

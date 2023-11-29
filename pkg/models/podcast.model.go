@@ -18,8 +18,8 @@ type Podcast struct {
 	Summary     string     `gorm:"not null"`
 	Description string     `gorm:"type:TEXT"`
 	Duration    string     `gorm:"size:191;not null"`
-	Image       string     `gorm:"not null"`
-	Url         string     `gorm:"type:TEXT;not null"`
+	ImageURL    string     `gorm:"not null"`
+	AudioURL    string     `gorm:"type:TEXT;not null"`
 	Published   bool       `gorm:"not null;default:true"`
 	PublishedAt *time.Time `gorm:"not null"`
 	ShortURL    string     `gorm:"size:191"`
@@ -27,6 +27,8 @@ type Podcast struct {
 	CreatedAt   time.Time   `gorm:"not null"`
 	UpdatedAt   time.Time   `gorm:"not null"`
 	Playlists   []*Playlist `gorm:"many2many:podcast_playlist"`
+	Comments    []Comment   `gorm:"polymorphic:Commentable"`
+	Likes       []Like      `gorm:"polymorphic:Likeable"`
 }
 
 func (p *Podcast) BeforeCreate(tx *gorm.DB) error {
@@ -50,8 +52,8 @@ type PodcastResource struct {
 	Summary     string    `json:"summary"`
 	Description string    `json:"description"`
 	Duration    string    `json:"duration"`
-	Image       string    `json:"image"`
-	Url         string    `json:"url"`
+	ImageURL    string    `json:"imageUrl"`
+	AudioURL    string    `json:"audioUrl"`
 	Published   bool      `json:"published"`
 	PublishedAt time.Time `json:"publishedAt"`
 }

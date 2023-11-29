@@ -23,6 +23,7 @@ type User struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	Playlists       []Playlist
+	PrayerRequests  []PrayerRequest
 }
 
 func (model *User) BeforeCreate(*gorm.DB) error {
