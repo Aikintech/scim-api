@@ -1,11 +1,22 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
+	"errors"
+
+	"github.com/spf13/viper"
 )
 
 func LoadEnv() {
-	if err := godotenv.Load(); err != nil {
-		panic(err.Error())
+	viper.SetConfigName(".env")
+	viper.SetConfigType("env")
+	viper.AddConfigPath("./")
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundError) {
+			panic(err.Error())
+		}
 	}
+
 }

@@ -18,7 +18,7 @@ func ClientListPodcasts(c *fiber.Ctx) error {
 
 	// Fetch podcasts
 	podcasts := make([]models.PodcastResource, 0)
-	results := config.DB.Debug().Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Order(orderBy).Find(&podcasts)
+	results := config.DB.Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Order(orderBy).Find(&podcasts)
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{

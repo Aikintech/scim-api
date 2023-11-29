@@ -22,11 +22,10 @@ func init() {
 }
 
 func main() {
-
-	// Instantiate the app
+	// Instantiate a new fiber app
 	app := fiber.New()
 
-	// Global middleware
+	// Global middlewares
 	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
 
 	app.Use(fiberzerolog.New(fiberzerolog.Config{

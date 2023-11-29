@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	strip "github.com/grokify/html-strip-tags-go"
 	"github.com/oklog/ulid/v2"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -12,14 +13,14 @@ type Podcast struct {
 	ID          string     `gorm:"primaryKey"`
 	GUID        string     `gorm:"size:191;not null"`
 	Author      string     `gorm:"size:191;not null"`
-	Title       string     `gorm:"size:191;not null"`
-	SubTitle    string     `gorm:"size:191;not null"`
-	Summary     string     `gorm:"size:191;not null"`
-	Description string     `gorm:"type:LONGTEXT"`
+	Title       string     `gorm:"not null"`
+	SubTitle    string     `gorm:"not null"`
+	Summary     string     `gorm:"not null"`
+	Description string     `gorm:"type:TEXT"`
 	Duration    string     `gorm:"size:191;not null"`
-	Image       string     `gorm:"size:191;not null"`
+	Image       string     `gorm:"not null"`
 	Url         string     `gorm:"type:TEXT;not null"`
-	Published   bool       `gorm:"type:TINYINT;not null;default:true"`
+	Published   bool       `gorm:"not null;default:true"`
 	PublishedAt *time.Time `gorm:"not null"`
 	ShortURL    string     `gorm:"size:191"`
 	Meta        datatypes.JSON
@@ -30,6 +31,14 @@ type Podcast struct {
 
 func (p *Podcast) BeforeCreate(tx *gorm.DB) error {
 	p.ID = ulid.Make().String()
+
+	if len(p.Summary) > 0 {
+		p.Summary = strip.StripTags(p.Summary)
+	}
+
+	if len(p.Description) > 0 {
+		p.Description = strip.StripTags(p.Description)
+	}
 
 	return nil
 }

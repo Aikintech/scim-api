@@ -2,10 +2,12 @@ package config
 
 import (
 	"fmt"
-	"gorm.io/driver/postgres"
 	"log"
 	"os"
 	"time"
+
+	"github.com/spf13/viper"
+	"gorm.io/driver/postgres"
 
 	"github.com/aikintech/scim/pkg/models"
 	"gorm.io/gorm"
@@ -26,8 +28,9 @@ func ConnectDB() {
 		},
 	)
 
-	db := new(gorm.DB)
-	dsn := os.Getenv("DB_URL")
+	fmt.Println("Connecting to database...")
+
+	dsn := viper.GetString("DB_URL")
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: newLogger,

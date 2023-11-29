@@ -3,6 +3,7 @@ package jobs
 import (
 	"errors"
 	"fmt"
+
 	"github.com/aikintech/scim/pkg/config"
 	"github.com/aikintech/scim/pkg/models"
 	"github.com/mmcdole/gofeed"
@@ -44,7 +45,7 @@ func updateOrCreate(podcast *models.Podcast) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			result := config.DB.Create(&podcast)
+			result := config.DB.Debug().Create(&podcast)
 
 			if result.Error != nil {
 				fmt.Println(result.Error.Error())

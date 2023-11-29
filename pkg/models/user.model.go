@@ -11,14 +11,14 @@ import (
 
 // User model
 type User struct {
-	ID              string `gorm:"primaryKey;size:191"`
-	ExternalId      string `gorm:"size:191;not null"`
-	FirstName       string `gorm:"size:191;not null"`
-	LastName        string `gorm:"size:191;not null"`
-	Email           string `gorm:"size:191;not null"`
-	Password        string `gorm:"size:191"`
+	ID              string `gorm:"primaryKey"`
+	ExternalId      string `gorm:"not null"`
+	FirstName       string `gorm:"not null"`
+	LastName        string `gorm:"not null"`
+	Email           string `gorm:"not null"`
+	Password        string
 	EmailVerifiedAt *time.Time
-	SignUpProvider  string `gorm:"size:191;not null"`
+	SignUpProvider  string `gorm:"not null"`
 	Channels        datatypes.JSON
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
