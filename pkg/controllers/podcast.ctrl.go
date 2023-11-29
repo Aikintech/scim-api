@@ -5,6 +5,7 @@ import (
 	"github.com/aikintech/scim/pkg/definitions"
 	"github.com/aikintech/scim/pkg/models"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 func ClientListPodcasts(c *fiber.Ctx) error {
@@ -35,9 +36,38 @@ func ClientListPodcasts(c *fiber.Ctx) error {
 }
 
 func ClientShowPodcast(c *fiber.Ctx) error {
-	podcastId := c.Params("podcastId")
+	podcastId := c.Params("podcastId", "")
 
-	return c.SendString("Get podcast " + podcastId)
+	if len(podcastId) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusNotFound,
+			Message: "No record found",
+		})
+	}
+
+	// Fetch podcast
+	podcast := models.PodcastResource{}
+	result := config.DB.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)
+
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
+				Code:    fiber.StatusNotFound,
+				Message: "No record found",
+			})
+		} else {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Code:    fiber.StatusBadRequest,
+				Message: result.Error.Error(),
+			})
+		}
+	}
+
+	// Return podcast
+	return c.JSON(definitions.DataResponse[models.PodcastResource]{
+		Code: fiber.StatusOK,
+		Data: podcast,
+	})
 }
 
 func ClientLikePodcast(c *fiber.Ctx) error {

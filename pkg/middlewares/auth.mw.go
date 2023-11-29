@@ -33,8 +33,12 @@ func AuthMiddleware() fiber.Handler {
 			})
 		}
 
-		c.Locals("user", user)
+		injectUserIntoContext(user, c)
 
 		return c.Next()
 	}
+}
+
+func injectUserIntoContext(user *supabase.User, c *fiber.Ctx) {
+	c.Locals("user", user)
 }
