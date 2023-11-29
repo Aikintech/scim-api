@@ -5,6 +5,6 @@ tmp/
 .vscode/
 .idea/
 
-.env
+text.env
 .env.local
 /podcast.json
