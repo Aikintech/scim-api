@@ -3,28 +3,28 @@ x-stoplight:
   id: lkd4mjwpm1z5y
 info:
   title: API
-  version: '1.0'
+  version: "1.0"
   description: Salvation Clinic International Minitries API Documentaion
   contact:
     name: Nana Kwesi Ofosu-Aikins
     email: nanaaikinson24@gmail.com
 servers:
-  - url: 'http://localhost:3000'
+  - url: "http://localhost:9000"
 paths:
   /client/podcasts:
     get:
-      summary: ''
+      summary: ""
       tags:
         - client
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientGetPodcastsResponse'
+                $ref: "#/components/schemas/ClientGetPodcastsResponse"
       operationId: client-get-podcasts
-      description: 'Client: Get podcasts'
+      description: "Client: Get podcasts"
       parameters:
         - schema:
             type: number
@@ -45,7 +45,7 @@ paths:
               - oldest
           in: query
           name: sort
-  '/client/podcasts/{podcastId}':
+  "/client/podcasts/{podcastId}":
     parameters:
       - schema:
           type: string
@@ -53,19 +53,19 @@ paths:
         in: path
         required: true
     get:
-      summary: ''
+      summary: ""
       tags:
         - client
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientGetPodcastResponse'
+                $ref: "#/components/schemas/ClientGetPodcastResponse"
       operationId: client-get-podcast
-      description: 'Client: Get podcast'
-  '/client/podcasts/{podcastId}/like':
+      description: "Client: Get podcast"
+  "/client/podcasts/{podcastId}/like":
     parameters:
       - schema:
           type: string
@@ -73,23 +73,23 @@ paths:
         in: path
         required: true
     patch:
-      summary: ''
+      summary: ""
       tags:
         - client
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '401':
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
           description: Unauthorized
       operationId: client-like-podcast
-      description: 'Client: Like podcast'
+      description: "Client: Like podcast"
       security:
         - X-USER-TOKEN: []
-  '/client/podcasts/{podcastId}/comment':
+  "/client/podcasts/{podcastId}/comment":
     parameters:
       - schema:
           type: string
@@ -97,20 +97,20 @@ paths:
         in: path
         required: true
     post:
-      summary: ''
+      summary: ""
       tags:
         - client
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '401':
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
           description: Unauthorized
       operationId: client-comment-podcast
-      description: 'Client: Comment on a podcast'
+      description: "Client: Comment on a podcast"
       security:
         - X-USER-TOKEN: []
       requestBody:
@@ -118,8 +118,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentPodcastRequest'
-  '/client/podcasts/{podcastId}/comment/{commentId}':
+              $ref: "#/components/schemas/CommentPodcastRequest"
+  "/client/podcasts/{podcastId}/comment/{commentId}":
     parameters:
       - schema:
           type: string
@@ -132,20 +132,20 @@ paths:
         in: path
         required: true
     patch:
-      summary: ''
+      summary: ""
       tags:
         - client
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '401':
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
           description: Unauthorized
       operationId: client-update-podcast-comment
-      description: 'Client: Update podcast comment'
+      description: "Client: Update podcast comment"
       security:
         - X-USER-TOKEN: []
       requestBody:
@@ -153,7 +153,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentPodcastRequest'
+              $ref: "#/components/schemas/CommentPodcastRequest"
 components:
   schemas:
     Podcast:
@@ -165,11 +165,11 @@ components:
           title: SUNDAY ANOINTING SERVICE-THE SPIRIT OF UNDERSTANDING PART 2
           summary: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
           description: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
-          duration: '01:33:21'
-          imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
-          audioUrl: 'https://awscdn.podcasts.com/audio-qCgqW7G68X5kJPLaWfZeGp47Z.mp3'
+          duration: "01:33:21"
+          imageUrl: "https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png"
+          audioUrl: "https://awscdn.podcasts.com/audio-qCgqW7G68X5kJPLaWfZeGp47Z.mp3"
           published: true
-          publishedAt: '2023-11-27T07:44:51Z'
+          publishedAt: "2023-11-27T07:44:51Z"
       properties:
         id:
           type: string
@@ -217,7 +217,7 @@ components:
           x-stoplight:
             id: wm4nqhlw4iogm
           items:
-            $ref: '#/components/schemas/Podcast'
+            $ref: "#/components/schemas/Podcast"
         meta:
           type: string
           x-stoplight:
@@ -237,7 +237,7 @@ components:
           x-stoplight:
             id: w32kif2pc7mz9
         data:
-          $ref: '#/components/schemas/Podcast'
+          $ref: "#/components/schemas/Podcast"
       required:
         - Code
         - data
