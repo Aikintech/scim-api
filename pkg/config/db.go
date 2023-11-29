@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 
 	"github.com/aikintech/scim/pkg/models"
@@ -30,7 +29,7 @@ func ConnectDB() {
 
 	fmt.Println("Connecting to database...")
 
-	dsn := viper.GetString("DB_URL")
+	dsn := os.Getenv("DB_URL")
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: newLogger,

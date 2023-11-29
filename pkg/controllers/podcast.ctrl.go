@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// ClientListPodcast - List podcasts (paginated)
 func ClientListPodcasts(c *fiber.Ctx) error {
 	// Validate query params
 	sort := c.Query("sort", "newest")
@@ -35,6 +36,7 @@ func ClientListPodcasts(c *fiber.Ctx) error {
 	})
 }
 
+// ClientShowPodcast - Get a podcast
 func ClientShowPodcast(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 
@@ -70,7 +72,14 @@ func ClientShowPodcast(c *fiber.Ctx) error {
 	})
 }
 
+// ClientLikePodcast - Like a podcast
 func ClientLikePodcast(c *fiber.Ctx) error {
+
+	return c.SendString("Like podcast")
+}
+
+// ClientCommentPodcast - Comment on a podcast
+func ClientCommentPodcast(c *fiber.Ctx) error {
 
 	return c.SendString("Like podcast")
 }

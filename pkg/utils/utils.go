@@ -1,12 +1,16 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 
 	"github.com/aikintech/scim/pkg/definitions"
 	validationschemas "github.com/aikintech/scim/pkg/validation"
+	"github.com/nedpals/supabase-go"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/matthewhartstonge/argon2"
@@ -113,4 +117,23 @@ func existsInValidationErrs(field string, errs []definitions.ValidationErr) bool
 	}
 
 	return result
+}
+
+func LoginSupabaseUser() {
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	supabaseKey := os.Getenv("SUPABASE_KEY")
+	supabaseClient := supabase.CreateClient(supabaseURL, supabaseKey)
+
+	ctx := context.Background()
+	user, err := supabaseClient.Auth.SignIn(ctx, supabase.UserCredentials{
+		Email:    "nanaaikinson24@gmail.com",
+		Password: "password",
+	})
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	fmt.Println(user.User.ID)
+	// fmt.Println(user.AccessToken)
 }

@@ -19,7 +19,7 @@ func SeedPodcasts() {
 		panic(err.Error())
 	}
 
-	for _, items := range lo.Chunk(feed.Items, 50) {
+	for _, items := range lo.Chunk(feed.Items, 100) {
 		for _, item := range items {
 			var podcast = models.Podcast{
 				GUID:        item.GUID,
@@ -52,5 +52,4 @@ func updateOrCreate(podcast *models.Podcast) {
 			}
 		}
 	}
-
 }

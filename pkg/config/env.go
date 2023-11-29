@@ -1,22 +1,21 @@
 package config
 
 import (
-	"errors"
+	"fmt"
+	"os"
 
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
 )
 
 func LoadEnv() {
-	viper.SetConfigName(".env")
-	viper.SetConfigType("env")
-	viper.AddConfigPath("./")
-	viper.AutomaticEnv()
+	err := godotenv.Load()
 
-	if err := viper.ReadInConfig(); err != nil {
-		var configFileNotFoundError viper.ConfigFileNotFoundError
-		if errors.As(err, &configFileNotFoundError) {
-			panic(err.Error())
+	if err != nil {
+		// It's okay if the .env file is not present
+		if os.IsNotExist(err) {
+			fmt.Println(".env file not found, using only system environment variables.")
+		} else {
+			fmt.Errorf("error loading .env file: %v", err)
 		}
 	}
-
 }
