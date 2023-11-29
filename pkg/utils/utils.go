@@ -135,5 +135,6 @@ func LoginSupabaseUser() {
 	}
 
 	fmt.Println(user.User.ID)
-	// fmt.Println(user.AccessToken)
+
+	fmt.Println(user.AccessToken)
 }

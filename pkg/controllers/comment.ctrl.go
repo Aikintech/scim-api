@@ -14,11 +14,7 @@ import (
 func ClientGetPodcastComments(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 	podcast := models.Podcast{}
-	result := config.DB.Debug().Preload("Comments").Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)
-	println()
-	println()
-	println()
-	println()
+	result := config.DB.Debug().Preload("Comments").Where("id = ?", podcastId).Find(&podcast)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -79,9 +75,9 @@ func ClientStorePodcastComment(c *fiber.Ctx) error {
 
 	comment := models.Comment{
 		Body:            request.Comment,
-		UserID:          ulid.Make().String(),
+		UserID:          ulid.Make().String(), // TODO: Get user id from auth middleware
 		CommentableID:   podcast.ID,
-		CommentableType: "Podcast",
+		CommentableType: "podcasts",
 	}
 	result = config.DB.Model(&models.Comment{}).Create(&comment)
 	if result.Error != nil {

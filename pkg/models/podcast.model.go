@@ -45,6 +45,10 @@ func (p *Podcast) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+func (p *Podcast) GetCommentableType() string {
+	return "podcasts"
+}
+
 type PodcastResource struct {
 	ID          string    `json:"id"`
 	Author      string    `json:"author"`

@@ -18,8 +18,8 @@ func ClientRoutes(app *fiber.App) {
 	podcasts.Get("/", controllers.ClientListPodcasts)
 	podcasts.Get("/:podcastId", controllers.ClientShowPodcast)
 	podcasts.Get("/:podcastId/comments", controllers.ClientGetPodcastComments)
-	podcasts.Patch("/:podcastId/like", controllers.ClientLikePodcast)
 	podcasts.Post("/:podcastId/comments", controllers.ClientStorePodcastComment)
+	podcasts.Patch("/:podcastId/like", controllers.ClientLikePodcast)
 	podcasts.Patch("/:podcastId/comments/:commentId", controllers.ClientUpdatePodcastComment)
 
 	// Playlists
