@@ -1,6 +1,6 @@
 package validation
 
-type CommentPodcastSchema struct {
+type StorePodcastCommentSchema struct {
 	Comment string `json:"comment" validate:"required,min=3,max=400"`
 }
 

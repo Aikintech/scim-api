@@ -79,19 +79,7 @@ func ClientLikePodcast(c *fiber.Ctx) error {
 	return c.SendString("Like podcast")
 }
 
-// ClientCommentPodcast - Comment on a podcast
-func ClientCommentPodcast(c *fiber.Ctx) error {
-
-	return c.SendString("Like podcast")
-}
-
-// ClientUpdatePodcastComment - Update a podcast comment
-func ClientUpdatePodcastComment(c *fiber.Ctx) error {
-
-	return c.SendString("Like podcast")
-}
-
-// ClientSeedPodcasts - Seed podcasts
+// SeedPodcasts - Seed podcasts
 func SeedPodcasts(c *fiber.Ctx) error {
 	// Background job
 	go jobs.SeedPodcasts()

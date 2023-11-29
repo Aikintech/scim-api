@@ -2,7 +2,6 @@ package routes
 
 import (
 	"github.com/aikintech/scim/pkg/controllers"
-	"github.com/aikintech/scim/pkg/middlewares"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -18,9 +17,10 @@ func ClientRoutes(app *fiber.App) {
 
 	podcasts.Get("/", controllers.ClientListPodcasts)
 	podcasts.Get("/:podcastId", controllers.ClientShowPodcast)
-	podcasts.Patch("/:podcastId/like", middlewares.AuthMiddleware(), controllers.ClientLikePodcast)
-	podcasts.Post("/:podcastId/comment", middlewares.AuthMiddleware(), controllers.ClientCommentPodcast)
-	podcasts.Patch("/:podcastId/comment/:commentId", middlewares.AuthMiddleware(), controllers.ClientUpdatePodcastComment)
+	podcasts.Get("/:podcastId/comments", controllers.ClientGetPodcastComments)
+	podcasts.Patch("/:podcastId/like", controllers.ClientLikePodcast)
+	podcasts.Post("/:podcastId/comments", controllers.ClientStorePodcastComment)
+	podcasts.Patch("/:podcastId/comments/:commentId", controllers.ClientUpdatePodcastComment)
 
 	// Playlists
 	playlists.Post("/", controllers.ClientCreatePlaylist)
