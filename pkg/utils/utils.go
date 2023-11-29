@@ -7,9 +7,12 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aikintech/scim/pkg/definitions"
+	"github.com/aikintech/scim/pkg/models"
 	validationschemas "github.com/aikintech/scim/pkg/validation"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/nedpals/supabase-go"
 
 	"github.com/go-playground/validator/v10"
@@ -48,24 +51,44 @@ func ValidateStruct(schema interface{}) []definitions.ValidationErr {
 	return errs
 }
 
-func HashPassword(password string) string {
+func MakePasswordHash(password string) (string, error) {
 	argon := argon2.DefaultConfig()
 
 	encoded, err := argon.HashEncoded([]byte(password))
 	if err != nil {
-		panic(err.Error())
+		return "", errors.New("Error hashing password")
 	}
 
-	return string(encoded)
+	return string(encoded), nil
 }
 
-func VerifyPassword(password string, hashed string) bool {
+func VerifyPasswordHash(password string, hashed string) (bool, error) {
 	ok, err := argon2.VerifyEncoded([]byte(password), []byte(hashed))
 	if err != nil {
-		panic(err.Error())
+		return false, errors.New("Error verifying password")
 	}
 
-	return ok
+	return ok, nil
+}
+
+func GenerateUserToken(user *models.User, tokenType string) (string, error) {
+	// Create the Claims
+	expiry := time.Now().Add(time.Hour * 1).Unix()
+	if tokenType == "refresh" {
+		expiry = time.Now().Add(time.Hour * 24).Unix()
+	}
+	claims := jwt.MapClaims{
+		"sub":       user.ID,
+		"tokenType": tokenType,
+		"exp":       expiry,
+	}
+	// Create token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString([]byte(os.Getenv("APP_KEY")))
+
+	return t, err
 }
 
 /** Helpers **/
@@ -98,6 +121,8 @@ func getValidationMessage(err validator.FieldError) string {
 
 			return fmt.Sprintf("The %s field must be one of the following: %s.", fieldName, joined)
 		}
+	case "isValidPassword":
+		return fmt.Sprintf("The %s field must contain at least one uppercase, one lowercase, one number and one special case character.", fieldName)
 
 	// Add more cases for other validation tags as needed
 	default:

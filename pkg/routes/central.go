@@ -15,4 +15,9 @@ func CentralRoutes(app *fiber.App) {
 
 		return c.SendString("Supabase user login initiated")
 	})
+
+	// Auth routes
+	auth := app.Group("/auth")
+	auth.Post("/login", controllers.Login)
+	auth.Post("/register", controllers.Register)
 }

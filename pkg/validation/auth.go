@@ -13,3 +13,7 @@ type RegisterSchema struct {
 	Password  string `json:"password" validate:"required,min=6,max=40,isValidPassword"`
 	Channel   string `json:"channel" validate:"required,oneof=web mobile"`
 }
+
+type SocialAuthSchema struct {
+	UserToken string `json:"userToken" validate:"required"`
+}

@@ -31,3 +31,13 @@ func (model *User) BeforeCreate(*gorm.DB) error {
 
 	return nil
 }
+
+type AuthUserResource struct {
+	ID            string         `json:"id"`
+	FirstName     string         `json:"firstName"`
+	LastName      string         `json:"lastName"`
+	Email         string         `json:"email"`
+	EmailVerified bool           `json:"emailVerified"`
+	Avatar        *string        `json:"avatar"`
+	Channels      datatypes.JSON `json:"channels"`
+}
