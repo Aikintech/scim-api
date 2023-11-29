@@ -79,12 +79,45 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
       operationId: client-like-podcast
       description: 'Client: Like podcast'
       security:
         - X-USER-TOKEN: []
+  '/client/podcasts/{podcastId}/comment':
+    parameters:
+      - schema:
+          type: string
+        name: podcastId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+      operationId: client-comment-podcast
+      description: 'Client: Comment on a podcast'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentPodcastRequest'
 components:
   schemas:
     Podcast:
@@ -172,6 +205,33 @@ components:
       required:
         - Code
         - data
+    MessageResponse:
+      title: MessageResponse
+      x-stoplight:
+        id: 6defb2oihhrik
+      type: object
+      properties:
+        code:
+          type: integer
+          x-stoplight:
+            id: wuyzq2yhox71k
+        message:
+          type: string
+          x-stoplight:
+            id: q50kmt3wtn7cw
+      required:
+        - code
+        - message
+    CommentPodcastRequest:
+      title: CommentPodcastRequest
+      x-stoplight:
+        id: fbvkzkv2v9pej
+      type: object
+      properties:
+        comment:
+          type: string
+          x-stoplight:
+            id: bjyaef46zg2ds
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey
