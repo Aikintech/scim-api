@@ -12,7 +12,9 @@ func ClientRoutes(app *fiber.App) {
 	podcasts := client.Group("/podcasts")
 	playlists := client.Group("/playlists")
 	prayerRequests := client.Group("/prayer-requests")
-	jwtAuth := middlewares.AuthMiddleware()
+
+	// Middlewares
+	jwtAuthWare := middlewares.JWTMiddleware()
 
 	// Podcasts
 	podcasts.Post("/seed", controllers.SeedPodcasts)
@@ -20,12 +22,12 @@ func ClientRoutes(app *fiber.App) {
 	podcasts.Get("/", controllers.ClientListPodcasts)
 	podcasts.Get("/:podcastId", controllers.ClientShowPodcast)
 	podcasts.Get("/:podcastId/comments", controllers.ClientGetPodcastComments)
-	podcasts.Post("/:podcastId/comments", jwtAuth, controllers.ClientStorePodcastComment)
-	podcasts.Patch("/:podcastId/like", jwtAuth, controllers.ClientLikePodcast)
-	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuth, controllers.ClientUpdatePodcastComment)
+	podcasts.Post("/:podcastId/comments", jwtAuthWare, controllers.ClientStorePodcastComment)
+	podcasts.Patch("/:podcastId/like", jwtAuthWare, controllers.ClientLikePodcast)
+	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, controllers.ClientUpdatePodcastComment)
 
 	// Playlists
-	playlists.Post("/", jwtAuth, controllers.ClientCreatePlaylist)
+	playlists.Post("/", jwtAuthWare, controllers.ClientCreatePlaylist)
 
 	// Prayer requests
 	prayerRequests.Post("/", controllers.ClientRequestPrayer)

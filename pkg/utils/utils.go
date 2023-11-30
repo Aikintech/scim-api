@@ -81,6 +81,8 @@ func GenerateUserToken(user *models.User, tokenType string) (string, error) {
 		"sub":       user.ID,
 		"tokenType": tokenType,
 		"exp":       expiry,
+		"iat":       time.Now().Unix(),
+		"iss":       os.Getenv("APP_ISS"),
 	}
 	// Create token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

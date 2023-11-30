@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/gofiber/contrib/fiberzerolog v0.2.2
+	github.com/gofiber/contrib/jwt v1.0.7
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/grokify/html-strip-tags-go v0.1.0
@@ -21,6 +22,7 @@ require (
 )
 
 require (
+	github.com/MicahParks/keyfunc/v2 v2.1.0 // indirect
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
