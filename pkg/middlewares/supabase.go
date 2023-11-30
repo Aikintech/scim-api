@@ -9,7 +9,7 @@ import (
 	"github.com/nedpals/supabase-go"
 )
 
-func AuthMiddleware() fiber.Handler {
+func SupaAuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		supabaseURL := os.Getenv("SUPABASE_URL")
 		supabaseKey := os.Getenv("SUPABASE_KEY")
@@ -33,12 +33,12 @@ func AuthMiddleware() fiber.Handler {
 			})
 		}
 
-		injectUserIntoContext(user, c)
+		injectSupabaseUserIntoContext(user, c)
 
 		return c.Next()
 	}
 }
 
-func injectUserIntoContext(user *supabase.User, c *fiber.Ctx) {
+func injectSupabaseUserIntoContext(user *supabase.User, c *fiber.Ctx) {
 	c.Locals("user", user)
 }
