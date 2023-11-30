@@ -159,3 +159,21 @@ func Register(c *fiber.Ctx) error {
 		Message: "Account created successfully",
 	})
 }
+
+func RefreshToken(c *fiber.Ctx) error {
+	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+	accessToken, err := utils.GenerateUserToken(user, "access")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+	//
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"code": fiber.StatusOK,
+		"data": fiber.Map{
+			"access": accessToken,
+		},
+	})
+}

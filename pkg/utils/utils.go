@@ -1,19 +1,16 @@
 package utils
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/aikintech/scim/pkg/definitions"
 	"github.com/aikintech/scim/pkg/models"
-	validationschemas "github.com/aikintech/scim/pkg/validation"
+	schemas "github.com/aikintech/scim/pkg/validation"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/nedpals/supabase-go"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/matthewhartstonge/argon2"
@@ -24,7 +21,7 @@ func ValidateStruct(schema interface{}) []definitions.ValidationErr {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	// Custom error validation registration
-	err := validate.RegisterValidation("isValidPassword", validationschemas.IsValidPasswordValidation)
+	err := validate.RegisterValidation("isValidPassword", schemas.IsValidPasswordValidation)
 
 	if err != nil {
 		fmt.Println("Error registering custom validation :", err.Error())
@@ -93,9 +90,6 @@ func GenerateUserToken(user *models.User, tokenType string) (string, error) {
 	return t, err
 }
 
-/** Helpers **/
-
-// getValidationMessage generates a human-readable validation message for a given validation error
 func getValidationMessage(err validator.FieldError) string {
 	fieldName := strings.ToLower(err.Field())
 
@@ -132,7 +126,6 @@ func getValidationMessage(err validator.FieldError) string {
 	}
 }
 
-// existsInValidationErrs checks if a field exists in a slice of ValidationErr
 func existsInValidationErrs(field string, errs []definitions.ValidationErr) bool {
 	result := false
 
@@ -144,24 +137,4 @@ func existsInValidationErrs(field string, errs []definitions.ValidationErr) bool
 	}
 
 	return result
-}
-
-func LoginSupabaseUser() {
-	supabaseURL := os.Getenv("SUPABASE_URL")
-	supabaseKey := os.Getenv("SUPABASE_KEY")
-	supabaseClient := supabase.CreateClient(supabaseURL, supabaseKey)
-
-	ctx := context.Background()
-	user, err := supabaseClient.Auth.SignIn(ctx, supabase.UserCredentials{
-		Email:    "nanaaikinson24@gmail.com",
-		Password: "password",
-	})
-
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	fmt.Println(user.User.ID)
-
-	fmt.Println(user.AccessToken)
 }

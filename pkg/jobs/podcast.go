@@ -13,7 +13,7 @@ import (
 
 func SeedPodcasts() {
 	fp := gofeed.NewParser()
-	feed, err := fp.ParseURL(config.PodcastUrl)
+	feed, err := fp.ParseURL(config.PODCAST_URL)
 
 	if err != nil {
 		panic(err.Error())
