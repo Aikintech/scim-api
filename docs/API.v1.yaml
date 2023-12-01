@@ -74,8 +74,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ResendEmailVerificationRequest'
+              $ref: '#/components/schemas/EmailRequest'
       description: 'Central: Auth resend email verification'
+    parameters: []
+  /auth/forgot-password:
+    post:
+      summary: ''
+      tags:
+        - central
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      operationId: auth-forgot-password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+      description: 'Central: Auth forgot password'
     parameters: []
   /auth/refresh-token:
     get:
@@ -510,8 +531,8 @@ components:
       required:
         - code
         - data
-    ResendEmailVerificationRequest:
-      title: ResendEmailVerificationRequest
+    EmailRequest:
+      title: EmailRequest
       x-stoplight:
         id: lr5sz4lumv7pa
       type: object
