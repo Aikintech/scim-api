@@ -36,8 +36,8 @@ func ClientRoutes(app *fiber.App) {
 	podcasts.Get("/:podcastId", controllers.ShowPodcast)
 	podcasts.Get("/:podcastId/comments", controllers.GetPodcastComments)
 	podcasts.Post("/:podcastId/comments", jwtAuthWare, controllers.StorePodcastComment)
-	podcasts.Patch("/:podcastId/like", jwtAuthWare, controllers.LikePodcast)
 	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, controllers.UpdatePodcastComment)
+	podcasts.Patch("/:podcastId/like", jwtAuthWare, controllers.LikePodcast)
 
 	// Playlists
 	playlists.Post("/", jwtAuthWare, controllers.CreatePlaylist)
