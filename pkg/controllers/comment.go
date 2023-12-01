@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func ClientGetPodcastComments(c *fiber.Ctx) error {
+func GetPodcastComments(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 	podcast := models.Podcast{}
 	result := config.DB.Debug().Preload("Comments").Where("id = ?", podcastId).Find(&podcast)
@@ -35,8 +35,8 @@ func ClientGetPodcastComments(c *fiber.Ctx) error {
 	})
 }
 
-// ClientStorePodcastComment - Comment on a podcast
-func ClientStorePodcastComment(c *fiber.Ctx) error {
+// StorePodcastComment - Comment on a podcast
+func StorePodcastComment(c *fiber.Ctx) error {
 	// Parse request
 	request := new(validation.StorePodcastCommentSchema)
 	if err := c.BodyParser(request); err != nil {
@@ -93,8 +93,8 @@ func ClientStorePodcastComment(c *fiber.Ctx) error {
 	})
 }
 
-// ClientUpdatePodcastComment - Update a podcast comment
-func ClientUpdatePodcastComment(c *fiber.Ctx) error {
+// UpdatePodcastComment - Update a podcast comment
+func UpdatePodcastComment(c *fiber.Ctx) error {
 
 	return c.SendString("Like podcast")
 }

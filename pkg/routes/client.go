@@ -32,18 +32,18 @@ func ClientRoutes(app *fiber.App) {
 	**/
 	// Podcasts
 	podcasts.Post("/seed", controllers.SeedPodcasts)
-	podcasts.Get("/", controllers.ClientListPodcasts)
-	podcasts.Get("/:podcastId", controllers.ClientShowPodcast)
-	podcasts.Get("/:podcastId/comments", controllers.ClientGetPodcastComments)
-	podcasts.Post("/:podcastId/comments", jwtAuthWare, controllers.ClientStorePodcastComment)
-	podcasts.Patch("/:podcastId/like", jwtAuthWare, controllers.ClientLikePodcast)
-	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, controllers.ClientUpdatePodcastComment)
+	podcasts.Get("/", controllers.ListPodcasts)
+	podcasts.Get("/:podcastId", controllers.ShowPodcast)
+	podcasts.Get("/:podcastId/comments", controllers.GetPodcastComments)
+	podcasts.Post("/:podcastId/comments", jwtAuthWare, controllers.StorePodcastComment)
+	podcasts.Patch("/:podcastId/like", jwtAuthWare, controllers.LikePodcast)
+	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, controllers.UpdatePodcastComment)
 
 	// Playlists
-	playlists.Post("/", jwtAuthWare, controllers.ClientCreatePlaylist)
+	playlists.Post("/", jwtAuthWare, controllers.CreatePlaylist)
 
 	/**
 	*** Prayer request
 	**/
-	prayerRequests.Post("/", controllers.ClientRequestPrayer)
+	prayerRequests.Post("/", controllers.RequestPrayer)
 }

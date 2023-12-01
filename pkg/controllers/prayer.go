@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ClientRequestPrayer(c *fiber.Ctx) error {
+func RequestPrayer(c *fiber.Ctx) error {
 	// Parse body
 	var request validation.StorePrayerSchema
 	if err := c.BodyParser(&request); err != nil {
