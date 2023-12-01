@@ -45,7 +45,13 @@ func ConnectDB() {
 }
 
 func MigrateDB() {
-	err := DB.Debug().AutoMigrate(&models.User{}, &models.Podcast{}, &models.Post{}, &models.Playlist{}, &models.PrayerRequest{}, &models.Like{}, &models.Comment{}, &models.Event{})
+	err := DB.Debug().AutoMigrate(
+		&models.User{}, &models.Podcast{},
+		&models.Post{}, &models.Playlist{},
+		&models.PrayerRequest{}, &models.Like{},
+		&models.Comment{}, &models.Event{},
+		&models.UserToken{},
+	)
 
 	if err != nil {
 		return

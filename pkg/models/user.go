@@ -24,6 +24,7 @@ type User struct {
 	UpdatedAt       time.Time
 	Playlists       []Playlist
 	PrayerRequests  []PrayerRequest
+	UserTokens      []UserToken
 }
 
 func (model *User) BeforeCreate(*gorm.DB) error {

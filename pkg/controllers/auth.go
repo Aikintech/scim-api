@@ -9,6 +9,7 @@ import (
 	"github.com/aikintech/scim/pkg/utils"
 	"github.com/aikintech/scim/pkg/validation"
 	"github.com/gofiber/fiber/v2"
+	"github.com/oklog/ulid/v2"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -59,14 +60,15 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	// Generate token
-	accessToken, err := utils.GenerateUserToken(&user, "access")
+	reference := ulid.Make().String()
+	accessToken, err := utils.GenerateUserToken(&user, "access", reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
-	refreshToken, err := utils.GenerateUserToken(&user, "refresh")
+	refreshToken, err := utils.GenerateUserToken(&user, "refresh", reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
@@ -161,8 +163,9 @@ func Register(c *fiber.Ctx) error {
 }
 
 func RefreshToken(c *fiber.Ctx) error {
+	reference := ulid.Make().String()
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
-	accessToken, err := utils.GenerateUserToken(user, "access")
+	accessToken, err := utils.GenerateUserToken(user, "access", reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,

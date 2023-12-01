@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aikintech/scim/pkg/config"
 	"github.com/aikintech/scim/pkg/definitions"
 	"github.com/aikintech/scim/pkg/models"
 	schemas "github.com/aikintech/scim/pkg/validation"
@@ -68,7 +69,7 @@ func VerifyPasswordHash(password string, hashed string) (bool, error) {
 	return ok, nil
 }
 
-func GenerateUserToken(user *models.User, tokenType string) (string, error) {
+func GenerateUserToken(user *models.User, tokenType string, reference string) (string, error) {
 	// Create the Claims
 	expiry := time.Now().Add(time.Hour * 1).Unix()
 	if tokenType == "refresh" {
@@ -77,6 +78,7 @@ func GenerateUserToken(user *models.User, tokenType string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":       user.ID,
 		"tokenType": tokenType,
+		"reference": reference,
 		"exp":       expiry,
 		"iat":       time.Now().Unix(),
 		"iss":       os.Getenv("APP_ISS"),
@@ -86,8 +88,22 @@ func GenerateUserToken(user *models.User, tokenType string) (string, error) {
 
 	// Generate encoded token and send it as response.
 	t, err := token.SignedString([]byte(os.Getenv("APP_KEY")))
+	if err != nil {
+		return "", err
+	}
 
-	return t, err
+	// Create user token
+	result := config.DB.Model(&models.UserToken{}).Create(&models.UserToken{
+		UserID:      user.ID,
+		Reference:   reference,
+		Token:       t,
+		Whitelisted: true,
+	})
+	if result.Error != nil {
+		return "", result.Error
+	}
+
+	return t, nil
 }
 
 func getValidationMessage(err validator.FieldError) string {

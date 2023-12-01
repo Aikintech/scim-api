@@ -20,3 +20,8 @@ type DataResponse[T any] struct {
 	Code int `json:"code"`
 	Data T   `json:"data"`
 }
+
+type Token struct {
+	Reference string
+	Token     string
+}
