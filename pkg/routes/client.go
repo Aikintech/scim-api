@@ -7,18 +7,30 @@ import (
 )
 
 func ClientRoutes(app *fiber.App) {
-	// Create a new sub-router (client)
-	client := app.Group("/client")
-	podcasts := client.Group("/podcasts")
-	playlists := client.Group("/playlists")
-	prayerRequests := client.Group("/prayer-requests")
+	// Groups
+	podcasts := app.Group("/podcasts")
+	playlists := app.Group("/playlists")
+	prayerRequests := app.Group("/prayer-requests")
 
 	// Middlewares
 	jwtAuthWare := middlewares.JWTMiddleware("access")
+	refreshJwtAuthWare := middlewares.JWTMiddleware("refresh")
 
+	/**
+	*** Auth routes
+	**/
+	auth := app.Group("/auth")
+	auth.Post("/login", controllers.Login)
+	auth.Post("/register", controllers.Register)
+	auth.Post("/forgot-password", controllers.ForgotPassword)
+	auth.Post("/resend-email-verification", controllers.ResendEmailVerification)
+	auth.Get("/refresh-token", refreshJwtAuthWare, controllers.RefreshToken)
+
+	/**
+	*** Podcast and playlist routes
+	**/
 	// Podcasts
 	podcasts.Post("/seed", controllers.SeedPodcasts)
-
 	podcasts.Get("/", controllers.ClientListPodcasts)
 	podcasts.Get("/:podcastId", controllers.ClientShowPodcast)
 	podcasts.Get("/:podcastId/comments", controllers.ClientGetPodcastComments)
@@ -29,6 +41,8 @@ func ClientRoutes(app *fiber.App) {
 	// Playlists
 	playlists.Post("/", jwtAuthWare, controllers.ClientCreatePlaylist)
 
-	// Prayer requests
+	/**
+	*** Prayer request
+	**/
 	prayerRequests.Post("/", controllers.ClientRequestPrayer)
 }

@@ -11,15 +11,14 @@ info:
 servers:
   - url: 'http://localhost:3000'
 tags:
-  - name: admin
-  - name: central
+  - name: backoffice
   - name: client
 paths:
   /auth/login:
     post:
       summary: ''
       tags:
-        - central
+        - client
       responses:
         '200':
           description: OK
@@ -34,12 +33,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/LoginRequest'
-      description: 'Central: Auth login'
+      description: 'Auth login'
   /auth/register:
     post:
       summary: ''
       tags:
-        - central
+        - client
       responses:
         '200':
           description: OK
@@ -54,13 +53,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RegisterRequest'
-      description: 'Central: Auth register'
+      description: 'Auth register'
     parameters: []
   /auth/resend-email-verification:
     post:
       summary: ''
       tags:
-        - central
+        - client
       responses:
         '200':
           description: OK
@@ -75,13 +74,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/EmailRequest'
-      description: 'Central: Auth resend email verification'
+      description: 'Auth resend email verification'
     parameters: []
   /auth/forgot-password:
     post:
       summary: ''
       tags:
-        - central
+        - client
       responses:
         '200':
           description: OK
@@ -96,13 +95,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/EmailRequest'
-      description: 'Central: Auth forgot password'
+      description: 'Auth forgot password'
     parameters: []
   /auth/refresh-token:
     get:
       summary: ''
       tags:
-        - central
+        - client
       responses:
         '200':
           description: OK
@@ -114,11 +113,11 @@ paths:
       requestBody:
         required: true
         content: {}
-      description: 'Central: Auth refresh token'
+      description: 'Auth refresh token'
       security:
         - X-USER-TOKEN: []
     parameters: []
-  /client/podcasts:
+  /podcasts:
     get:
       summary: ''
       tags:
@@ -129,8 +128,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientGetPodcastsResponse'
-      operationId: client-get-podcasts
+                $ref: '#/components/schemas/GetPodcastsResponse'
+      operationId: get-podcasts
       description: 'Client: Get podcasts'
       parameters:
         - schema:
@@ -152,7 +151,7 @@ paths:
               - oldest
           in: query
           name: sort
-  '/client/podcasts/{podcastId}':
+  '/podcasts/{podcastId}':
     parameters:
       - schema:
           type: string
@@ -169,10 +168,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientGetPodcastResponse'
-      operationId: client-get-podcast
+                $ref: '#/components/schemas/GetPodcastResponse'
+      operationId: get-podcast
       description: 'Client: Get podcast'
-  '/client/podcasts/{podcastId}/like':
+  '/podcasts/{podcastId}/like':
     parameters:
       - schema:
           type: string
@@ -192,11 +191,11 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
-      operationId: client-like-podcast
+      operationId: like-podcast
       description: 'Client: Like podcast'
       security:
         - X-USER-TOKEN: []
-  '/client/podcasts/{podcastId}/comment':
+  '/podcasts/{podcastId}/comment':
     parameters:
       - schema:
           type: string
@@ -216,7 +215,7 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
-      operationId: client-comment-podcast
+      operationId: comment-podcast
       description: 'Client: Comment on a podcast'
       security:
         - X-USER-TOKEN: []
@@ -226,7 +225,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CommentPodcastRequest'
-  '/client/podcasts/{podcastId}/comment/{commentId}':
+  '/podcasts/{podcastId}/comment/{commentId}':
     parameters:
       - schema:
           type: string
@@ -251,7 +250,7 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
-      operationId: client-update-podcast-comment
+      operationId: update-podcast-comment
       description: 'Client: Update podcast comment'
       security:
         - X-USER-TOKEN: []
@@ -430,8 +429,8 @@ components:
       required:
         - code
         - message
-    ClientGetPodcastResponse:
-      title: ClientGetPodcastResponse
+    GetPodcastResponse:
+      title: GetPodcastResponse
       x-stoplight:
         id: i0mil8u1vbb85
       type: object
@@ -445,8 +444,8 @@ components:
       required:
         - Code
         - data
-    ClientGetPodcastsResponse:
-      title: ClientGetPodcastsResponse
+    GetPodcastsResponse:
+      title: GetPodcastsResponse
       x-stoplight:
         id: cpzser9oo2avs
       type: object
