@@ -245,21 +245,26 @@ func ForgotPassword(c *fiber.Ctx) error {
 	}
 
 	// Find user
-	message := ""
 	user := models.User{}
 	result := config.DB.Model(&models.User{}).Where("email = ?", request.Email).First(&user)
 	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			message = ""
-		} else {
+		message := "No account is associated with the email provided"
+
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			message = result.Error.Error()
 		}
-	}
 
-	if len(message) > 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: message,
+		})
+	}
+
+	// Check user's sign up provider
+	if user.SignUpProvider != "local" {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: "The sign up provider for this account does not support password reset",
 		})
 	}
 
@@ -267,5 +272,63 @@ func ForgotPassword(c *fiber.Ctx) error {
 	return c.JSON(definitions.MessageResponse{
 		Code:    fiber.StatusOK,
 		Message: "Password reset email sent",
+	})
+}
+
+func ResetPassword(c *fiber.Ctx) error {
+	// Parse request
+	request := definitions.ResetPasswordRequest{}
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	// Get the user
+	user := models.User{}
+	result := config.DB.Model(&models.User{}).Where("email ? =", request.Email).First(&user)
+	if result.Error != nil {
+		message := "No account is associated with the email provided"
+
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			message = result.Error.Error()
+		}
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: message,
+		})
+	}
+
+	// Check user's sign up provider
+	if user.SignUpProvider != "local" {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: "The sign up provider for this account does not support password reset",
+		})
+	}
+
+	// Set new password
+	passwordHash, err := utils.MakePasswordHash(request.Password)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	result = config.DB.Model(&user).Update("Password", passwordHash)
+
+	if result.Error != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: result.Error.Error(),
+		})
+	}
+
+	return c.JSON(definitions.MessageResponse{
+		Code:    fiber.StatusOK,
+		Message: "Your password has been reset successfully.",
 	})
 }

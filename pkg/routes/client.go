@@ -23,6 +23,7 @@ func ClientRoutes(app *fiber.App) {
 	auth.Post("/login", controllers.Login)
 	auth.Post("/register", controllers.Register)
 	auth.Post("/forgot-password", controllers.ForgotPassword)
+	auth.Post("/reset-password", controllers.ResetPassword)
 	auth.Post("/resend-email-verification", controllers.ResendEmailVerification)
 	auth.Get("/refresh-token", refreshJwtAuthWare, controllers.RefreshToken)
 
