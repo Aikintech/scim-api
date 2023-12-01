@@ -166,6 +166,7 @@ func RefreshToken(c *fiber.Ctx) error {
 	reference := ulid.Make().String()
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 	accessToken, err := utils.GenerateUserToken(user, "access", reference)
+
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
