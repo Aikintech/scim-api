@@ -1,72 +1,27 @@
 package utils
 
 import (
-	"errors"
-	"fmt"
+	"crypto/rand"
+	"io"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/definitions"
 	"github.com/aikintech/scim/pkg/models"
-	schemas "github.com/aikintech/scim/pkg/validation"
 	"github.com/golang-jwt/jwt/v5"
-
-	"github.com/go-playground/validator/v10"
-	"github.com/matthewhartstonge/argon2"
 )
 
-func ValidateStruct(schema interface{}) []definitions.ValidationErr {
-	var errs []definitions.ValidationErr
-	validate := validator.New(validator.WithRequiredStructEnabled())
-
-	// Custom error validation registration
-	err := validate.RegisterValidation("isValidPassword", schemas.IsValidPasswordValidation)
-
-	if err != nil {
-		fmt.Println("Error registering custom validation :", err.Error())
+func GenerateCoe(max int) string {
+	var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
+	b := make([]byte, max)
+	n, err := io.ReadAtLeast(rand.Reader, b, max)
+	if n != max {
+		panic(err)
 	}
-
-	// Validate struct
-	err = validate.Struct(schema)
-
-	if err != nil {
-		var validationErrors validator.ValidationErrors
-		errors.As(err, &validationErrors)
-
-		for i, err := range validationErrors {
-			field := strings.ToLower(err.Field())
-
-			if exists := existsInValidationErrs(field, errs); exists != false {
-				errs[i].Reasons = append(errs[i].Reasons, getValidationMessage(err))
-			} else {
-				errs = append(errs, definitions.ValidationErr{Field: field, Reasons: []string{getValidationMessage(err)}})
-			}
-		}
+	for i := 0; i < len(b); i++ {
+		b[i] = table[int(b[i])%len(table)]
 	}
-
-	return errs
-}
-
-func MakePasswordHash(password string) (string, error) {
-	argon := argon2.DefaultConfig()
-
-	encoded, err := argon.HashEncoded([]byte(password))
-	if err != nil {
-		return "", errors.New("Error hashing password")
-	}
-
-	return string(encoded), nil
-}
-
-func VerifyPasswordHash(password string, hashed string) (bool, error) {
-	ok, err := argon2.VerifyEncoded([]byte(password), []byte(hashed))
-	if err != nil {
-		return false, errors.New("Error verifying password")
-	}
-
-	return ok, nil
+	return string(b)
 }
 
 func GenerateUserToken(user *models.User, tokenType string, reference string) (string, error) {
@@ -104,53 +59,4 @@ func GenerateUserToken(user *models.User, tokenType string, reference string) (s
 	}
 
 	return t, nil
-}
-
-func getValidationMessage(err validator.FieldError) string {
-	fieldName := strings.ToLower(err.Field())
-
-	switch err.Tag() {
-	case "required":
-		return fmt.Sprintf("The %s field is required.", fieldName)
-	case "min":
-		return fmt.Sprintf("The %s field must be at least %s.", fieldName, err.Param())
-	case "max":
-		return fmt.Sprintf("The %s field must be at most %s.", fieldName, err.Param())
-	case "len":
-		return fmt.Sprintf("The %s field must have a length of %s.", fieldName, err.Param())
-	case "email":
-		return fmt.Sprintf("The %s field must be a valid email.", fieldName)
-	case "url":
-		return fmt.Sprintf("The %s field must be a valid URL.", fieldName)
-	case "numeric":
-		return fmt.Sprintf("The %s field must be a numeric value.", fieldName)
-	case "alpha":
-		return fmt.Sprintf("The %s field must contain only alphabetic characters.", fieldName)
-	case "oneof":
-		{
-			split := strings.Split(err.Param(), " ")
-			joined := strings.Join(split, ", ")
-
-			return fmt.Sprintf("The %s field must be one of the following: %s.", fieldName, joined)
-		}
-	case "isValidPassword":
-		return fmt.Sprintf("The %s field must contain at least one uppercase, one lowercase, one number and one special case character.", fieldName)
-
-	// Add more cases for other validation tags as needed
-	default:
-		return fmt.Sprintf("Validation failed for %s with tag %s.", fieldName, err.Tag())
-	}
-}
-
-func existsInValidationErrs(field string, errs []definitions.ValidationErr) bool {
-	result := false
-
-	for _, key := range errs {
-		if key.Field == field {
-			result = true
-			break
-		}
-	}
-
-	return result
 }

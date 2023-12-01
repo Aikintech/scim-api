@@ -11,20 +11,21 @@ import (
 
 // User model
 type User struct {
-	ID              string `gorm:"primaryKey;size:40"`
-	ExternalID      string `gorm:"not null"`
-	FirstName       string `gorm:"not null"`
-	LastName        string `gorm:"not null"`
-	Email           string `gorm:"not null"`
-	Password        string
-	EmailVerifiedAt *time.Time
-	SignUpProvider  string `gorm:"not null"`
-	Channels        datatypes.JSON
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-	Playlists       []Playlist
-	PrayerRequests  []PrayerRequest
-	UserTokens      []UserToken
+	ID                string `gorm:"primaryKey;size:40"`
+	ExternalID        string `gorm:"not null"`
+	FirstName         string `gorm:"not null"`
+	LastName          string `gorm:"not null"`
+	Email             string `gorm:"not null"`
+	Password          string
+	EmailVerifiedAt   *time.Time
+	SignUpProvider    string `gorm:"not null"`
+	Channels          datatypes.JSON
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	Playlists         []Playlist
+	PrayerRequests    []PrayerRequest
+	UserTokens        []UserToken
+	VerificationCodes []VerificationCode
 }
 
 func (model *User) BeforeCreate(*gorm.DB) error {

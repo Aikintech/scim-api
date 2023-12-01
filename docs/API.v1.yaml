@@ -56,6 +56,27 @@ paths:
               $ref: '#/components/schemas/RegisterRequest'
       description: 'Central: Auth register'
     parameters: []
+  /auth/resend-email-verification:
+    post:
+      summary: ''
+      tags:
+        - central
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      operationId: auth-resend-email-verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendEmailVerificationRequest'
+      description: 'Central: Auth resend email verification'
+    parameters: []
   /auth/refresh-token:
     get:
       summary: ''
@@ -489,6 +510,18 @@ components:
       required:
         - code
         - data
+    ResendEmailVerificationRequest:
+      title: ResendEmailVerificationRequest
+      x-stoplight:
+        id: lr5sz4lumv7pa
+      type: object
+      properties:
+        email:
+          type: string
+          x-stoplight:
+            id: 8tzcglhmhrcsr
+      required:
+        - email
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey

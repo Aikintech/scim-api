@@ -181,3 +181,91 @@ func RefreshToken(c *fiber.Ctx) error {
 		},
 	})
 }
+
+func ResendEmailVerification(c *fiber.Ctx) error {
+	// Parse request
+	request := validation.EmailVerificationSchema{}
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	// Check if user exists
+	message := ""
+	user := new(models.User)
+	result := config.DB.Model(&models.User{}).Where("email = ?", request.Email).First(&user)
+
+	// Gorm error
+	if result.Error != nil {
+		message = result.Error.Error()
+
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			message = "An account with the selected email does not exist"
+		}
+	}
+
+	// Sign up provider is not local
+	if user.SignUpProvider != "local" {
+		message = "Sorry you cannot reset your password with this sign up provider"
+	}
+
+	if len(message) > 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: message,
+		})
+	}
+
+	// TODO: Send email verification
+
+	return c.JSON(definitions.MessageResponse{
+		Code:    fiber.StatusOK,
+		Message: "Email verification sent",
+	})
+}
+
+func ForgotPassword(c *fiber.Ctx) error {
+	// Parse request
+	request := validation.EmailVerificationSchema{}
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Code:   fiber.StatusUnprocessableEntity,
+			Errors: errs,
+		})
+	}
+
+	// Find user
+	message := ""
+	user := models.User{}
+	result := config.DB.Model(&models.User{}).Where("email = ?", request.Email).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			message = ""
+		} else {
+			message = result.Error.Error()
+		}
+	}
+
+	if len(message) > 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: message,
+		})
+	}
+
+	// TODO: Send password reset mail
+	return c.JSON(definitions.MessageResponse{
+		Code:    fiber.StatusOK,
+		Message: "Password reset email sent",
+	})
+}

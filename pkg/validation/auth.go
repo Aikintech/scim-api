@@ -17,3 +17,7 @@ type RegisterSchema struct {
 type SocialAuthSchema struct {
 	UserToken string `json:"userToken" validate:"required"`
 }
+
+type EmailVerificationSchema struct {
+	Email string `json:"email" validate:"required,email"`
+}

@@ -17,5 +17,7 @@ func CentralRoutes(app *fiber.App) {
 	auth := app.Group("/auth")
 	auth.Post("/login", controllers.Login)
 	auth.Post("/register", controllers.Register)
+	auth.Post("/forgot-password", controllers.ForgotPassword)
+	auth.Post("/resend-email-verification", controllers.ResendEmailVerification)
 	auth.Get("/refresh-token", refreshJwtAuthWare, controllers.RefreshToken)
 }

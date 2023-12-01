@@ -50,7 +50,7 @@ func MigrateDB() {
 		&models.Post{}, &models.Playlist{},
 		&models.PrayerRequest{}, &models.Like{},
 		&models.Comment{}, &models.Event{},
-		&models.UserToken{},
+		&models.UserToken{}, &models.VerificationCode{},
 	)
 
 	if err != nil {
