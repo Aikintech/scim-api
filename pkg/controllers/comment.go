@@ -7,7 +7,6 @@ import (
 	"github.com/aikintech/scim/pkg/utils"
 	"github.com/aikintech/scim/pkg/validation"
 	"github.com/gofiber/fiber/v2"
-	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
 
@@ -56,6 +55,7 @@ func StorePodcastComment(c *fiber.Ctx) error {
 	}
 
 	// Find podcast
+	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 	podcastId := c.Params("podcastId", "")
 	podcast := models.Podcast{}
 	result := config.DB.Where("id = ?", podcastId).First(&podcast)
@@ -75,7 +75,7 @@ func StorePodcastComment(c *fiber.Ctx) error {
 
 	comment := models.Comment{
 		Body:            request.Comment,
-		UserID:          ulid.Make().String(), // TODO: Get user id from auth middleware
+		UserID:          user.ID,
 		CommentableID:   podcast.ID,
 		CommentableType: "podcasts",
 	}
