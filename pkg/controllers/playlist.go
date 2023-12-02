@@ -122,6 +122,7 @@ func GetPlaylist(c *fiber.Ctx) error {
 	})
 }
 
+// TODO: Fix me
 func UpdatePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
