@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/aikintech/scim/pkg/config"
 	"github.com/aikintech/scim/pkg/definitions"
 	"github.com/aikintech/scim/pkg/models"
@@ -13,7 +16,7 @@ import (
 func GetPodcastComments(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 	podcast := models.Podcast{}
-	result := config.DB.Debug().Preload("Comments").Where("id = ?", podcastId).Find(&podcast)
+	result := config.DB.Preload("Comments").Where("id = ?", podcastId).Find(&podcast)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -29,8 +32,14 @@ func GetPodcastComments(c *fiber.Ctx) error {
 		}
 	}
 
+	// Convert to resource
+	comments := make([]*models.CommentResource, len(podcast.Comments))
+	for _, c := range podcast.Comments {
+		comments = append(comments, c.ToResource())
+	}
+
 	return c.JSON(fiber.Map{
-		"data": podcast.Comments,
+		"data": comments,
 	})
 }
 
@@ -95,6 +104,38 @@ func StorePodcastComment(c *fiber.Ctx) error {
 
 // UpdatePodcastComment - Update a podcast comment
 func UpdatePodcastComment(c *fiber.Ctx) error {
+
+	return c.SendString("Like podcast")
+}
+
+// DeletePodcastComment - Delete a podcast comment
+func DeletePodcastComment(c *fiber.Ctx) error {
+	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+
+	// Find podcast and comment
+	trx := config.DB.Begin()
+	comment := models.Comment{}
+	result := trx.Debug().Where(&models.Comment{
+		CommentableID:   c.Params("podcastId"),
+		CommentableType: "podcasts",
+		UserID:          user.ID,
+	}).First(&comment, c.Params("commentId"))
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
+				Code:    fiber.StatusNotFound,
+				Message: "No record found",
+			})
+		} else {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Code:    fiber.StatusBadRequest,
+				Message: result.Error.Error(),
+			})
+		}
+	}
+
+	fmt.Println(comment)
 
 	return c.SendString("Like podcast")
 }

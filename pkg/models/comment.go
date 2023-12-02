@@ -18,8 +18,22 @@ type Comment struct {
 	UpdatedAt       time.Time `gorm:"not null"`
 }
 
+type CommentResource struct {
+	ID        string    `json:"id"`
+	Body      string    `json:"body"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 func (c *Comment) BeforeCreate(tx *gorm.DB) error {
 	c.ID = ulid.Make().String()
 
 	return nil
+}
+
+func (c *Comment) ToResource() *CommentResource {
+	return &CommentResource{
+		ID:        c.ID,
+		Body:      c.Body,
+		CreatedAt: c.CreatedAt,
+	}
 }

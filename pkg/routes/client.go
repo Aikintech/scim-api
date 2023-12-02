@@ -38,6 +38,7 @@ func ClientRoutes(app *fiber.App) {
 	podcasts.Post("/:podcastId/comments", jwtAuthWare, controllers.StorePodcastComment)
 	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, controllers.UpdatePodcastComment)
 	podcasts.Patch("/:podcastId/like", jwtAuthWare, controllers.LikePodcast)
+	podcasts.Delete("/:podcastId/comments/:commentId", jwtAuthWare, controllers.DeletePodcastComment)
 
 	// Playlists
 	playlists.Get("/", jwtAuthWare, controllers.GetPlaylists)
@@ -45,6 +46,8 @@ func ClientRoutes(app *fiber.App) {
 	playlists.Get("/:playlistId", jwtAuthWare, controllers.GetPlaylist)
 	playlists.Patch("/:playlistId", jwtAuthWare, controllers.UpdatePlaylist)
 	playlists.Delete("/:playlistId", jwtAuthWare, controllers.DeletePlaylist)
+
+	// Comments
 
 	/**
 	*** Prayer request
