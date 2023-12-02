@@ -296,6 +296,63 @@ paths:
       tags:
         - client
       description: Create playlist
+  '/playlists/{playlistId}':
+    parameters:
+      - schema:
+          type: string
+        name: playlistId
+        in: path
+        required: true
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistResponse'
+      operationId: get-playlist
+      description: 'Client: Get playlist'
+      security:
+        - X-USER-TOKEN: []
+    patch:
+      summary: ''
+      operationId: update-playlist
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistResponse'
+      description: 'Client: Update playlist'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePlaylistRequest'
+      tags:
+        - client
+    delete:
+      summary: ''
+      operationId: delete-playlist
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      description: 'Client: Delete playlist'
+      security:
+        - X-USER-TOKEN: []
+      tags:
+        - client
 components:
   schemas:
     AuthUser:
