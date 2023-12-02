@@ -13,7 +13,7 @@ type Playlist struct {
 	Title       string     `gorm:"size:191;not null"`
 	ShortURL    *string    `gorm:"size:191"`
 	Description string     `gorm:"size:191"`
-	CreateAt    time.Time  `gorm:"not null"`
+	CreatedAt   time.Time  `gorm:"not null"`
 	UpdatedAt   time.Time  `gorm:"not null"`
 	Podcasts    []*Podcast `gorm:"many2many:podcast_playlist"`
 }
@@ -44,7 +44,7 @@ func (p *Playlist) ToResource() *PlaylistResource {
 		Title:       p.Title,
 		ShortURL:    p.ShortURL,
 		Description: p.Description,
-		CreatedAt:   p.CreateAt,
+		CreatedAt:   p.CreatedAt,
 		Podcasts:    podcasts,
 	}
 }

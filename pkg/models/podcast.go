@@ -58,7 +58,7 @@ func (p *Podcast) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (p *Podcast) GetCommentableType() string {
+func (p *Podcast) GetPolymorphicType() string {
 	return "podcasts"
 }
 

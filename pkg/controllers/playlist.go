@@ -8,8 +8,34 @@ import (
 	"github.com/aikintech/scim/pkg/models"
 	"github.com/aikintech/scim/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
+
+func GetPlaylists(c *fiber.Ctx) error {
+	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+
+	// Get playlists
+	playlists := make([]*models.Playlist, 0)
+	result := config.DB.Preload("Podcasts").Where("user_id = ?", user.ID).Find(&playlists)
+	if result.Error != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: result.Error.Error(),
+		})
+	}
+
+	// Convert to resource
+	resources := make([]*models.PlaylistResource, len(playlists))
+	for i, playlist := range playlists {
+		resources[i] = playlist.ToResource()
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"code": fiber.StatusOK,
+		"data": resources,
+	})
+}
 
 func CreatePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
@@ -64,6 +90,84 @@ func CreatePlaylist(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(definitions.DataResponse[models.PlaylistResource]{
 		Code: fiber.StatusCreated,
+		Data: *playlist.ToResource(),
+	})
+}
+
+func GetPlaylist(c *fiber.Ctx) error {
+	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+
+	// Get playlist
+	playlist := new(models.Playlist)
+	result := config.DB.Preload("Podcasts").Where("id = ? AND user_id = ?", c.Params("playlistId"), user.ID).First(&playlist)
+	if result.Error != nil {
+		message := "Playlist not found"
+
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			message = result.Error.Error()
+		}
+
+		return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusNotFound,
+			Message: message,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(definitions.DataResponse[models.PlaylistResource]{
+		Code: fiber.StatusOK,
+		Data: *playlist.ToResource(),
+	})
+}
+
+func UpdatePlaylist(c *fiber.Ctx) error {
+	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+
+	// Parse body
+	request := new(definitions.StorePlaylistRequest)
+	if err := c.BodyParser(request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(&definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: "Invalid request body",
+		})
+	}
+
+	// Validate body
+	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(&definitions.ValidationErrsResponse{
+			Code:    fiber.StatusUnprocessableEntity,
+			Message: "Invalid request body",
+			Errors:  errs,
+		})
+	}
+
+	// Get playlist
+	playlist := models.Playlist{}
+	result := config.DB.Preload("Podcasts").Where("id = ? AND user_id = ?", c.Params("playlistId"), user.ID).First(&playlist)
+	if result.Error != nil {
+		message := "Playlist not found"
+
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			message = result.Error.Error()
+		}
+
+		return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusNotFound,
+			Message: message,
+		})
+	}
+
+	// Update playlist
+	playlist.Title = request.Title
+	playlist.Description = request.Description
+
+	podcasts := lo.Filter(playlist.Podcasts, func(p models.Podcast, index int) bool {
+		return lo.Contains(request.Podcasts, p.ID)
+	})
+
+	result = config.DB.Model(&playlist).Association("Podcasts").Replace(podcasts)
+
+	return c.JSON(definitions.DataResponse[models.PlaylistResource]{
+		Code: fiber.StatusOK,
 		Data: *playlist.ToResource(),
 	})
 }

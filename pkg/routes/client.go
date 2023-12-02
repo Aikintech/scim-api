@@ -40,7 +40,11 @@ func ClientRoutes(app *fiber.App) {
 	podcasts.Patch("/:podcastId/like", jwtAuthWare, controllers.LikePodcast)
 
 	// Playlists
+	playlists.Get("/", jwtAuthWare, controllers.GetPlaylists)
 	playlists.Post("/", jwtAuthWare, controllers.CreatePlaylist)
+	playlists.Get("/:playlistId", jwtAuthWare, controllers.GetPlaylist)
+	playlists.Patch("/:playlistId", jwtAuthWare, controllers.UpdatePlaylist)
+	playlists.Delete("/:playlistId", jwtAuthWare, controllers.CreatePlaylist)
 
 	/**
 	*** Prayer request
