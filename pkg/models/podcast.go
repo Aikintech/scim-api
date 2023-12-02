@@ -24,11 +24,11 @@ type Podcast struct {
 	PublishedAt *time.Time `gorm:"not null"`
 	ShortURL    string     `gorm:"size:191"`
 	Meta        datatypes.JSON
-	CreatedAt   time.Time   `gorm:"not null"`
-	UpdatedAt   time.Time   `gorm:"not null"`
-	Playlists   []*Playlist `gorm:"many2many:podcast_playlist"`
-	Comments    []Comment   `gorm:"polymorphic:Commentable"`
-	Likes       []Like      `gorm:"polymorphic:Likeable"`
+	CreatedAt   time.Time  `gorm:"not null"`
+	UpdatedAt   time.Time  `gorm:"not null"`
+	Playlists   []Playlist `gorm:"many2many:podcast_playlist"`
+	Comments    []Comment  `gorm:"polymorphic:Commentable"`
+	Likes       []Like     `gorm:"polymorphic:Likeable"`
 }
 
 type PodcastResource struct {

@@ -10,12 +10,12 @@ import (
 type Playlist struct {
 	ID          string `gorm:"primaryKey;size:40"`
 	UserID      string
-	Title       string     `gorm:"size:191;not null"`
-	ShortURL    *string    `gorm:"size:191"`
-	Description string     `gorm:"size:191"`
-	CreatedAt   time.Time  `gorm:"not null"`
-	UpdatedAt   time.Time  `gorm:"not null"`
-	Podcasts    []*Podcast `gorm:"many2many:podcast_playlist"`
+	Title       string    `gorm:"size:191;not null"`
+	ShortURL    *string   `gorm:"size:191"`
+	Description string    `gorm:"size:191"`
+	CreatedAt   time.Time `gorm:"not null"`
+	UpdatedAt   time.Time `gorm:"not null"`
+	Podcasts    []Podcast `gorm:"many2many:podcast_playlist"`
 }
 
 type PlaylistResource struct {

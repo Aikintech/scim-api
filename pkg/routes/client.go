@@ -44,7 +44,7 @@ func ClientRoutes(app *fiber.App) {
 	playlists.Post("/", jwtAuthWare, controllers.CreatePlaylist)
 	playlists.Get("/:playlistId", jwtAuthWare, controllers.GetPlaylist)
 	playlists.Patch("/:playlistId", jwtAuthWare, controllers.UpdatePlaylist)
-	playlists.Delete("/:playlistId", jwtAuthWare, controllers.CreatePlaylist)
+	playlists.Delete("/:playlistId", jwtAuthWare, controllers.DeletePlaylist)
 
 	/**
 	*** Prayer request
