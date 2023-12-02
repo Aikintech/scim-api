@@ -15,6 +15,8 @@ import (
 
 var DB *gorm.DB
 
+// TODO: Remove all the Debug() calls before production
+
 func ConnectDB() {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer

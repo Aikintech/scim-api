@@ -31,6 +31,19 @@ type Podcast struct {
 	Likes       []Like      `gorm:"polymorphic:Likeable"`
 }
 
+type PodcastResource struct {
+	ID          string    `json:"id"`
+	Author      string    `json:"author"`
+	Title       string    `json:"title"`
+	Summary     string    `json:"summary"`
+	Description string    `json:"description"`
+	Duration    string    `json:"duration"`
+	ImageURL    string    `json:"imageUrl"`
+	AudioURL    string    `json:"audioUrl"`
+	Published   bool      `json:"published"`
+	PublishedAt time.Time `json:"publishedAt"`
+}
+
 func (p *Podcast) BeforeCreate(tx *gorm.DB) error {
 	p.ID = ulid.Make().String()
 
@@ -49,15 +62,17 @@ func (p *Podcast) GetCommentableType() string {
 	return "podcasts"
 }
 
-type PodcastResource struct {
-	ID          string    `json:"id"`
-	Author      string    `json:"author"`
-	Title       string    `json:"title"`
-	Summary     string    `json:"summary"`
-	Description string    `json:"description"`
-	Duration    string    `json:"duration"`
-	ImageURL    string    `json:"imageUrl"`
-	AudioURL    string    `json:"audioUrl"`
-	Published   bool      `json:"published"`
-	PublishedAt time.Time `json:"publishedAt"`
+func (p *Podcast) ToResource() *PodcastResource {
+	return &PodcastResource{
+		ID:          p.ID,
+		Author:      p.Author,
+		Title:       p.Title,
+		Summary:     p.Summary,
+		Description: p.Description,
+		Duration:    p.Duration,
+		ImageURL:    p.ImageURL,
+		AudioURL:    p.AudioURL,
+		Published:   p.Published,
+		PublishedAt: *p.PublishedAt,
+	}
 }

@@ -18,6 +18,12 @@ type ResetPasswordRequest struct {
 	PasswordConfirmation string `json:"passwordConfirmation" validate:"required,eqfield=Password"`
 }
 
+type StorePlaylistRequest struct {
+	Title       string   `json:"title" validate:"required"`
+	Description string   `json:"description"`
+	Podcasts    []string `json:"podcasts" validate:"required,min=1"`
+}
+
 /**** Responses ****/
 type MessageResponse struct {
 	Code    int    `json:"code"`

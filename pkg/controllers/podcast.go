@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"strings"
+
 	"github.com/aikintech/scim/pkg/config"
 	"github.com/aikintech/scim/pkg/definitions"
 	"github.com/aikintech/scim/pkg/jobs"
@@ -14,6 +16,7 @@ func ListPodcasts(c *fiber.Ctx) error {
 	// Validate query params
 	sort := c.Query("sort", "newest")
 	orderBy := "published_at desc"
+	search := strings.Trim(c.Query("search", ""), " ")
 
 	if sort != "newest" {
 		orderBy = "published_at asc"
@@ -21,7 +24,7 @@ func ListPodcasts(c *fiber.Ctx) error {
 
 	// Fetch podcasts
 	podcasts := make([]models.PodcastResource, 0)
-	results := config.DB.Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Order(orderBy).Find(&podcasts)
+	results := config.DB.Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Where("title LIKE ?", "%"+search+"%").Order(orderBy).Find(&podcasts)
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
