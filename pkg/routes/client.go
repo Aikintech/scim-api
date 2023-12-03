@@ -10,7 +10,7 @@ func ClientRoutes(app *fiber.App) {
 	// Groups
 	podcasts := app.Group("/podcasts")
 	playlists := app.Group("/playlists")
-	prayerRequests := app.Group("/prayer-requests")
+	prayers := app.Group("/prayer-requests")
 
 	// Middlewares
 	jwtAuthWare := middlewares.JWTMiddleware("access")
@@ -56,5 +56,6 @@ func ClientRoutes(app *fiber.App) {
 	/**
 	*** Prayer request
 	**/
-	prayerRequests.Post("/", controllers.RequestPrayer)
+	prayers.Get("/", jwtAuthWare, controllers.MyPrayers)
+	prayers.Post("/", jwtAuthWare, controllers.RequestPrayer)
 }

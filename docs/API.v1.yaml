@@ -381,6 +381,47 @@ paths:
         - X-USER-TOKEN: []
       tags:
         - client
+  /prayer-requests:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrayersResponse'
+      operationId: get-prayer-requests
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - newest
+              - oldest
+          in: query
+          name: sort
+      description: 'Client: Get my prayers'
+    post:
+      summary: ''
+      operationId: request-prayer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      description: 'Client: Request prayer'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrayerRequest'
 components:
   schemas:
     AuthUser:
@@ -518,6 +559,33 @@ components:
         - description
         - createdAt
         - podcasts
+    Prayer:
+      type: object
+      x-examples:
+        Example 1:
+          id: 01HGRFM7M1F03D6014034KEF2P
+          title: This is a test
+          description: This is a test description
+          completedAt: null
+          createdAt: '2023-12-03T18:39:07.393849Z'
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        completedAt:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - completedAt
+        - createdAt
     LoginRequest:
       type: object
       x-examples:
@@ -782,6 +850,29 @@ components:
       required:
         - code
         - data
+    PrayersResponse:
+      type: object
+      x-stoplight:
+        id: i7z5nysvsyubj
+      x-examples:
+        Example 1:
+          code: 200
+          data:
+            - id: 01HGRFM7M1F03D6014034KEF2P
+              title: This is a test
+              description: This is a test description
+              completedAt: null
+              createdAt: '2023-12-03T18:39:07.393849Z'
+      properties:
+        code:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prayer'
+      required:
+        - code
+        - data
     EmailRequest:
       title: EmailRequest
       x-stoplight:
@@ -816,6 +907,20 @@ components:
         - title
         - description
         - podcasts
+    PrayerRequest:
+      type: object
+      x-examples:
+        Example 1:
+          title: This is a test
+          description: This is a test description
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - title
+        - description
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey
