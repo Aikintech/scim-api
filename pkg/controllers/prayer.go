@@ -75,6 +75,8 @@ func RequestPrayer(c *fiber.Ctx) error {
 		})
 	}
 
+	// TODO: Send email to admin
+
 	return c.Status(fiber.StatusCreated).JSON(definitions.MessageResponse{
 		Code:    fiber.StatusCreated,
 		Message: "Prayer request successfully",

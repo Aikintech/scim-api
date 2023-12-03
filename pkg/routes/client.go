@@ -51,11 +51,12 @@ func ClientRoutes(app *fiber.App) {
 	playlists.Patch("/:playlistId", jwtAuthWare, controllers.UpdatePlaylist)
 	playlists.Delete("/:playlistId", jwtAuthWare, controllers.DeletePlaylist)
 
-	// Comments
-
 	/**
 	*** Prayer request
 	**/
 	prayers.Get("/", jwtAuthWare, controllers.MyPrayers)
 	prayers.Post("/", jwtAuthWare, controllers.RequestPrayer)
+
+	// Dashboard/home
+	app.Get("/home", controllers.ClientHome)
 }
