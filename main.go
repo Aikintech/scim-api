@@ -16,6 +16,9 @@ func init() {
 	// Load environment variables
 	config.LoadEnv()
 
+	// Initialize redis
+	config.InitializeRedis()
+
 	// Load database
 	config.ConnectDB()
 	config.MigrateDB()

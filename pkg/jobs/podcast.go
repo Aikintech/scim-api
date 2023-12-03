@@ -1,8 +1,10 @@
 package jobs
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/aikintech/scim/pkg/config"
 	"github.com/aikintech/scim/pkg/models"
@@ -19,6 +21,9 @@ func SeedPodcasts() {
 		panic(err.Error())
 	}
 
+	podcasts := make([]models.Podcast, 0)
+
+	// Loop through podcasts
 	for _, items := range lo.Chunk(feed.Items, 100) {
 		for _, item := range items {
 			var podcast = models.Podcast{
@@ -36,8 +41,20 @@ func SeedPodcasts() {
 			}
 
 			updateOrCreate(&podcast)
+			podcasts = append(podcasts, podcast)
 		}
 	}
+
+	// Convert podcasts to JSON
+	podcastsJson, err := json.Marshal(podcasts)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Cache podcasts for 24 hours
+	config.RedisStore.Set(config.PODCASTS_CACHE_KEY, podcastsJson, time.Hour*24)
+
+	fmt.Println("Podcasts seeded successfully")
 }
 
 func updateOrCreate(podcast *models.Podcast) {
