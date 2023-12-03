@@ -384,7 +384,8 @@ paths:
   /prayer-requests:
     get:
       summary: Your GET endpoint
-      tags: []
+      tags:
+        - client
       responses:
         '200':
           description: OK
@@ -422,6 +423,22 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PrayerRequest'
+      tags:
+        - client
+  /home:
+    get:
+      summary: Your GET endpoint
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HomeDataResponse'
+      operationId: get-home-data
+      description: 'Client: Get home data'
 components:
   schemas:
     AuthUser:
@@ -921,6 +938,91 @@ components:
       required:
         - title
         - description
+    HomeDataResponse:
+      type: object
+      x-examples:
+        Example 1:
+          code: 200
+          data:
+            latestAnnouncements: []
+            latestPodcasts:
+              - id: 01HGHB7QKMM54ZDXBDKQQXV0T4
+                author: Evangelist Elijah Ben
+                title: UNDERSTANDING JUDGEMENT
+                description: 'Praise him family You are watching Tuesday Teaching service, on Tuesday 28th November Message: Understanding Judgment Main scripture: Daniel 5:24-27Preached by: Evangelist Elijah-Ben Kusi-Agyapong This is only a brief, highlighted summary of the first of our father''s three main lessons for us in today''s message. Watch out for the remaining points, and don''t forget to leave a comment on what you took away from this message, like it, and share it with a friend.1 John 5:16-171. Accursed sins: sins that bring curses.l) idolatry Deut 27:15 you can make modern things an idol eg. money, your bodyIl) sin of not honouring your mother and father Deut 27:16III) the sin of being a cheat, not honest Deut 27:17 Malachi 3:8IV) the sin of wickedness to the handicapped and weak Deut 27:18-19 Particularly the aged, widows, orphans, strangersV) the sin of dishonoring fathers Deut 27:20VI) the sin of beastialityVII) the sin of incest Deut 27:22VIII) the sin of deception Deut 27:24VIIII) The sin of stealing Zechariah 5:3-4,X) The sin of ignoring the law, not listening and doing the word of God Deut 27:26'
+                duration: '01:30:44'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/understanding-judgement-1400x1400.jpg'
+                audioUrl: 'https://awscdn.podcasts.com/audio-LfrijFKTjwmKImDAvQgxZxbbq.mp3'
+                published: true
+                publishedAt: '2023-11-29T07:10:55Z'
+              - id: 01HGHB7QKX8969XABA51QEB2ZH
+                author: Evangelist Elijah Ben
+                title: UNDERSTANDING TEMPTATION
+                description: 'Praise him&nbsp;familyYou are watching SCIM Before Day Break Prayers on Wednesday 29th November 2023Message: THE UNDERSTANDING TEMPTATIONSMain scripture: 1 Corinthians 10:13Preached by:&nbsp;Evangelist Elijah Ben Kusi-Agyapong'
+                duration: '00:50:10'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/understanding-temptation-1400x1400.jpg'
+                audioUrl: 'https://awscdn.podcasts.com/audio-uHdynti48r5N94ZS1gZ1C39tQ.mp3'
+                published: true
+                publishedAt: '2023-11-29T06:44:37Z'
+              - id: 01HGHB7QKZ4JF7DV3AQKQQAP9C
+                author: Evangelist Elijah Ben
+                title: SUNDAY ANOINTING SERVICE-THE SPIRIT OF UNDERSTANDING PART 2
+                description: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
+                duration: '01:33:21'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'https://awscdn.podcasts.com/audio-qCgqW7G68X5kJPLaWfZeGp47Z.mp3'
+                published: true
+                publishedAt: '2023-11-27T07:44:51Z'
+              - id: 01HGHB7QM0MVK8AK7D35VJ30JA
+                author: Evangelist Elijah Ben
+                title: B4DBP - WHO IS YOUR COUNSEL?
+                description: 'Shared with PublicB4DBP - Who is your Counsel?Praise him Family, You are watching SCIM B4DP, on Monday 27th November&nbsp;2Message: Who are the people that are counselling you?This is a continuation of the message that our father has been preaching on the 7 Dimensions of the Holy Spirit.1. THE SPIRIT OF THE LORD2. THE SPIRIT OF WISDOM3. THE SPIRIT OF UNDERSTANDING4. THE SPIRIT OF COUNSEL5. THE SPIRIT OF MIGHT6. THE SPIRIT OF KNOWLEDGE7. THE SPIRIT OF THE FEAR OF THE LORD'
+                duration: '00:43:52'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'https://awscdn.podcasts.com/audio-rH0qjoSL76eqceQYyJMPTL9EY.mp3'
+                published: true
+                publishedAt: '2023-11-27T07:01:47Z'
+              - id: 01HGHB7QM2NW45G9CFHTFQ1D4J
+                author: Evangelist Elijah Ben
+                title: THE SPIRIT OF UNDERSTANDING
+                description: Message by Evang. Elijah-Ben Kusi Agyapong during Tuesday Teaching Service
+                duration: '01:35:16'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'https://awscdn.podcasts.com/audio-F9RWjXUc39lIgJuaKFg4oPSvG.mp3'
+                published: true
+                publishedAt: '2023-11-21T21:16:12Z'
+            latestPosts: []
+            upcomingEvents: []
+      properties:
+        code:
+          type: integer
+        data:
+          type: object
+          required:
+            - latestAnnouncements
+            - latestPodcasts
+            - latestPosts
+            - upcomingEvents
+          properties:
+            latestAnnouncements:
+              type: array
+              items:
+                type: object
+            latestPodcasts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Podcast'
+            latestPosts:
+              type: array
+              items:
+                type: object
+            upcomingEvents:
+              type: array
+              items:
+                type: object
+      required:
+        - code
+        - data
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey
