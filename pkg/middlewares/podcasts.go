@@ -2,6 +2,8 @@ package middlewares
 
 import (
 	"encoding/json"
+	s "sort"
+
 	// "strconv"
 	// "strings"
 
@@ -12,6 +14,41 @@ import (
 	// "github.com/aikintech/scim/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 )
+
+func ListAllPodcastsCache() func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		// Query params
+		sort := c.Query("sort", "newest")
+
+		// Get podcasts from cache
+		podcasts := make([]models.PodcastResource, 0)
+		podcastsJson, err := config.RedisStore.Get(config.PODCASTS_CACHE_KEY)
+		if err != nil {
+			return c.Next()
+		}
+
+		err = json.Unmarshal(podcastsJson, &podcasts)
+		if err != nil {
+			return c.Next()
+		}
+
+		// Sort podcasts
+		if sort == "newest" {
+			s.Slice(podcasts, func(i, j int) bool {
+				return podcasts[i].PublishedAt.String() > podcasts[j].PublishedAt.String()
+			})
+		} else {
+			s.Slice(podcasts, func(i, j int) bool {
+				return podcasts[i].PublishedAt.String() < podcasts[j].PublishedAt.String()
+			})
+		}
+
+		return c.JSON(definitions.DataResponse[[]models.PodcastResource]{
+			Code: fiber.StatusOK,
+			Data: podcasts,
+		})
+	}
+}
 
 // PodcastsCache is a middleware that caches podcasts
 func PodcastsCache() func(c *fiber.Ctx) error {
