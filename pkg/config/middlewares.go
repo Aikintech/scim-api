@@ -11,8 +11,13 @@ import (
 )
 
 func LoadGlobalMiddlewares(app *fiber.App) {
-	app.Use(cors.New())
-	app.Use(limiter.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: os.Getenv("ALLOWED_ORIGINS"),
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+	app.Use(limiter.New(limiter.Config{
+		Max: 60,
+	}))
 
 	if os.Getenv("APP_ENV") == "local" {
 		logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
