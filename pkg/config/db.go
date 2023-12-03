@@ -31,11 +31,15 @@ func ConnectDB() {
 
 	fmt.Println("Connecting to database...")
 
-	dsn := os.Getenv("DB_URL")
+	config := &gorm.Config{}
+	if os.Getenv("APP_ENV") == "local" {
+		config = &gorm.Config{
+			Logger: newLogger,
+		}
+	}
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: newLogger,
-	})
+	dsn := os.Getenv("DB_URL")
+	db, err := gorm.Open(postgres.Open(dsn), config)
 
 	if err != nil {
 		log.Fatal("Failed to connect database")
