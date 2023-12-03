@@ -13,4 +13,9 @@
   - [https://paystack.com](https://paystack.com)
 
 - [ ] Email
+
   - [https://resend.com](https://resend.com)
+
+- [ ] Testimonies
+  - [https://developers.tiktok.com](https://developers.tiktok.com)
+  - [https://developers.google.com/youtube/v3](https://developers.google.com/youtube/v3)
