@@ -154,6 +154,29 @@ paths:
               - oldest
           in: query
           name: sort
+  /podcasts/all:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPodcastsResponse'
+      operationId: get-all-podcasts
+      description: 'Client: Get all podcasts'
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - newest
+              - oldest
+          in: query
+          name: sort
+    parameters: []
   '/podcasts/{podcastId}':
     parameters:
       - schema:
@@ -409,7 +432,6 @@ components:
           id: 01HGDRCWFG6A5ASHQHWZHN4R70
           author: Evangelist Elijah Ben
           title: SUNDAY ANOINTING SERVICE-THE SPIRIT OF UNDERSTANDING PART 2
-          summary: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
           description: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
           duration: '01:33:21'
           imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
@@ -422,8 +444,6 @@ components:
         author:
           type: string
         title:
-          type: string
-        summary:
           type: string
         description:
           type: string
@@ -441,7 +461,6 @@ components:
         - id
         - author
         - title
-        - summary
         - description
         - duration
         - imageUrl

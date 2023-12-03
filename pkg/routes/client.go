@@ -15,6 +15,9 @@ func ClientRoutes(app *fiber.App) {
 	// Middlewares
 	jwtAuthWare := middlewares.JWTMiddleware("access")
 	refreshJwtAuthWare := middlewares.JWTMiddleware("refresh")
+	// podcastsCache := middlewares.PodcastsCache()
+	listAllPodcastsCache := middlewares.AllPodcastsCache()
+	podcastByIdCache := middlewares.PodcastByIdCache()
 
 	/**
 	*** Auth routes
@@ -33,7 +36,8 @@ func ClientRoutes(app *fiber.App) {
 	// Podcasts
 	podcasts.Post("/seed", controllers.SeedPodcasts)
 	podcasts.Get("/", controllers.ListPodcasts)
-	podcasts.Get("/:podcastId", controllers.ShowPodcast)
+	podcasts.Get("/all", listAllPodcastsCache, controllers.ListAllPodcasts)
+	podcasts.Get("/:podcastId", podcastByIdCache, controllers.ShowPodcast)
 	podcasts.Get("/:podcastId/comments", controllers.GetPodcastComments)
 	podcasts.Post("/:podcastId/comments", jwtAuthWare, controllers.StorePodcastComment)
 	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, controllers.UpdatePodcastComment)

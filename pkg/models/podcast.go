@@ -32,10 +32,10 @@ type Podcast struct {
 }
 
 type PodcastResource struct {
-	ID          string    `json:"id"`
-	Author      string    `json:"author"`
-	Title       string    `json:"title"`
-	Summary     string    `json:"summary"`
+	ID     string `json:"id"`
+	Author string `json:"author"`
+	Title  string `json:"title"`
+	// Summary     string    `json:"summary"`
 	Description string    `json:"description"`
 	Duration    string    `json:"duration"`
 	ImageURL    string    `json:"imageUrl"`
@@ -64,10 +64,10 @@ func (p *Podcast) GetPolymorphicType() string {
 
 func (p *Podcast) ToResource() *PodcastResource {
 	return &PodcastResource{
-		ID:          p.ID,
-		Author:      p.Author,
-		Title:       p.Title,
-		Summary:     p.Summary,
+		ID:     p.ID,
+		Author: p.Author,
+		Title:  p.Title,
+		// Summary:     p.Summary,
 		Description: p.Description,
 		Duration:    p.Duration,
 		ImageURL:    p.ImageURL,
