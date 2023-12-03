@@ -26,6 +26,7 @@ type User struct {
 	PrayerRequests    []PrayerRequest
 	UserTokens        []UserToken
 	VerificationCodes []VerificationCode
+	Posts             []Post
 }
 
 func (model *User) BeforeCreate(*gorm.DB) error {

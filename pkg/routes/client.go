@@ -10,7 +10,7 @@ func ClientRoutes(app *fiber.App) {
 	// Groups
 	podcasts := app.Group("/podcasts")
 	playlists := app.Group("/playlists")
-	prayerRequests := app.Group("/prayer-requests")
+	prayers := app.Group("/prayer-requests")
 
 	// Middlewares
 	jwtAuthWare := middlewares.JWTMiddleware("access")
@@ -51,10 +51,12 @@ func ClientRoutes(app *fiber.App) {
 	playlists.Patch("/:playlistId", jwtAuthWare, controllers.UpdatePlaylist)
 	playlists.Delete("/:playlistId", jwtAuthWare, controllers.DeletePlaylist)
 
-	// Comments
-
 	/**
 	*** Prayer request
 	**/
-	prayerRequests.Post("/", controllers.RequestPrayer)
+	prayers.Get("/", jwtAuthWare, controllers.MyPrayers)
+	prayers.Post("/", jwtAuthWare, controllers.RequestPrayer)
+
+	// Dashboard/home
+	app.Get("/home", controllers.ClientHome)
 }
