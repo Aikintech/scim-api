@@ -4,15 +4,13 @@ x-stoplight:
 info:
   title: API
   version: '1.0'
-  description: Salvation Clinic International Minitries API Documentaion
-  contact: {}
+  description: Salvation Clinic International Ministries API Documentaion
+  contact:
+    name: Nana Kwesi Ofosu-Aikins
+    email: nanaaikinson24@gmail.com
 servers:
-  - url: 'http://localhost:9000'
-    description: Local
-  - url: 'https://c8wc8os.178.79.149.51.sslip.io'
-    description: Staging
   - url: 'https://staging-api.scimapp.org'
-    description: Staging - alias
+    description: ''
 tags:
   - name: backoffice
   - name: client
@@ -113,9 +111,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/RefreshTokenResponse'
       operationId: auth-refresh-token
-      requestBody:
-        required: true
-        content: {}
       description: Auth refresh token
       security:
         - X-USER-TOKEN: []
@@ -1099,3 +1094,4 @@ components:
       type: apiKey
       in: header
       name: X-USER-TOKEN
+x-internal: false
