@@ -5,8 +5,7 @@ info:
   title: API
   version: '1.0'
   description: Salvation Clinic International Minitries API Documentaion
-  contact:
-    name: Nana Kwesi Ofosu-Aikins
+  contact: {}
 servers:
   - url: 'http://localhost:9000'
     description: Local
