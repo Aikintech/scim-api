@@ -12,7 +12,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func MyPrayers(c *fiber.Ctx) error {
+type PrayerController struct{}
+
+func NewPrayerController() *PrayerController {
+	return &PrayerController{}
+}
+
+func (pryCtrl *PrayerController) MyPrayers(c *fiber.Ctx) error {
 	user := c.Locals("user").(*models.User)
 	sortBy := c.Query("sort", "newest")
 	orderBy := "created_at desc"
@@ -39,7 +45,7 @@ func MyPrayers(c *fiber.Ctx) error {
 	})
 }
 
-func RequestPrayer(c *fiber.Ctx) error {
+func (pryCtrl *PrayerController) RequestPrayer(c *fiber.Ctx) error {
 	user := c.Locals("user").(*models.User)
 
 	// Parse body

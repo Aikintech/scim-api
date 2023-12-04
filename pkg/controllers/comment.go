@@ -13,7 +13,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetPodcastComments(c *fiber.Ctx) error {
+type CommentController struct{}
+
+func NewCommentController() *CommentController {
+	return &CommentController{}
+}
+
+func (cmtCtrl *CommentController) GetPodcastComments(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 	podcast := models.Podcast{}
 	result := config.DB.Preload("Comments").Where("id = ?", podcastId).Find(&podcast)
@@ -44,7 +50,7 @@ func GetPodcastComments(c *fiber.Ctx) error {
 }
 
 // StorePodcastComment - Comment on a podcast
-func StorePodcastComment(c *fiber.Ctx) error {
+func (cmtCtrl *CommentController) StorePodcastComment(c *fiber.Ctx) error {
 	// Parse request
 	request := new(validation.StorePodcastCommentSchema)
 	if err := c.BodyParser(request); err != nil {
@@ -103,13 +109,13 @@ func StorePodcastComment(c *fiber.Ctx) error {
 }
 
 // UpdatePodcastComment - Update a podcast comment
-func UpdatePodcastComment(c *fiber.Ctx) error {
+func (cmtCtrl *CommentController) UpdatePodcastComment(c *fiber.Ctx) error {
 
 	return c.SendString("Like podcast")
 }
 
 // DeletePodcastComment - Delete a podcast comment
-func DeletePodcastComment(c *fiber.Ctx) error {
+func (cmtCtrl *CommentController) DeletePodcastComment(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
 	// Find podcast and comment

@@ -8,6 +8,7 @@ import (
 
 func ClientRoutes(app *fiber.App) {
 	// Groups
+	auth := app.Group("/auth")
 	podcasts := app.Group("/podcasts")
 	playlists := app.Group("/playlists")
 	prayers := app.Group("/prayer-requests")
@@ -22,41 +23,51 @@ func ClientRoutes(app *fiber.App) {
 	/**
 	*** Auth routes
 	**/
-	auth := app.Group("/auth")
-	auth.Post("/login", controllers.Login)
-	auth.Post("/register", controllers.Register)
-	auth.Post("/forgot-password", controllers.ForgotPassword)
-	auth.Post("/reset-password", controllers.ResetPassword)
-	auth.Post("/resend-email-verification", controllers.ResendEmailVerification)
-	auth.Get("/refresh-token", refreshJwtAuthWare, controllers.RefreshToken)
+	authController := controllers.NewAuthController()
+
+	auth.Post("/login", authController.Login)
+	auth.Post("/register", authController.Register)
+	auth.Post("/forgot-password", authController.ForgotPassword)
+	auth.Post("/reset-password", authController.ResetPassword)
+	auth.Post("/resend-email-verification", authController.ResendEmailVerification)
+	auth.Get("/refresh-token", refreshJwtAuthWare, authController.RefreshToken)
 
 	/**
 	*** Podcast and playlist routes
 	**/
 	// Podcasts
-	podcasts.Post("/seed", controllers.SeedPodcasts)
-	podcasts.Get("/", controllers.ListPodcasts)
-	podcasts.Get("/all", listAllPodcastsCache, controllers.ListAllPodcasts)
-	podcasts.Get("/:podcastId", podcastByIdCache, controllers.ShowPodcast)
-	podcasts.Get("/:podcastId/comments", controllers.GetPodcastComments)
-	podcasts.Post("/:podcastId/comments", jwtAuthWare, controllers.StorePodcastComment)
-	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, controllers.UpdatePodcastComment)
-	podcasts.Patch("/:podcastId/like", jwtAuthWare, controllers.LikePodcast)
-	podcasts.Delete("/:podcastId/comments/:commentId", jwtAuthWare, controllers.DeletePodcastComment)
+	podcastController := controllers.NewPodcastController()
+	commentController := controllers.NewCommentController()
+	likeController := controllers.NewLikeController()
+
+	podcasts.Post("/seed", podcastController.SeedPodcasts)
+	podcasts.Get("/", podcastController.ListPodcasts)
+	podcasts.Get("/all", listAllPodcastsCache, podcastController.ListAllPodcasts)
+	podcasts.Get("/:podcastId", podcastByIdCache, podcastController.ShowPodcast)
+	podcasts.Get("/:podcastId/comments", commentController.GetPodcastComments)
+	podcasts.Post("/:podcastId/comments", jwtAuthWare, commentController.StorePodcastComment)
+	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, commentController.UpdatePodcastComment)
+	podcasts.Patch("/:podcastId/like", jwtAuthWare, likeController.LikePodcast)
+	podcasts.Delete("/:podcastId/comments/:commentId", jwtAuthWare, commentController.DeletePodcastComment)
 
 	// Playlists
-	playlists.Get("/", jwtAuthWare, controllers.GetPlaylists)
-	playlists.Post("/", jwtAuthWare, controllers.CreatePlaylist)
-	playlists.Get("/:playlistId", jwtAuthWare, controllers.GetPlaylist)
-	playlists.Patch("/:playlistId", jwtAuthWare, controllers.UpdatePlaylist)
-	playlists.Delete("/:playlistId", jwtAuthWare, controllers.DeletePlaylist)
+	playlistController := controllers.NewPlaylistController()
+
+	playlists.Get("/", jwtAuthWare, playlistController.GetPlaylists)
+	playlists.Post("/", jwtAuthWare, playlistController.CreatePlaylist)
+	playlists.Get("/:playlistId", jwtAuthWare, playlistController.GetPlaylist)
+	playlists.Patch("/:playlistId", jwtAuthWare, playlistController.UpdatePlaylist)
+	playlists.Delete("/:playlistId", jwtAuthWare, playlistController.DeletePlaylist)
 
 	/**
 	*** Prayer request
 	**/
-	prayers.Get("/", jwtAuthWare, controllers.MyPrayers)
-	prayers.Post("/", jwtAuthWare, controllers.RequestPrayer)
+	prayerController := controllers.NewPrayerController()
+
+	prayers.Get("/", jwtAuthWare, prayerController.MyPrayers)
+	prayers.Post("/", jwtAuthWare, prayerController.RequestPrayer)
 
 	// Dashboard/home
-	app.Get("/home", controllers.ClientHome)
+
+	app.Get("/home", controllers.NewHomeController().ClientHome)
 }

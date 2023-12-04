@@ -10,8 +10,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type LikeController struct{}
+
+func NewLikeController() *LikeController {
+	return &LikeController{}
+}
+
 // LikePodcast - Like a podcast
-func LikePodcast(c *fiber.Ctx) error {
+func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 	// TODO: Optimize this function
 	// Fetch podcast
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)

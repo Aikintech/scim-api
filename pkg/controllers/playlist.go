@@ -12,7 +12,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetPlaylists(c *fiber.Ctx) error {
+type PlaylistController struct{}
+
+func NewPlaylistController() *PlaylistController {
+	return &PlaylistController{}
+}
+
+func (plCtrl *PlaylistController) GetPlaylists(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
 	// Get playlists
@@ -37,7 +43,7 @@ func GetPlaylists(c *fiber.Ctx) error {
 	})
 }
 
-func CreatePlaylist(c *fiber.Ctx) error {
+func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
 	// Parse body
@@ -97,7 +103,7 @@ func CreatePlaylist(c *fiber.Ctx) error {
 	})
 }
 
-func GetPlaylist(c *fiber.Ctx) error {
+func (plCtrl *PlaylistController) GetPlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
 	// Get playlist
@@ -123,7 +129,7 @@ func GetPlaylist(c *fiber.Ctx) error {
 }
 
 // TODO: Fix me
-func UpdatePlaylist(c *fiber.Ctx) error {
+func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
 	// Parse body
@@ -212,7 +218,7 @@ func UpdatePlaylist(c *fiber.Ctx) error {
 	})
 }
 
-func DeletePlaylist(c *fiber.Ctx) error {
+func (plCtrl *PlaylistController) DeletePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
 	// Get playlist
