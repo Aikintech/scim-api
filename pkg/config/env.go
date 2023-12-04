@@ -11,7 +11,6 @@ func LoadEnv() {
 	err := godotenv.Load()
 
 	if err != nil {
-		// It's okay if the .env file is not present
 		if os.IsNotExist(err) {
 			fmt.Println(".env file not found, using only system environment variables.")
 		} else {
