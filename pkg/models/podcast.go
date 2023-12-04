@@ -10,25 +10,25 @@ import (
 )
 
 type Podcast struct {
-	ID          string     `gorm:"primaryKey;size:40"`
-	GUID        string     `gorm:"size:191;not null"`
-	Author      string     `gorm:"size:191;not null"`
-	Title       string     `gorm:"not null"`
-	SubTitle    string     `gorm:"not null"`
-	Summary     string     `gorm:"not null"`
-	Description string     `gorm:"type:TEXT"`
-	Duration    string     `gorm:"size:191;not null"`
-	ImageURL    string     `gorm:"not null"`
-	AudioURL    string     `gorm:"type:TEXT;not null"`
-	Published   bool       `gorm:"not null;default:true"`
-	PublishedAt *time.Time `gorm:"not null"`
-	ShortURL    string     `gorm:"size:191"`
-	Meta        datatypes.JSON
-	CreatedAt   time.Time  `gorm:"not null"`
-	UpdatedAt   time.Time  `gorm:"not null"`
-	Playlists   []Playlist `gorm:"many2many:podcast_playlist"`
-	Comments    []Comment  `gorm:"polymorphic:Commentable"`
-	Likes       []Like     `gorm:"polymorphic:Likeable"`
+	ID          string         `gorm:"primaryKey;size:40"`
+	GUID        string         `gorm:"size:191;not null"`
+	Author      string         `gorm:"size:191;not null"`
+	Title       string         `gorm:"not null"`
+	SubTitle    string         `gorm:"not null"`
+	Summary     string         `gorm:"not null"`
+	Description string         `gorm:"type:TEXT"`
+	Duration    string         `gorm:"size:191;not null"`
+	ImageURL    string         `gorm:"not null"`
+	AudioURL    string         `gorm:"type:TEXT;not null"`
+	Published   bool           `gorm:"not null;default:true"`
+	PublishedAt *time.Time     `gorm:"not null"`
+	ShortURL    string         `gorm:"size:191"`
+	Meta        datatypes.JSON `gorm:"column:meta"`
+	CreatedAt   time.Time      `gorm:"not null"`
+	UpdatedAt   time.Time      `gorm:"not null"`
+	Playlists   []*Playlist    `gorm:"many2many:podcast_playlist"`
+	Comments    []*Comment     `gorm:"polymorphic:Commentable"`
+	Likes       []*Like        `gorm:"polymorphic:Likeable"`
 }
 
 type PodcastResource struct {

@@ -19,7 +19,7 @@ type Post struct {
 	MinutesToRead   int       `gorm:"not null;default:0"`
 	CreatedAt       time.Time `gorm:"not null"`
 	UpdatedAt       time.Time `gorm:"not null"`
-	User            User      `gorm:"foreignKey:UserID"`
+	User            *User
 }
 
 type PostResource struct {

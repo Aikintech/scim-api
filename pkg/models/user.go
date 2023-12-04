@@ -22,17 +22,12 @@ type User struct {
 	Channels          datatypes.JSON
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
-	Playlists         []Playlist
-	PrayerRequests    []PrayerRequest
-	UserTokens        []UserToken
-	VerificationCodes []VerificationCode
-	Posts             []Post
-}
-
-func (model *User) BeforeCreate(*gorm.DB) error {
-	model.ID = ulid.Make().String()
-
-	return nil
+	Playlists         []*Playlist
+	PrayerRequests    []*PrayerRequest
+	UserTokens        []*UserToken
+	VerificationCodes []*VerificationCode
+	Posts             []*Post
+	Comments          []*Comment
 }
 
 type AuthUserResource struct {
@@ -43,4 +38,22 @@ type AuthUserResource struct {
 	EmailVerified bool           `json:"emailVerified"`
 	Avatar        *string        `json:"avatar"`
 	Channels      datatypes.JSON `json:"channels"`
+}
+
+func (model *User) BeforeCreate(*gorm.DB) error {
+	model.ID = ulid.Make().String()
+
+	return nil
+}
+
+func (u *User) ToResource() *AuthUserResource {
+	return &AuthUserResource{
+		ID:            u.ID,
+		FirstName:     u.FirstName,
+		LastName:      u.LastName,
+		Email:         u.Email,
+		EmailVerified: u.EmailVerifiedAt != nil,
+		Avatar:        nil,
+		Channels:      u.Channels,
+	}
 }

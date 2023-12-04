@@ -19,3 +19,8 @@
 - [ ] Testimonies
   - [https://developers.tiktok.com](https://developers.tiktok.com)
   - [https://developers.google.com/youtube/v3](https://developers.google.com/youtube/v3)
+
+####
+
+- Email forwarding: [https://app.improvmx.com](https://app.improvmx.com)
+- Sending of emails: [https://mailjet.com](https://mailjet.com)
