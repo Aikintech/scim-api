@@ -14,7 +14,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func Login(c *fiber.Ctx) error {
+type AuthController struct{}
+
+func NewAuthController() *AuthController {
+	return &AuthController{}
+}
+
+func (a *AuthController) Login(c *fiber.Ctx) error {
 	// Parse request
 	request := validation.LoginSchema{}
 	if err := c.BodyParser(&request); err != nil {
@@ -96,7 +102,7 @@ func Login(c *fiber.Ctx) error {
 	})
 }
 
-func Register(c *fiber.Ctx) error {
+func (a *AuthController) Register(c *fiber.Ctx) error {
 	// Parse request
 	request := validation.RegisterSchema{}
 	if err := c.BodyParser(&request); err != nil {
@@ -162,7 +168,7 @@ func Register(c *fiber.Ctx) error {
 	})
 }
 
-func RefreshToken(c *fiber.Ctx) error {
+func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 	reference := ulid.Make().String()
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 	accessToken, err := utils.GenerateUserToken(user, "access", reference)
@@ -182,7 +188,7 @@ func RefreshToken(c *fiber.Ctx) error {
 	})
 }
 
-func ResendEmailVerification(c *fiber.Ctx) error {
+func (a *AuthController) ResendEmailVerification(c *fiber.Ctx) error {
 	// Parse request
 	request := validation.EmailVerificationSchema{}
 	if err := c.BodyParser(&request); err != nil {
@@ -226,7 +232,7 @@ func ResendEmailVerification(c *fiber.Ctx) error {
 	})
 }
 
-func ForgotPassword(c *fiber.Ctx) error {
+func (a *AuthController) ForgotPassword(c *fiber.Ctx) error {
 	// Parse request
 	request := validation.EmailVerificationSchema{}
 	if err := c.BodyParser(&request); err != nil {
@@ -275,7 +281,7 @@ func ForgotPassword(c *fiber.Ctx) error {
 	})
 }
 
-func ResetPassword(c *fiber.Ctx) error {
+func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 	// Parse request
 	request := definitions.ResetPasswordRequest{}
 	if err := c.BodyParser(&request); err != nil {

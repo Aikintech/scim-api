@@ -11,7 +11,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func ClientHome(c *fiber.Ctx) error {
+type HomeController struct{}
+
+func NewHomeController() *HomeController {
+	return &HomeController{}
+}
+
+func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	limit := 5
 	upcomingEvents := []models.EventResource{}
 	latestPodcasts := []models.PodcastResource{}

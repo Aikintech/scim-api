@@ -9,10 +9,12 @@ info:
     name: Nana Kwesi Ofosu-Aikins
     email: nanaaikinson24@gmail.com
 servers:
-  - url: 'http://localhost:3000'
+  - url: 'http://localhost:9000'
     description: Local
   - url: 'https://c8wc8os.178.79.149.51.sslip.io'
     description: Staging
+  - url: 'https://staging-api.scimapp.org'
+    description: Staging - alias
 tags:
   - name: backoffice
   - name: client

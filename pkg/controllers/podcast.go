@@ -11,8 +11,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type PodcastController struct{}
+
+func NewPodcastController() *PodcastController {
+	return &PodcastController{}
+}
+
 // ClientListPodcast - List podcasts (paginated)
-func ListPodcasts(c *fiber.Ctx) error {
+func (podCtrl *PodcastController) ListPodcasts(c *fiber.Ctx) error {
 	// Validate query params
 	sort := c.Query("sort", "newest")
 	orderBy := "published_at desc"
@@ -40,7 +46,7 @@ func ListPodcasts(c *fiber.Ctx) error {
 	})
 }
 
-func ListAllPodcasts(c *fiber.Ctx) error {
+func (podCtrl *PodcastController) ListAllPodcasts(c *fiber.Ctx) error {
 	sort := c.Query("sort", "newest")
 	orderBy := "published_at desc"
 
@@ -66,7 +72,7 @@ func ListAllPodcasts(c *fiber.Ctx) error {
 }
 
 // ShowPodcast - Get a podcast
-func ShowPodcast(c *fiber.Ctx) error {
+func (podCtrl *PodcastController) ShowPodcast(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 
 	if len(podcastId) == 0 {
@@ -102,7 +108,7 @@ func ShowPodcast(c *fiber.Ctx) error {
 }
 
 // SeedPodcasts - Seed podcasts
-func SeedPodcasts(c *fiber.Ctx) error {
+func (podCtrl *PodcastController) SeedPodcasts(c *fiber.Ctx) error {
 	// Background job
 	go jobs.SeedPodcasts()
 

@@ -1,5 +1,5 @@
-PORT=9000 air --build.cmd "go build -o bin/api main.go" --build.bin "./bin/api"
+air --build.cmd "go build -o bin/api main.go" --build.bin "./bin/api"
 
-#### https://github.com/wg/wrk
-wrk -t2 -c500 -d30s http://127.0.0.1:9000/client/podcasts
+https://github.com/wg/wrk
+wrk -t2 -c500 -d30s http://127.0.0.1:9000/podcasts
 
