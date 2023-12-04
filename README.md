@@ -22,5 +22,5 @@
 
 ####
 
-- https://app.improvmx.com
-- https://mailjet.com
+- Email forwarding: [https://app.improvmx.com](https://app.improvmx.com)
+- Sending of emails: [https://mailjet.com](https://mailjet.com)
