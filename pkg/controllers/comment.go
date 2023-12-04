@@ -102,9 +102,9 @@ func (cmtCtrl *CommentController) StorePodcastComment(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(definitions.DataResponse[models.Comment]{
+	return c.Status(fiber.StatusCreated).JSON(definitions.DataResponse[models.CommentResource]{
 		Code: fiber.StatusCreated,
-		Data: comment,
+		Data: *comment.ToResource(),
 	})
 }
 
