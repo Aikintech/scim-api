@@ -7,7 +7,6 @@ info:
   description: Salvation Clinic International Minitries API Documentaion
   contact:
     name: Nana Kwesi Ofosu-Aikins
-    email: nanaaikinson24@gmail.com
 servers:
   - url: 'http://localhost:9000'
     description: Local
@@ -223,7 +222,7 @@ paths:
       description: 'Client: Like podcast'
       security:
         - X-USER-TOKEN: []
-  '/podcasts/{podcastId}/comment':
+  '/podcasts/{podcastId}/comments':
     parameters:
       - schema:
           type: string
@@ -253,6 +252,19 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CommentPodcastRequest'
+    get:
+      summary: ''
+      operationId: get-podcast-comments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodcastCommentsResponse'
+      description: 'Client: Get podcast comments'
+      tags:
+        - client
   '/podcasts/{podcastId}/comment/{commentId}':
     parameters:
       - schema:
@@ -605,6 +617,36 @@ components:
         - description
         - completedAt
         - createdAt
+    Comment:
+      type: object
+      x-examples:
+        Example 1:
+          id: 01HGTH4JBT0KMPYW4KD505SAS0
+          body: Lorem ipsum 3
+          createdAt: '2023-12-04T13:44:00.122063Z'
+          user:
+            id: 01HGHB89XH660W6HDM3FWBAEVB
+            firstName: Nana
+            lastName: Aikinson
+            email: nanaaikinson24@example.com
+            emailVerified: true
+            avatar: null
+            channels:
+              - web
+      properties:
+        id:
+          type: string
+        body:
+          type: string
+        createdAt:
+          type: string
+        user:
+          $ref: '#/components/schemas/AuthUser'
+      required:
+        - id
+        - body
+        - createdAt
+        - user
     LoginRequest:
       type: object
       x-examples:
@@ -889,6 +931,34 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Prayer'
+      required:
+        - code
+        - data
+    PodcastCommentsResponse:
+      type: object
+      x-examples:
+        Example 1:
+          code: 200
+          data:
+            - id: 01HGTH4JBT0KMPYW4KD505SAS0
+              body: Lorem ipsum 3
+              createdAt: '2023-12-04T13:44:00.122063Z'
+              user:
+                id: 01HGHB89XH660W6HDM3FWBAEVB
+                firstName: Nana
+                lastName: Aikinson
+                email: nanaaikinson24@example.com
+                emailVerified: true
+                avatar: null
+                channels:
+                  - web
+      properties:
+        code:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
       required:
         - code
         - data

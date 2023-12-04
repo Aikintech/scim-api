@@ -22,7 +22,7 @@ func NewCommentController() *CommentController {
 func (cmtCtrl *CommentController) GetPodcastComments(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 	podcast := models.Podcast{}
-	result := config.DB.Preload("Comments").Where("id = ?", podcastId).Find(&podcast)
+	result := config.DB.Debug().Preload("Comments.User").Where("id = ?", podcastId).Find(&podcast)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -39,13 +39,14 @@ func (cmtCtrl *CommentController) GetPodcastComments(c *fiber.Ctx) error {
 	}
 
 	// Convert to resource
-	comments := make([]*models.CommentResource, len(podcast.Comments))
+	comments := make([]*models.CommentResource, 0)
 	for _, c := range podcast.Comments {
 		comments = append(comments, c.ToResource())
 	}
 
-	return c.JSON(fiber.Map{
-		"data": comments,
+	return c.JSON(definitions.DataResponse[[]*models.CommentResource]{
+		Code: fiber.StatusOK,
+		Data: comments,
 	})
 }
 

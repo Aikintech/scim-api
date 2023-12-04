@@ -15,6 +15,7 @@ type PrayerRequest struct {
 	CompletedAt *time.Time
 	CreatedAt   time.Time `gorm:"not null"`
 	UpdatedAt   time.Time `gorm:"not null"`
+	User        *User
 }
 
 type PrayerRequestResource struct {

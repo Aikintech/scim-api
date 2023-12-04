@@ -16,6 +16,7 @@ type Playlist struct {
 	CreatedAt   time.Time `gorm:"not null"`
 	UpdatedAt   time.Time `gorm:"not null"`
 	Podcasts    []Podcast `gorm:"many2many:podcast_playlist"`
+	User        *User
 }
 
 type PlaylistResource struct {

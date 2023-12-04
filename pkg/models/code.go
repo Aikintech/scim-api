@@ -1,9 +1,10 @@
 package models
 
 import (
+	"time"
+
 	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
-	"time"
 )
 
 type VerificationCode struct {
@@ -14,9 +15,10 @@ type VerificationCode struct {
 	ExpiresAt time.Time `gorm:"not null"`
 	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null"`
+	User      *User
 }
 
-func (v VerificationCode) BeforeCreate(tx *gorm.DB) error {
+func (v *VerificationCode) BeforeCreate(tx *gorm.DB) error {
 	v.ID = ulid.Make().String()
 
 	return nil
