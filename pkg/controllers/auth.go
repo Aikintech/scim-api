@@ -67,14 +67,14 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 
 	// Generate token
 	reference := ulid.Make().String()
-	accessToken, err := utils.GenerateUserToken(&user, "access", reference)
+	accessToken, err := utils.GenerateUserToken(user, "access", reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
-	refreshToken, err := utils.GenerateUserToken(&user, "refresh", reference)
+	refreshToken, err := utils.GenerateUserToken(user, "refresh", reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
@@ -171,7 +171,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 	reference := ulid.Make().String()
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
-	accessToken, err := utils.GenerateUserToken(user, "access", reference)
+	accessToken, err := utils.GenerateUserToken(*user, "access", reference)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{

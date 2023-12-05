@@ -6,9 +6,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/aikintech/scim-api/pkg/models"
+
 	"gorm.io/driver/postgres"
 
-	"github.com/aikintech/scim-api/pkg/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )

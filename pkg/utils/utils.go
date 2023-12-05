@@ -33,7 +33,7 @@ func GenerateCoe(max int) string {
 	return string(b)
 }
 
-func GenerateUserToken(user *models.User, tokenType string, reference string) (string, error) {
+func GenerateUserToken(user models.User, tokenType string, reference string) (string, error) {
 	// Create the Claims
 	expiry := time.Now().Add(time.Hour * 1).Unix()
 	if tokenType == "refresh" {

@@ -88,3 +88,25 @@ func (pryCtrl *PrayerController) RequestPrayer(c *fiber.Ctx) error {
 		Message: "Prayer request successfully",
 	})
 }
+
+// Backoffice handlers
+func (pryCtrl *PrayerController) BackOfficeGetPrayers(c *fiber.Ctx) error {
+	search := c.Query("search", "")
+
+	// Get prayers
+	prayers := make([]models.PrayerRequestResource, 0)
+	result := config.DB.Debug().Scopes(models.PaginateScope(c)).Model(&models.PrayerRequest{}).Preload("User").Where("title LIKE ?", "%"+search+"%").Find(&prayers)
+	if result.Error != nil {
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Code:    fiber.StatusBadRequest,
+				Message: result.Error.Error(),
+			})
+		}
+	}
+
+	return c.JSON(definitions.DataResponse[[]models.PrayerRequestResource]{
+		Code: fiber.StatusOK,
+		Data: prayers,
+	})
+}

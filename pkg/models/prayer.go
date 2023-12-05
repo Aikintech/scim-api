@@ -19,11 +19,12 @@ type PrayerRequest struct {
 }
 
 type PrayerRequestResource struct {
-	ID          string     `json:"id"`
-	Title       string     `json:"title"`
-	Body        string     `json:"description"`
-	CompletedAt *time.Time `json:"completedAt"`
-	CreatedAt   time.Time  `json:"createdAt"`
+	ID          string            `json:"id"`
+	Title       string            `json:"title"`
+	Body        string            `json:"description"`
+	CompletedAt *time.Time        `json:"completedAt"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	User        *AuthUserResource `json:"user"`
 }
 
 func (p *PrayerRequest) BeforeCreate(tx *gorm.DB) error {
@@ -39,5 +40,6 @@ func (p *PrayerRequest) ToResource() PrayerRequestResource {
 		Body:        p.Body,
 		CompletedAt: p.CompletedAt,
 		CreatedAt:   p.CreatedAt,
+		User:        p.User.ToResource(),
 	}
 }
