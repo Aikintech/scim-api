@@ -126,7 +126,7 @@ func (plCtrl *PlaylistController) GetPlaylist(c *fiber.Ctx) error {
 	})
 }
 
-// TODO: Fix me
+// UpdatePlaylist updates a user's playlist // TODO: Fix me
 func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
