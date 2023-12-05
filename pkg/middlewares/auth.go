@@ -41,9 +41,7 @@ func JWTMiddleware(accessType string) fiber.Handler {
 
 			// Get user
 			user := new(models.User)
-			result := config.DB.Model(&models.User{}).Where("id = ?", claims["sub"].(string)).First(&user)
-
-			if result.Error != nil {
+			if result := config.DB.Model(&models.User{}).Where("id = ?", claims["sub"].(string)).First(&user); result.Error != nil {
 				if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 					return c.Status(fiber.StatusUnauthorized).JSON(definitions.MessageResponse{
 						Code:    fiber.StatusUnauthorized,

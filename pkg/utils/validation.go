@@ -22,8 +22,6 @@ func ValidateStruct(schema interface{}) []definitions.ValidationErr {
 	}
 
 	// Validate struct
-	fmt.Println("Validating struct", schema)
-
 	err = validate.Struct(schema)
 
 	if err != nil {
