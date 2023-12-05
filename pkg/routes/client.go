@@ -40,7 +40,7 @@ func ClientRoutes(app *fiber.App) {
 	commentController := controllers.NewCommentController()
 	likeController := controllers.NewLikeController()
 
-	podcasts.Post("/seed", podcastController.SeedPodcasts)
+	podcasts.Post("/seed", middlewares.CronJobsMiddleware(), podcastController.SeedPodcasts)
 	podcasts.Get("/", podcastController.ListPodcasts)
 	podcasts.Get("/all", listAllPodcastsCache, podcastController.ListAllPodcasts)
 	podcasts.Get("/:podcastId", podcastByIdCache, podcastController.ShowPodcast)

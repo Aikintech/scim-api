@@ -12,7 +12,7 @@ func (evtCtrl *EventController) GetEvents(c *fiber.Ctx) error {
 	return c.SendString("GetEvents")
 }
 
-// Backoffice
-func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
+// Backoffice handlers
+func (evtCtrl *EventController) BackofficeStoreEvent(c *fiber.Ctx) error {
 	return c.SendString("CreateEvent")
 }

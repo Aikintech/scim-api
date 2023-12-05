@@ -32,10 +32,9 @@ func ConnectDB() {
 	fmt.Println("Connecting to database...")
 
 	config := &gorm.Config{}
+
 	if os.Getenv("APP_ENV") == "local" {
-		config = &gorm.Config{
-			Logger: newLogger,
-		}
+		config.Logger = newLogger
 	}
 
 	dsn := os.Getenv("DB_URL")
@@ -51,7 +50,7 @@ func ConnectDB() {
 }
 
 func MigrateDB() {
-	err := DB.Debug().AutoMigrate(
+	err := DB.AutoMigrate(
 		&models.User{}, &models.Podcast{},
 		&models.Post{}, &models.Playlist{},
 		&models.PrayerRequest{}, &models.Like{},

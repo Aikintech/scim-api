@@ -9,6 +9,7 @@ import (
 	"github.com/aikintech/scim/pkg/models"
 	jwtWare "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
@@ -59,6 +60,14 @@ func JWTMiddleware(accessType string) fiber.Handler {
 			c.Locals(config.USER_CONTEXT_KEY, user)
 
 			return c.Next()
+		},
+	})
+}
+
+func CronJobsMiddleware() fiber.Handler {
+	return basicauth.New(basicauth.Config{
+		Users: map[string]string{
+			os.Getenv("CRON_USERNAME"): os.Getenv("CRON_PASSWORD"),
 		},
 	})
 }
