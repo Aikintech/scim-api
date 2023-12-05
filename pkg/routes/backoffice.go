@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/aikintech/scim/pkg/controllers"
-	"github.com/aikintech/scim/pkg/middlewares"
+	"github.com/aikintech/scim-api/pkg/controllers"
+	"github.com/aikintech/scim-api/pkg/middlewares"
 	"github.com/gofiber/fiber/v2"
 )
 

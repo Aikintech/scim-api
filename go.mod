@@ -1,4 +1,4 @@
-module github.com/aikintech/scim
+module github.com/aikintech/scim-api
 
 go 1.20
 

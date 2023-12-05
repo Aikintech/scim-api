@@ -5,10 +5,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/aikintech/scim/pkg/routes"
-	"github.com/aikintech/scim/pkg/utils"
+	"github.com/aikintech/scim-api/pkg/routes"
+	"github.com/aikintech/scim-api/pkg/utils"
 
-	"github.com/aikintech/scim/pkg/config"
+	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/gofiber/fiber/v2"
 )
 
