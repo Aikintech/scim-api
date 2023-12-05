@@ -22,9 +22,7 @@ func NewCommentController() *CommentController {
 func (cmtCtrl *CommentController) GetPodcastComments(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 	podcast := models.Podcast{}
-	result := config.DB.Preload("Comments.User").Where("id = ?", podcastId).Find(&podcast)
-
-	if result.Error != nil {
+	if result := config.DB.Preload("Comments.User").Where("id = ?", podcastId).Find(&podcast); result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
 				Code:    fiber.StatusNotFound,
@@ -41,7 +39,25 @@ func (cmtCtrl *CommentController) GetPodcastComments(c *fiber.Ctx) error {
 	// Convert to resource
 	comments := make([]*models.CommentResource, 0)
 	for _, c := range podcast.Comments {
-		comments = append(comments, c.ToResource())
+		user := c.User
+		avatar, _ := utils.GenerateS3FileURL(*user.Avatar)
+
+		comment := (models.CommentResource{
+			ID:        c.ID,
+			Body:      c.Body,
+			CreatedAt: c.CreatedAt,
+			User: &models.AuthUserResource{
+				ID:            c.User.ID,
+				FirstName:     user.FirstName,
+				LastName:      user.LastName,
+				Email:         user.Email,
+				EmailVerified: user.EmailVerifiedAt != nil,
+				Avatar:        &avatar,
+				Channels:      user.Channels,
+			},
+		})
+
+		comments = append(comments, &comment)
 	}
 
 	return c.JSON(definitions.DataResponse[[]*models.CommentResource]{
@@ -52,9 +68,12 @@ func (cmtCtrl *CommentController) GetPodcastComments(c *fiber.Ctx) error {
 
 // StorePodcastComment - Comment on a podcast
 func (cmtCtrl *CommentController) StorePodcastComment(c *fiber.Ctx) error {
+	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+	podcastId := c.Params("podcastId", "")
+
 	// Parse request
-	request := new(validation.StorePodcastCommentSchema)
-	if err := c.BodyParser(request); err != nil {
+	request := validation.StorePodcastCommentSchema{}
+	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
@@ -62,8 +81,7 @@ func (cmtCtrl *CommentController) StorePodcastComment(c *fiber.Ctx) error {
 	}
 
 	// Validate request
-	errs := utils.ValidateStruct(request)
-	if len(errs) > 0 {
+	if errs := utils.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
 			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
@@ -71,45 +89,49 @@ func (cmtCtrl *CommentController) StorePodcastComment(c *fiber.Ctx) error {
 	}
 
 	// Find podcast
-	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
-	podcastId := c.Params("podcastId", "")
+	trx := config.DB.Begin()
 	podcast := models.Podcast{}
-	result := config.DB.Where("id = ?", podcastId).First(&podcast)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusNotFound,
-				Message: "No record found",
-			})
-		} else {
-			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
-				Message: result.Error.Error(),
-			})
-		}
-	}
-
-	comment := models.Comment{
-		Body:            request.Comment,
-		UserID:          user.ID,
-		CommentableID:   podcast.ID,
-		CommentableType: "podcasts",
-	}
-	result = config.DB.Model(&models.Comment{}).Create(&comment)
-	if result.Error != nil {
+	if result := trx.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast); result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: result.Error.Error(),
 		})
 	}
 
+	// Insert comment
+	comment := models.Comment{Body: request.Comment, UserID: user.ID, CommentableID: podcastId, CommentableType: podcast.GetPolymorphicType()}
+	if result := trx.Debug().Model(&models.Comment{}).Create(&comment); result.Error != nil {
+		trx.Rollback()
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: result.Error.Error(),
+		})
+	}
+
+	trx.Commit()
+	avatar, _ := utils.GenerateS3FileURL(*user.Avatar)
+
 	return c.Status(fiber.StatusCreated).JSON(definitions.DataResponse[models.CommentResource]{
 		Code: fiber.StatusCreated,
-		Data: *comment.ToResource(),
+		Data: models.CommentResource{
+			ID:        comment.ID,
+			Body:      comment.Body,
+			CreatedAt: comment.CreatedAt,
+			User: &models.AuthUserResource{
+				ID:            user.ID,
+				FirstName:     user.FirstName,
+				LastName:      user.LastName,
+				Email:         user.Email,
+				EmailVerified: user.EmailVerifiedAt != nil,
+				Avatar:        &avatar,
+				Channels:      user.Channels,
+			},
+		},
 	})
 }
 
-// UpdatePodcastComment - Update a podcast comment
+// UpdatePodcastComment - // TODO: Update a podcast comment
 func (cmtCtrl *CommentController) UpdatePodcastComment(c *fiber.Ctx) error {
 
 	return c.SendString("Like podcast")
@@ -122,7 +144,7 @@ func (cmtCtrl *CommentController) DeletePodcastComment(c *fiber.Ctx) error {
 	// Find podcast and comment
 	trx := config.DB.Begin()
 	comment := models.Comment{}
-	result := trx.Debug().Where(&models.Comment{
+	result := trx.Where(&models.Comment{
 		CommentableID:   c.Params("podcastId"),
 		CommentableType: "podcasts",
 		UserID:          user.ID,

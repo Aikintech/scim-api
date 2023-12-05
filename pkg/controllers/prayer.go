@@ -94,7 +94,7 @@ func (pryCtrl *PrayerController) BackOfficeGetPrayers(c *fiber.Ctx) error {
 	search := c.Query("search", "")
 
 	// Get prayers
-	prayers := make([]models.PrayerRequestResource, 0)
+	prayers := make([]models.PrayerRequest, 0)
 	result := config.DB.Debug().Scopes(models.PaginateScope(c)).Model(&models.PrayerRequest{}).Preload("User").Where("title LIKE ?", "%"+search+"%").Find(&prayers)
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -105,8 +105,31 @@ func (pryCtrl *PrayerController) BackOfficeGetPrayers(c *fiber.Ctx) error {
 		}
 	}
 
+	prayerResources := make([]models.PrayerRequestResource, 0)
+	for _, p := range prayers {
+		user := p.User
+		avatar, _ := utils.GenerateS3FileURL(*user.Avatar)
+
+		prayerResources = append(prayerResources, models.PrayerRequestResource{
+			ID:          p.ID,
+			Title:       p.Title,
+			Body:        p.Body,
+			CompletedAt: p.CompletedAt,
+			CreatedAt:   p.CreatedAt,
+			User: &models.AuthUserResource{
+				ID:            user.ID,
+				FirstName:     user.FirstName,
+				LastName:      user.LastName,
+				Email:         user.Email,
+				EmailVerified: user.EmailVerifiedAt != nil,
+				Avatar:        &avatar,
+				Channels:      user.Channels,
+			},
+		})
+	}
+
 	return c.JSON(definitions.DataResponse[[]models.PrayerRequestResource]{
 		Code: fiber.StatusOK,
-		Data: prayers,
+		Data: prayerResources,
 	})
 }
