@@ -18,13 +18,13 @@ func NewPlaylistController() *PlaylistController {
 	return &PlaylistController{}
 }
 
+// GetPlaylists - Get user playlists
 func (plCtrl *PlaylistController) GetPlaylists(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
 	// Get playlists
 	playlists := make([]*models.Playlist, 0)
-	result := config.DB.Preload("Podcasts").Where("user_id = ?", user.ID).Find(&playlists)
-	if result.Error != nil {
+	if result := config.DB.Preload("Podcasts").Where("user_id = ?", user.ID).Find(&playlists); result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: result.Error.Error(),
@@ -43,6 +43,7 @@ func (plCtrl *PlaylistController) GetPlaylists(c *fiber.Ctx) error {
 	})
 }
 
+// CreatePlaylist - Create a playlist
 func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
@@ -65,9 +66,8 @@ func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 	}
 
 	// Create playlist
-	podcasts := make([]models.Podcast, len(request.Podcasts))
-	result := config.DB.Find(&podcasts, request.Podcasts)
-	if result.Error != nil {
+	podcasts := make([]models.Podcast, 0)
+	if result := config.DB.Find(&podcasts, request.Podcasts); result.Error != nil {
 		message := "No podcasts found for the selected ids"
 
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -87,9 +87,7 @@ func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 		Podcasts:    podcasts,
 	}
 
-	result = config.DB.Create(&playlist)
-
-	if result.Error != nil {
+	if result := config.DB.Create(&playlist); result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: result.Error.Error(),
@@ -103,13 +101,13 @@ func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 	})
 }
 
+// GetPlaylist - Get a playlist
 func (plCtrl *PlaylistController) GetPlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
 	// Get playlist
 	playlist := new(models.Playlist)
-	result := config.DB.Preload("Podcasts").Where("id = ? AND user_id = ?", c.Params("playlistId"), user.ID).First(&playlist)
-	if result.Error != nil {
+	if result := config.DB.Preload("Podcasts").Where("id = ? AND user_id = ?", c.Params("playlistId"), user.ID).First(&playlist); result.Error != nil {
 		message := "Playlist not found"
 
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -218,6 +216,7 @@ func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 	})
 }
 
+// DeletePlaylist - Delete a playlist
 func (plCtrl *PlaylistController) DeletePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
 
