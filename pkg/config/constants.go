@@ -6,3 +6,8 @@ const (
 	USER_CONTEXT_KEY   = "user"
 	PODCASTS_CACHE_KEY = "podcasts"
 )
+
+var (
+	UPLOAD_TYPES       = []string{"testimony", "excerpt", "avatar"}
+	ALLOWED_MIME_TYPES = []string{"png", "jpeg", "jpg", "mov", "mp4"}
+)

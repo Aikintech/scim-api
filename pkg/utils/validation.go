@@ -3,24 +3,27 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"strings"
+
+	"github.com/aikintech/scim/pkg/config"
 	"github.com/aikintech/scim/pkg/definitions"
 	"github.com/aikintech/scim/pkg/validation"
 	"github.com/go-playground/validator/v10"
-	"strings"
 )
 
 func ValidateStruct(schema interface{}) []definitions.ValidationErr {
 	var errs []definitions.ValidationErr
+	var err error
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	// Custom error validation registration
-	err := validate.RegisterValidation("isValidPassword", validation.IsValidPasswordValidation)
-
-	if err != nil {
+	if err = validate.RegisterValidation("validpassword", validation.IsValidPasswordValidation); err != nil {
 		fmt.Println("Error registering custom validation :", err.Error())
 	}
 
 	// Validate struct
+	fmt.Println("Validating struct", schema)
+
 	err = validate.Struct(schema)
 
 	if err != nil {
@@ -30,7 +33,7 @@ func ValidateStruct(schema interface{}) []definitions.ValidationErr {
 		for i, err := range validationErrors {
 			field := strings.ToLower(err.Field())
 
-			if exists := existsInValidationErrs(field, errs); exists != false {
+			if existsInValidationErrs(field, errs) {
 				errs[i].Reasons = append(errs[i].Reasons, getValidationMessage(err))
 			} else {
 				errs = append(errs, definitions.ValidationErr{Field: field, Reasons: []string{getValidationMessage(err)}})
@@ -70,6 +73,23 @@ func getValidationMessage(err validator.FieldError) string {
 		}
 	case "isValidPassword":
 		return fmt.Sprintf("The %s field must contain at least one uppercase, one lowercase, one number and one special case character.", fieldName)
+
+	case "mimes":
+		{
+			split := strings.Split(err.Param(), " ")
+			joined := strings.Join(split, ", ")
+
+			return fmt.Sprintf("The %s must be one of the following types: %s.", fieldName, joined)
+		}
+
+	case "uploadtype":
+		{
+			stringified := strings.Join(config.UPLOAD_TYPES, ",")
+			return fmt.Sprintf("The %s field must be a valid upload type: %s", fieldName, stringified)
+		}
+
+	case "filesize":
+		return fmt.Sprintf("The %s field must be a valid file size.", fieldName)
 
 	// Add more cases for other validation tags as needed
 	default:

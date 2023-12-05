@@ -391,7 +391,7 @@ paths:
         - client
   /prayer-requests:
     get:
-      summary: Your GET endpoint
+      summary: ''
       tags:
         - client
       responses:
@@ -435,7 +435,7 @@ paths:
         - client
   /home:
     get:
-      summary: Your GET endpoint
+      summary: ''
       tags:
         - client
       responses:
@@ -447,6 +447,63 @@ paths:
                 $ref: '#/components/schemas/HomeDataResponse'
       operationId: get-home-data
       description: 'Client: Get home data'
+  /files/upload:
+    post:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+      operationId: upload-file
+      description: 'Client: Upload file'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  file: ''
+                  uploadType: avatar
+              properties:
+                file:
+                  type: string
+                  format: binary
+                uploadType:
+                  type: string
+                  enum:
+                    - testimony
+                    - excerpt
+                    - avatar
+              required:
+                - file
+                - uploadType
+  /files/get-url:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+      operationId: get-file-url
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: key
+          required: true
+      description: 'Client: Get file url'
 components:
   schemas:
     AuthUser:
@@ -1086,6 +1143,30 @@ components:
               type: array
               items:
                 type: object
+      required:
+        - code
+        - data
+    FileResponse:
+      type: object
+      x-examples:
+        Example 1:
+          code: 200
+          data:
+            key: AVATAR/FXI7ZDPtyYkV6aIPUpB5nXHfFvBBpt.jpeg
+            url: 'https://scimapp-test-uploads.s3.eu-west-1.amazonaws.com/AVATAR/FXI7ZDPtyYkV6aIPUpB5nXHfFvBBpt.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAW3W3GZGQ66DHX5JB%2F20231205%2Feu-west-1%2Fs3%2Faws4_request&X-Amz-Date=20231205T163016Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b4691bacc65700bc003af0b081ac70b4d48bc7d937d983ef24fc4c942ad90028'
+      properties:
+        code:
+          type: integer
+        data:
+          type: object
+          required:
+            - key
+            - url
+          properties:
+            key:
+              type: string
+            url:
+              type: string
       required:
         - code
         - data
