@@ -9,10 +9,16 @@ import (
 func BackOfficeRoutes(app *fiber.App) {
 	backoffice := app.Group("/backoffice")
 	events := backoffice.Group("/events")
+	prayers := backoffice.Group("/prayer-requests")
 	jwtAuthWare := middlewares.JWTMiddleware("access")
 
-	// Events
+	// Controller initializations
+	prayerController := controllers.NewPrayerController()
 	eventController := controllers.NewEventController()
 
+	// Events
 	events.Post("/", jwtAuthWare, eventController.BackofficeStoreEvent)
+
+	// Prayer requests
+	prayers.Get("/", prayerController.BackOfficeGetPrayers)
 }

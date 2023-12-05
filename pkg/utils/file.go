@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
@@ -60,6 +61,10 @@ func UploadFileS3(file *multipart.FileHeader, key string) (definitions.Map, erro
 }
 
 func GenerateS3FileURL(key string) (string, error) {
+	if len(key) == 0 {
+		return "", errors.New("key is required")
+	}
+
 	result, err := config.RedisStore.Get(key)
 	if err != nil {
 		return "", err

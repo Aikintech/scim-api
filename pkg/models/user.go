@@ -19,6 +19,7 @@ type User struct {
 	Password          string
 	EmailVerifiedAt   *time.Time
 	SignUpProvider    string `gorm:"not null"`
+	Avatar            *string
 	Channels          datatypes.JSON
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
@@ -40,20 +41,21 @@ type AuthUserResource struct {
 	Channels      datatypes.JSON `json:"channels"`
 }
 
-func (model *User) BeforeCreate(*gorm.DB) error {
-	model.ID = ulid.Make().String()
+func (u *User) BeforeCreate(*gorm.DB) error {
+	u.ID = ulid.Make().String()
 
 	return nil
 }
 
 func (u *User) ToResource() *AuthUserResource {
+	// Generate avatarURL
 	return &AuthUserResource{
 		ID:            u.ID,
 		FirstName:     u.FirstName,
 		LastName:      u.LastName,
 		Email:         u.Email,
 		EmailVerified: u.EmailVerifiedAt != nil,
-		Avatar:        nil,
+		Avatar:        u.Avatar,
 		Channels:      u.Channels,
 	}
 }

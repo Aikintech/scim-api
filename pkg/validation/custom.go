@@ -1,7 +1,10 @@
 package validation
 
 import (
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/samber/lo"
 	"regexp"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -35,4 +38,12 @@ func isPasswordValid(password string) bool {
 
 	// Combine all conditions
 	return hasLowercase && hasUppercase && hasDigit && hasSpecialChar && hasValidLength
+}
+
+func IsValidFileKey(key string) bool {
+	return lo.SomeBy(config.UPLOAD_TYPES, func(item string) bool {
+		uploadType := strings.ToUpper(item)
+
+		return strings.Contains(key, uploadType) // Key contains upload type
+	})
 }

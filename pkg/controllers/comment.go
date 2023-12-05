@@ -22,7 +22,7 @@ func NewCommentController() *CommentController {
 func (cmtCtrl *CommentController) GetPodcastComments(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 	podcast := models.Podcast{}
-	result := config.DB.Debug().Preload("Comments.User").Where("id = ?", podcastId).Find(&podcast)
+	result := config.DB.Preload("Comments.User").Where("id = ?", podcastId).Find(&podcast)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {

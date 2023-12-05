@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/aikintech/scim-api/pkg/validation"
 	"strings"
 
 	"github.com/aikintech/scim-api/pkg/config"
@@ -84,11 +85,7 @@ func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
 	key := c.Query("key", "")
 
 	// Validate request
-	if !lo.SomeBy(config.UPLOAD_TYPES, func(item string) bool {
-		uploadType := strings.ToUpper(item)
-
-		return strings.Contains(key, uploadType) // Key contains upload type
-	}) {
+	if validation.IsValidFileKey(key) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: "Invalid file key",

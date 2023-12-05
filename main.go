@@ -21,6 +21,7 @@ func init() {
 
 	// Load database
 	config.ConnectDB()
+	config.MigrateDB()
 }
 
 func main() {
@@ -29,10 +30,6 @@ func main() {
 		Prefork:   false,
 		BodyLimit: 64 * 1024 * 1024, // 64MB
 	})
-
-	if !fiber.IsChild() {
-		config.MigrateDB()
-	}
 
 	// Middlewares
 	config.LoadGlobalMiddlewares(app)
