@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/definitions"
-	"github.com/aikintech/scim/pkg/validation"
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/definitions"
+	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/go-playground/validator/v10"
 )
 

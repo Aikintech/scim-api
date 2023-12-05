@@ -8,7 +8,7 @@ import (
 
 	"gorm.io/driver/postgres"
 
-	"github.com/aikintech/scim/pkg/models"
+	"github.com/aikintech/scim-api/pkg/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )

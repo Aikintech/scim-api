@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/models"
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )

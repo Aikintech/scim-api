@@ -4,9 +4,9 @@ import (
 	"errors"
 	"os"
 
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/definitions"
-	"github.com/aikintech/scim/pkg/models"
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/definitions"
+	"github.com/aikintech/scim-api/pkg/models"
 	jwtWare "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"

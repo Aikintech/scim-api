@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/definitions"
-	"github.com/aikintech/scim/pkg/models"
-	"github.com/aikintech/scim/pkg/utils"
-	"github.com/aikintech/scim/pkg/validation"
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/definitions"
+	"github.com/aikintech/scim-api/pkg/models"
+	"github.com/aikintech/scim-api/pkg/utils"
+	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )

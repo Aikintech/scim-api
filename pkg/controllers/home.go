@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/definitions"
-	"github.com/aikintech/scim/pkg/models"
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/definitions"
+	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )

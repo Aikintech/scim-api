@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/aikintech/scim/pkg/controllers"
+	"github.com/aikintech/scim-api/pkg/controllers"
 	"github.com/gofiber/fiber/v2"
 )
 

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/models"
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/mmcdole/gofeed"
 	"github.com/samber/lo"
 	"gorm.io/gorm"

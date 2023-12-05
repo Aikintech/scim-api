@@ -3,8 +3,8 @@ package utils
 import (
 	"context"
 	"fmt"
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/definitions"
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
