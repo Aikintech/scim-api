@@ -2,19 +2,22 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
-	"github.com/aikintech/scim/pkg/routes"
+	"github.com/aikintech/scim-api/pkg/routes"
+	"github.com/aikintech/scim-api/pkg/utils"
 
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/gofiber/contrib/fiberzerolog"
+	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/gofiber/fiber/v2"
-	"github.com/rs/zerolog"
 )
 
 func init() {
 	// Load environment variables
 	config.LoadEnv()
+
+	// Initialize redis
+	config.InitializeRedis()
 
 	// Load database
 	config.ConnectDB()
@@ -23,20 +26,26 @@ func init() {
 
 func main() {
 	// Instantiate a new fiber app
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		Prefork:   false,
+		BodyLimit: 64 * 1024 * 1024, // 64MB
+	})
 
-	// Global middlewares
-	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
-
-	app.Use(fiberzerolog.New(fiberzerolog.Config{
-		Logger: &logger,
-	}))
+	// Middlewares
+	config.LoadGlobalMiddlewares(app)
 
 	// Routes
 	routes.LoadRoutes(app)
 
+	// Dump routes to a file
+	if os.Getenv("APP_ENV") == "local" {
+		if err := utils.DumpRoutesToFile(app); err != nil {
+			fmt.Println("Error:", err.Error())
+		}
+	}
+
 	// Start the app
 	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
-		logger.Fatal().Err(err).Msg("Fiber app error")
+		log.Fatal(err.Error())
 	}
 }

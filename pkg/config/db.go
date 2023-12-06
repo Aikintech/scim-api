@@ -6,14 +6,17 @@ import (
 	"os"
 	"time"
 
+	"github.com/aikintech/scim-api/pkg/models"
+
 	"gorm.io/driver/postgres"
 
-	"github.com/aikintech/scim/pkg/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
+
+// TODO: Remove all the Debug() calls before production
 
 func ConnectDB() {
 	newLogger := logger.New(
@@ -29,11 +32,14 @@ func ConnectDB() {
 
 	fmt.Println("Connecting to database...")
 
-	dsn := os.Getenv("DB_URL")
+	config := &gorm.Config{}
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: newLogger,
-	})
+	if os.Getenv("APP_ENV") == "local" {
+		config.Logger = newLogger
+	}
+
+	dsn := os.Getenv("DB_URL")
+	db, err := gorm.Open(postgres.Open(dsn), config)
 
 	if err != nil {
 		log.Fatal("Failed to connect database")
@@ -45,12 +51,12 @@ func ConnectDB() {
 }
 
 func MigrateDB() {
-	err := DB.Debug().AutoMigrate(
+	err := DB.AutoMigrate(
 		&models.User{}, &models.Podcast{},
 		&models.Post{}, &models.Playlist{},
 		&models.PrayerRequest{}, &models.Like{},
 		&models.Comment{}, &models.Event{},
-		&models.UserToken{},
+		&models.UserToken{}, &models.VerificationCode{},
 	)
 
 	if err != nil {

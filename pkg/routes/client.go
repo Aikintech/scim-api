@@ -1,34 +1,75 @@
 package routes
 
 import (
-	"github.com/aikintech/scim/pkg/controllers"
-	"github.com/aikintech/scim/pkg/middlewares"
+	"github.com/aikintech/scim-api/pkg/controllers"
+	"github.com/aikintech/scim-api/pkg/middlewares"
 	"github.com/gofiber/fiber/v2"
 )
 
 func ClientRoutes(app *fiber.App) {
-	// Create a new sub-router (client)
-	client := app.Group("/client")
-	podcasts := client.Group("/podcasts")
-	playlists := client.Group("/playlists")
-	prayerRequests := client.Group("/prayer-requests")
+	// Groups
+	auth := app.Group("/auth")
+	podcasts := app.Group("/podcasts")
+	playlists := app.Group("/playlists")
+	prayers := app.Group("/prayer-requests")
 
 	// Middlewares
 	jwtAuthWare := middlewares.JWTMiddleware("access")
+	refreshJwtAuthWare := middlewares.JWTMiddleware("refresh")
+	// podcastsCache := middlewares.PodcastsCache()
+	listAllPodcastsCache := middlewares.AllPodcastsCache()
+	podcastByIdCache := middlewares.PodcastByIdCache()
 
+	/**
+	*** Auth routes
+	**/
+	authController := controllers.NewAuthController()
+
+	auth.Post("/login", authController.Login)
+	auth.Post("/register", authController.Register)
+	auth.Post("/forgot-password", authController.ForgotPassword)
+	auth.Post("/reset-password", authController.ResetPassword)
+	auth.Post("/resend-email-verification", authController.ResendEmailVerification)
+	auth.Get("/refresh-token", refreshJwtAuthWare, authController.RefreshToken)
+
+	/**
+	*** Podcast and playlist routes
+	**/
 	// Podcasts
-	podcasts.Post("/seed", controllers.SeedPodcasts)
+	podcastController := controllers.NewPodcastController()
+	commentController := controllers.NewCommentController()
+	likeController := controllers.NewLikeController()
 
-	podcasts.Get("/", controllers.ClientListPodcasts)
-	podcasts.Get("/:podcastId", controllers.ClientShowPodcast)
-	podcasts.Get("/:podcastId/comments", controllers.ClientGetPodcastComments)
-	podcasts.Post("/:podcastId/comments", jwtAuthWare, controllers.ClientStorePodcastComment)
-	podcasts.Patch("/:podcastId/like", jwtAuthWare, controllers.ClientLikePodcast)
-	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, controllers.ClientUpdatePodcastComment)
+	podcasts.Post("/seed", middlewares.CronJobsMiddleware(), podcastController.SeedPodcasts)
+	podcasts.Get("/", podcastController.ListPodcasts)
+	podcasts.Get("/all", listAllPodcastsCache, podcastController.ListAllPodcasts)
+	podcasts.Get("/:podcastId", podcastByIdCache, podcastController.ShowPodcast)
+	podcasts.Get("/:podcastId/comments", commentController.GetPodcastComments)
+	podcasts.Post("/:podcastId/comments", jwtAuthWare, commentController.StorePodcastComment)
+	podcasts.Patch("/:podcastId/comments/:commentId", jwtAuthWare, commentController.UpdatePodcastComment)
+	podcasts.Patch("/:podcastId/like", jwtAuthWare, likeController.LikePodcast)
+	podcasts.Delete("/:podcastId/comments/:commentId", jwtAuthWare, commentController.DeletePodcastComment)
 
 	// Playlists
-	playlists.Post("/", jwtAuthWare, controllers.ClientCreatePlaylist)
+	playlistController := controllers.NewPlaylistController()
 
-	// Prayer requests
-	prayerRequests.Post("/", controllers.ClientRequestPrayer)
+	playlists.Get("/", jwtAuthWare, playlistController.GetPlaylists)
+	playlists.Post("/", jwtAuthWare, playlistController.CreatePlaylist)
+	playlists.Get("/:playlistId", jwtAuthWare, playlistController.GetPlaylist)
+	playlists.Patch("/:playlistId", jwtAuthWare, playlistController.UpdatePlaylist)
+	playlists.Delete("/:playlistId", jwtAuthWare, playlistController.DeletePlaylist)
+	playlists.Post("/:playlistId/podcasts", jwtAuthWare, playlistController.AddPlaylistPodcasts)
+	playlists.Patch("/:playlistId/podcasts", jwtAuthWare, playlistController.DeletePlaylistPodcasts)
+
+	/**
+	*** Prayer request
+	**/
+	prayerController := controllers.NewPrayerController()
+
+	prayers.Get("/", jwtAuthWare, prayerController.MyPrayers)
+	prayers.Post("/", jwtAuthWare, prayerController.RequestPrayer)
+
+	// Dashboard/home
+
+	app.Get("/home", controllers.NewHomeController().ClientHome)
 }

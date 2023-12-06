@@ -1,25 +1,25 @@
 openapi: 3.0.0
 x-stoplight:
-  id: lkd4mjwpm1z5y
+  id: zur6c0dxx3z8a
 info:
   title: API
   version: '1.0'
-  description: Salvation Clinic International Minitries API Documentaion
+  description: Salvation Clinic International Ministries API Documentaion
   contact:
     name: Nana Kwesi Ofosu-Aikins
     email: nanaaikinson24@gmail.com
 servers:
-  - url: 'http://localhost:3000'
+  - url: 'https://staging-api.scimapp.org'
+    description: ''
 tags:
-  - name: admin
-  - name: central
+  - name: backoffice
   - name: client
 paths:
   /auth/login:
     post:
       summary: ''
       tags:
-        - central
+        - client
       responses:
         '200':
           description: OK
@@ -34,12 +34,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/LoginRequest'
-      description: 'Central: Auth login'
+      description: Auth login
   /auth/register:
     post:
       summary: ''
       tags:
-        - central
+        - client
       responses:
         '200':
           description: OK
@@ -54,29 +54,51 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RegisterRequest'
-      description: 'Central: Auth register'
+      description: Auth register
     parameters: []
-  /auth/refresh-token:
-    get:
+  /auth/resend-email-verification:
+    post:
       summary: ''
       tags:
-        - central
+        - client
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RefreshTokenResponse'
-      operationId: auth-refresh-token
+                $ref: '#/components/schemas/MessageResponse'
+      operationId: auth-resend-email-verification
       requestBody:
         required: true
-        content: {}
-      description: 'Central: Auth refresh token'
-      security:
-        - X-USER-TOKEN: []
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+      description: Auth resend email verification
     parameters: []
-  /client/podcasts:
+  /auth/forgot-password:
+    post:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      operationId: auth-forgot-password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+      description: Auth forgot password
+    parameters: []
+  /auth/refresh-token:
     get:
       summary: ''
       tags:
@@ -87,8 +109,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientGetPodcastsResponse'
-      operationId: client-get-podcasts
+                $ref: '#/components/schemas/RefreshTokenResponse'
+      operationId: auth-refresh-token
+      description: Auth refresh token
+      security:
+        - X-USER-TOKEN: []
+    parameters: []
+  /podcasts:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPodcastsResponse'
+      operationId: get-podcasts
       description: 'Client: Get podcasts'
       parameters:
         - schema:
@@ -110,7 +149,30 @@ paths:
               - oldest
           in: query
           name: sort
-  '/client/podcasts/{podcastId}':
+  /podcasts/all:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPodcastsResponse'
+      operationId: get-all-podcasts
+      description: 'Client: Get all podcasts'
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - newest
+              - oldest
+          in: query
+          name: sort
+    parameters: []
+  '/podcasts/{podcastId}':
     parameters:
       - schema:
           type: string
@@ -127,10 +189,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientGetPodcastResponse'
-      operationId: client-get-podcast
+                $ref: '#/components/schemas/GetPodcastResponse'
+      operationId: get-podcast
       description: 'Client: Get podcast'
-  '/client/podcasts/{podcastId}/like':
+  '/podcasts/{podcastId}/like':
     parameters:
       - schema:
           type: string
@@ -150,11 +212,11 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
-      operationId: client-like-podcast
+      operationId: like-podcast
       description: 'Client: Like podcast'
       security:
         - X-USER-TOKEN: []
-  '/client/podcasts/{podcastId}/comment':
+  '/podcasts/{podcastId}/comments':
     parameters:
       - schema:
           type: string
@@ -174,7 +236,7 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
-      operationId: client-comment-podcast
+      operationId: comment-podcast
       description: 'Client: Comment on a podcast'
       security:
         - X-USER-TOKEN: []
@@ -184,7 +246,20 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CommentPodcastRequest'
-  '/client/podcasts/{podcastId}/comment/{commentId}':
+    get:
+      summary: ''
+      operationId: get-podcast-comments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodcastCommentsResponse'
+      description: 'Client: Get podcast comments'
+      tags:
+        - client
+  '/podcasts/{podcastId}/comment/{commentId}':
     parameters:
       - schema:
           type: string
@@ -209,7 +284,7 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
-      operationId: client-update-podcast-comment
+      operationId: update-podcast-comment
       description: 'Client: Update podcast comment'
       security:
         - X-USER-TOKEN: []
@@ -219,54 +294,268 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CommentPodcastRequest'
+  /playlists:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistsResponse'
+      operationId: get-playlists
+      security:
+        - X-USER-TOKEN: []
+      description: Get playlists
+    post:
+      summary: ''
+      operationId: create-playlist
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistResponse'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePlaylistRequest'
+      tags:
+        - client
+      description: Create playlist
+  '/playlists/{playlistId}':
+    parameters:
+      - schema:
+          type: string
+        name: playlistId
+        in: path
+        required: true
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistResponse'
+      operationId: get-playlist
+      description: 'Client: Get playlist'
+      security:
+        - X-USER-TOKEN: []
+    patch:
+      summary: ''
+      operationId: update-playlist
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistResponse'
+      description: 'Client: Update playlist'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePlaylistRequest'
+      tags:
+        - client
+    delete:
+      summary: ''
+      operationId: delete-playlist
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      description: 'Client: Delete playlist'
+      security:
+        - X-USER-TOKEN: []
+      tags:
+        - client
+  '/playlists/{playlistId}/podcasts':
+    parameters:
+      - schema:
+          type: string
+        name: playlistId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      operationId: delete-playlist-podcasts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - X-USER-TOKEN: []
+      tags:
+        - client
+      description: 'Client: Delete playlist podcasts'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistPodcastsRequest'
+    post:
+      summary: ''
+      operationId: add-playlist-podcasts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      description: 'Client: Add podcasts to playlist'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistPodcastsRequest'
+        description: ''
+      tags:
+        - client
+  /prayer-requests:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrayersResponse'
+      operationId: get-prayer-requests
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - newest
+              - oldest
+          in: query
+          name: sort
+      description: 'Client: Get my prayers'
+    post:
+      summary: ''
+      operationId: request-prayer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      description: 'Client: Request prayer'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrayerRequest'
+      tags:
+        - client
+  /home:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HomeDataResponse'
+      operationId: get-home-data
+      description: 'Client: Get home data'
+  /files/upload:
+    post:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+      operationId: upload-file
+      description: 'Client: Upload file'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  file: ''
+                  uploadType: avatar
+              properties:
+                file:
+                  type: string
+                  format: binary
+                uploadType:
+                  type: string
+                  enum:
+                    - testimony
+                    - excerpt
+                    - avatar
+              required:
+                - file
+                - uploadType
+  /files/get-url:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+      operationId: get-file-url
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: key
+          required: true
+      description: 'Client: Get file url'
 components:
   schemas:
-    Podcast:
-      type: object
-      x-examples:
-        Example 1:
-          id: 01HGDRCWFG6A5ASHQHWZHN4R70
-          author: Evangelist Elijah Ben
-          title: SUNDAY ANOINTING SERVICE-THE SPIRIT OF UNDERSTANDING PART 2
-          summary: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
-          description: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
-          duration: '01:33:21'
-          imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
-          audioUrl: 'https://awscdn.podcasts.com/audio-qCgqW7G68X5kJPLaWfZeGp47Z.mp3'
-          published: true
-          publishedAt: '2023-11-27T07:44:51Z'
-      properties:
-        id:
-          type: string
-        author:
-          type: string
-        title:
-          type: string
-        summary:
-          type: string
-        description:
-          type: string
-        duration:
-          type: string
-        imageUrl:
-          type: string
-        audioUrl:
-          type: string
-        published:
-          type: boolean
-        publishedAt:
-          type: string
-      required:
-        - id
-        - author
-        - title
-        - summary
-        - description
-        - duration
-        - imageUrl
-        - audioUrl
-        - published
-        - publishedAt
     AuthUser:
       type: object
       x-examples:
@@ -300,7 +589,7 @@ components:
             enum:
               - web
               - mobile
-              - admin
+              - backoffice
       required:
         - id
         - firstName
@@ -309,6 +598,156 @@ components:
         - emailVerified
         - avatar
         - channels
+    Podcast:
+      type: object
+      x-examples:
+        Example 1:
+          id: 01HGDRCWFG6A5ASHQHWZHN4R70
+          author: Evangelist Elijah Ben
+          title: SUNDAY ANOINTING SERVICE-THE SPIRIT OF UNDERSTANDING PART 2
+          description: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
+          duration: '01:33:21'
+          imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+          audioUrl: 'https://awscdn.podcasts.com/audio-qCgqW7G68X5kJPLaWfZeGp47Z.mp3'
+          published: true
+          publishedAt: '2023-11-27T07:44:51Z'
+      properties:
+        id:
+          type: string
+        author:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        duration:
+          type: string
+        imageUrl:
+          type: string
+        audioUrl:
+          type: string
+        published:
+          type: boolean
+        publishedAt:
+          type: string
+      required:
+        - id
+        - author
+        - title
+        - description
+        - duration
+        - imageUrl
+        - audioUrl
+        - published
+        - publishedAt
+    Playlist:
+      type: object
+      x-examples:
+        Example 1:
+          id: 01HGN0RK7FYJH596PE0X8TTZH1
+          title: Honour
+          shortUrl: null
+          description: ''
+          createdAt: '2023-12-02T10:21:38.415726Z'
+          podcasts:
+            - id: 01HGN0RK7GKJ3MXARR598PN0DG
+              author: Evangelist Elijah Ben
+              title: 'SCIM UK Stages of honour and dishonour '
+              summary: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
+              description: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
+              duration: '82:43'
+              imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+              audioUrl: 'http://awscdn.podcasts.com/SCIM-UK-Stages-of-honour-and-dishonour--eebe.mp3'
+              published: true
+              publishedAt: '2020-10-19T13:54:06Z'
+            - id: 01HGN0RK7GKJ3MXARR59WXVF1F
+              author: Evangelist Elijah Ben
+              title: Those Who Dishonour / Signs of Dishonour
+              summary: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
+              description: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
+              duration: '93:39'
+              imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+              audioUrl: 'http://awscdn.podcasts.com/Those-Who-Dishonour-Signs-of-Dishonour-d3e1.mp3'
+              published: true
+              publishedAt: '2020-10-19T08:02:37Z'
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        shortUrl:
+          type: string
+          nullable: true
+        description:
+          type: string
+        createdAt:
+          type: string
+        podcasts:
+          $ref: '#/components/schemas/Podcast'
+      required:
+        - id
+        - title
+        - shortUrl
+        - description
+        - createdAt
+        - podcasts
+    Prayer:
+      type: object
+      x-examples:
+        Example 1:
+          id: 01HGRFM7M1F03D6014034KEF2P
+          title: This is a test
+          description: This is a test description
+          completedAt: null
+          createdAt: '2023-12-03T18:39:07.393849Z'
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        completedAt:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - completedAt
+        - createdAt
+    Comment:
+      type: object
+      x-examples:
+        Example 1:
+          id: 01HGTH4JBT0KMPYW4KD505SAS0
+          body: Lorem ipsum 3
+          createdAt: '2023-12-04T13:44:00.122063Z'
+          user:
+            id: 01HGHB89XH660W6HDM3FWBAEVB
+            firstName: Nana
+            lastName: Aikinson
+            email: nanaaikinson24@example.com
+            emailVerified: true
+            avatar: null
+            channels:
+              - web
+      properties:
+        id:
+          type: string
+        body:
+          type: string
+        createdAt:
+          type: string
+        user:
+          $ref: '#/components/schemas/AuthUser'
+      required:
+        - id
+        - body
+        - createdAt
+        - user
     LoginRequest:
       type: object
       x-examples:
@@ -362,67 +801,67 @@ components:
     CommentPodcastRequest:
       title: CommentPodcastRequest
       x-stoplight:
-        id: fbvkzkv2v9pej
+        id: ot54uyydj0o5x
       type: object
       properties:
         comment:
           type: string
           x-stoplight:
-            id: bjyaef46zg2ds
+            id: s7t58bujmz14n
       required:
         - comment
     MessageResponse:
       title: MessageResponse
       x-stoplight:
-        id: 6defb2oihhrik
+        id: gmf8yx586fcto
       type: object
       properties:
         code:
           type: integer
           x-stoplight:
-            id: wuyzq2yhox71k
+            id: 6rfq4kfxun4pn
         message:
           type: string
           x-stoplight:
-            id: q50kmt3wtn7cw
+            id: 5qg0odxm3vfca
       required:
         - code
         - message
-    ClientGetPodcastResponse:
-      title: ClientGetPodcastResponse
+    GetPodcastResponse:
+      title: GetPodcastResponse
       x-stoplight:
-        id: i0mil8u1vbb85
+        id: vqwawoqutoayb
       type: object
       properties:
         Code:
           type: integer
           x-stoplight:
-            id: w32kif2pc7mz9
+            id: 7cbuuayl4h9wt
         data:
           $ref: '#/components/schemas/Podcast'
       required:
         - Code
         - data
-    ClientGetPodcastsResponse:
-      title: ClientGetPodcastsResponse
+    GetPodcastsResponse:
+      title: GetPodcastsResponse
       x-stoplight:
-        id: cpzser9oo2avs
+        id: ep2dcbt7zbrt9
       type: object
       properties:
         code:
           type: integer
           x-stoplight:
-            id: ypxamztso971t
+            id: euwqr1xr3f86a
         data:
           type: array
           x-stoplight:
-            id: wm4nqhlw4iogm
+            id: fniqy47q0xrcu
           items:
             $ref: '#/components/schemas/Podcast'
         meta:
           type: string
           x-stoplight:
-            id: dwp5ppelnhamp
+            id: zsehgi57gwi91
       required:
         - code
         - data
@@ -489,8 +928,312 @@ components:
       required:
         - code
         - data
+    PlaylistsResponse:
+      type: object
+      x-stoplight:
+        id: b4m86sg966ryt
+      x-examples:
+        Example 1:
+          code: 201
+          data:
+            id: 01HGN0RK7FYJH596PE0X8TTZH1
+            title: Honour
+            shortUrl: null
+            description: ''
+            createdAt: '2023-12-02T10:21:38.415726Z'
+            podcasts:
+              - id: 01HGN0RK7GKJ3MXARR598PN0DG
+                author: Evangelist Elijah Ben
+                title: 'SCIM UK Stages of honour and dishonour '
+                summary: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
+                description: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
+                duration: '82:43'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'http://awscdn.podcasts.com/SCIM-UK-Stages-of-honour-and-dishonour--eebe.mp3'
+                published: true
+                publishedAt: '2020-10-19T13:54:06Z'
+              - id: 01HGN0RK7GKJ3MXARR59WXVF1F
+                author: Evangelist Elijah Ben
+                title: Those Who Dishonour / Signs of Dishonour
+                summary: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
+                description: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
+                duration: '93:39'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'http://awscdn.podcasts.com/Those-Who-Dishonour-Signs-of-Dishonour-d3e1.mp3'
+                published: true
+                publishedAt: '2020-10-19T08:02:37Z'
+      properties:
+        code:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Playlist'
+      required:
+        - code
+        - data
+    PlaylistResponse:
+      type: object
+      x-examples:
+        Example 1:
+          code: 201
+          data:
+            id: 01HGN0RK7FYJH596PE0X8TTZH1
+            title: Honour
+            shortUrl: null
+            description: ''
+            createdAt: '2023-12-02T10:21:38.415726Z'
+            podcasts:
+              - id: 01HGN0RK7GKJ3MXARR598PN0DG
+                author: Evangelist Elijah Ben
+                title: 'SCIM UK Stages of honour and dishonour '
+                summary: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
+                description: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
+                duration: '82:43'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'http://awscdn.podcasts.com/SCIM-UK-Stages-of-honour-and-dishonour--eebe.mp3'
+                published: true
+                publishedAt: '2020-10-19T13:54:06Z'
+              - id: 01HGN0RK7GKJ3MXARR59WXVF1F
+                author: Evangelist Elijah Ben
+                title: Those Who Dishonour / Signs of Dishonour
+                summary: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
+                description: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
+                duration: '93:39'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'http://awscdn.podcasts.com/Those-Who-Dishonour-Signs-of-Dishonour-d3e1.mp3'
+                published: true
+                publishedAt: '2020-10-19T08:02:37Z'
+      properties:
+        code:
+          type: integer
+        data:
+          $ref: '#/components/schemas/Playlist'
+      required:
+        - code
+        - data
+    PrayersResponse:
+      type: object
+      x-stoplight:
+        id: y4qcmdcl1n787
+      x-examples:
+        Example 1:
+          code: 200
+          data:
+            - id: 01HGRFM7M1F03D6014034KEF2P
+              title: This is a test
+              description: This is a test description
+              completedAt: null
+              createdAt: '2023-12-03T18:39:07.393849Z'
+      properties:
+        code:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prayer'
+      required:
+        - code
+        - data
+    PodcastCommentsResponse:
+      type: object
+      x-examples:
+        Example 1:
+          code: 200
+          data:
+            - id: 01HGTH4JBT0KMPYW4KD505SAS0
+              body: Lorem ipsum 3
+              createdAt: '2023-12-04T13:44:00.122063Z'
+              user:
+                id: 01HGHB89XH660W6HDM3FWBAEVB
+                firstName: Nana
+                lastName: Aikinson
+                email: nanaaikinson24@example.com
+                emailVerified: true
+                avatar: null
+                channels:
+                  - web
+      properties:
+        code:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+      required:
+        - code
+        - data
+    EmailRequest:
+      title: EmailRequest
+      x-stoplight:
+        id: 5fu8dtlpj6ocv
+      type: object
+      properties:
+        email:
+          type: string
+          x-stoplight:
+            id: 5awcv9b192ctu
+      required:
+        - email
+    StorePlaylistRequest:
+      type: object
+      x-examples:
+        Example 1:
+          title: Honour
+          description: ''
+          podcasts:
+            - 01HGHB7QZKWWX8VQD4KZ1DRMRX
+            - 01HGHB7QZMR2T5YB9W9YYAPQKC
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        podcasts:
+          type: array
+          items:
+            type: string
+      required:
+        - title
+        - description
+    PrayerRequest:
+      type: object
+      x-examples:
+        Example 1:
+          title: This is a test
+          description: This is a test description
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - title
+        - description
+    HomeDataResponse:
+      type: object
+      x-examples:
+        Example 1:
+          code: 200
+          data:
+            latestAnnouncements: []
+            latestPodcasts:
+              - id: 01HGHB7QKMM54ZDXBDKQQXV0T4
+                author: Evangelist Elijah Ben
+                title: UNDERSTANDING JUDGEMENT
+                description: 'Praise him family You are watching Tuesday Teaching service, on Tuesday 28th November Message: Understanding Judgment Main scripture: Daniel 5:24-27Preached by: Evangelist Elijah-Ben Kusi-Agyapong This is only a brief, highlighted summary of the first of our father''s three main lessons for us in today''s message. Watch out for the remaining points, and don''t forget to leave a comment on what you took away from this message, like it, and share it with a friend.1 John 5:16-171. Accursed sins: sins that bring curses.l) idolatry Deut 27:15 you can make modern things an idol eg. money, your bodyIl) sin of not honouring your mother and father Deut 27:16III) the sin of being a cheat, not honest Deut 27:17 Malachi 3:8IV) the sin of wickedness to the handicapped and weak Deut 27:18-19 Particularly the aged, widows, orphans, strangersV) the sin of dishonoring fathers Deut 27:20VI) the sin of beastialityVII) the sin of incest Deut 27:22VIII) the sin of deception Deut 27:24VIIII) The sin of stealing Zechariah 5:3-4,X) The sin of ignoring the law, not listening and doing the word of God Deut 27:26'
+                duration: '01:30:44'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/understanding-judgement-1400x1400.jpg'
+                audioUrl: 'https://awscdn.podcasts.com/audio-LfrijFKTjwmKImDAvQgxZxbbq.mp3'
+                published: true
+                publishedAt: '2023-11-29T07:10:55Z'
+              - id: 01HGHB7QKX8969XABA51QEB2ZH
+                author: Evangelist Elijah Ben
+                title: UNDERSTANDING TEMPTATION
+                description: 'Praise him&nbsp;familyYou are watching SCIM Before Day Break Prayers on Wednesday 29th November 2023Message: THE UNDERSTANDING TEMPTATIONSMain scripture: 1 Corinthians 10:13Preached by:&nbsp;Evangelist Elijah Ben Kusi-Agyapong'
+                duration: '00:50:10'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/understanding-temptation-1400x1400.jpg'
+                audioUrl: 'https://awscdn.podcasts.com/audio-uHdynti48r5N94ZS1gZ1C39tQ.mp3'
+                published: true
+                publishedAt: '2023-11-29T06:44:37Z'
+              - id: 01HGHB7QKZ4JF7DV3AQKQQAP9C
+                author: Evangelist Elijah Ben
+                title: SUNDAY ANOINTING SERVICE-THE SPIRIT OF UNDERSTANDING PART 2
+                description: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
+                duration: '01:33:21'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'https://awscdn.podcasts.com/audio-qCgqW7G68X5kJPLaWfZeGp47Z.mp3'
+                published: true
+                publishedAt: '2023-11-27T07:44:51Z'
+              - id: 01HGHB7QM0MVK8AK7D35VJ30JA
+                author: Evangelist Elijah Ben
+                title: B4DBP - WHO IS YOUR COUNSEL?
+                description: 'Shared with PublicB4DBP - Who is your Counsel?Praise him Family, You are watching SCIM B4DP, on Monday 27th November&nbsp;2Message: Who are the people that are counselling you?This is a continuation of the message that our father has been preaching on the 7 Dimensions of the Holy Spirit.1. THE SPIRIT OF THE LORD2. THE SPIRIT OF WISDOM3. THE SPIRIT OF UNDERSTANDING4. THE SPIRIT OF COUNSEL5. THE SPIRIT OF MIGHT6. THE SPIRIT OF KNOWLEDGE7. THE SPIRIT OF THE FEAR OF THE LORD'
+                duration: '00:43:52'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'https://awscdn.podcasts.com/audio-rH0qjoSL76eqceQYyJMPTL9EY.mp3'
+                published: true
+                publishedAt: '2023-11-27T07:01:47Z'
+              - id: 01HGHB7QM2NW45G9CFHTFQ1D4J
+                author: Evangelist Elijah Ben
+                title: THE SPIRIT OF UNDERSTANDING
+                description: Message by Evang. Elijah-Ben Kusi Agyapong during Tuesday Teaching Service
+                duration: '01:35:16'
+                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
+                audioUrl: 'https://awscdn.podcasts.com/audio-F9RWjXUc39lIgJuaKFg4oPSvG.mp3'
+                published: true
+                publishedAt: '2023-11-21T21:16:12Z'
+            latestPosts: []
+            upcomingEvents: []
+      properties:
+        code:
+          type: integer
+        data:
+          type: object
+          required:
+            - latestAnnouncements
+            - latestPodcasts
+            - latestPosts
+            - upcomingEvents
+          properties:
+            latestAnnouncements:
+              type: array
+              items:
+                type: object
+            latestPodcasts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Podcast'
+            latestPosts:
+              type: array
+              items:
+                type: object
+            upcomingEvents:
+              type: array
+              items:
+                type: object
+      required:
+        - code
+        - data
+    FileResponse:
+      type: object
+      x-examples:
+        Example 1:
+          code: 200
+          data:
+            key: AVATAR/FXI7ZDPtyYkV6aIPUpB5nXHfFvBBpt.jpeg
+            url: 'https://scimapp-test-uploads.s3.eu-west-1.amazonaws.com/AVATAR/FXI7ZDPtyYkV6aIPUpB5nXHfFvBBpt.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAW3W3GZGQ66DHX5JB%2F20231205%2Feu-west-1%2Fs3%2Faws4_request&X-Amz-Date=20231205T163016Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=b4691bacc65700bc003af0b081ac70b4d48bc7d937d983ef24fc4c942ad90028'
+      properties:
+        code:
+          type: integer
+        data:
+          type: object
+          required:
+            - key
+            - url
+          properties:
+            key:
+              type: string
+            url:
+              type: string
+      required:
+        - code
+        - data
+    PlaylistPodcastsRequest:
+      type: object
+      x-examples:
+        Example 1:
+          podcasts: []
+      properties:
+        podcasts:
+          type: array
+          items:
+            type: string
+      required:
+        - podcasts
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey
       in: header
       name: X-USER-TOKEN
+x-internal: false

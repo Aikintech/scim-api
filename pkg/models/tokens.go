@@ -15,6 +15,7 @@ type UserToken struct {
 	Whitelisted bool      `gorm:"not null"`
 	CreatedAt   time.Time `gorm:"not null"`
 	UpdatedAt   time.Time `gorm:"not null"`
+	User        *User
 }
 
 func (t *UserToken) BeforeCreate(tx *gorm.DB) error {

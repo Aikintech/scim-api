@@ -2,19 +2,26 @@ package controllers
 
 import (
 	"errors"
+	"github.com/aikintech/scim-api/pkg/constants"
 
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/definitions"
-	"github.com/aikintech/scim/pkg/models"
-	"github.com/aikintech/scim/pkg/utils"
-	"github.com/aikintech/scim/pkg/validation"
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/definitions"
+	"github.com/aikintech/scim-api/pkg/models"
+	"github.com/aikintech/scim-api/pkg/utils"
+	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/gofiber/fiber/v2"
 	"github.com/oklog/ulid/v2"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
-func Login(c *fiber.Ctx) error {
+type AuthController struct{}
+
+func NewAuthController() *AuthController {
+	return &AuthController{}
+}
+
+func (a *AuthController) Login(c *fiber.Ctx) error {
 	// Parse request
 	request := validation.LoginSchema{}
 	if err := c.BodyParser(&request); err != nil {
@@ -61,19 +68,28 @@ func Login(c *fiber.Ctx) error {
 
 	// Generate token
 	reference := ulid.Make().String()
-	accessToken, err := utils.GenerateUserToken(&user, "access", reference)
+	accessToken, err := utils.GenerateUserToken(user, "access", reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
-	refreshToken, err := utils.GenerateUserToken(&user, "refresh", reference)
+	refreshToken, err := utils.GenerateUserToken(user, "refresh", reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
+	}
+
+	avatar := ""
+	if user.Avatar != nil {
+		result, err := utils.GenerateS3FileURL(*user.Avatar)
+
+		if err == nil {
+			avatar = result
+		}
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -85,7 +101,7 @@ func Login(c *fiber.Ctx) error {
 				LastName:      user.LastName,
 				Email:         user.Email,
 				EmailVerified: user.EmailVerifiedAt != nil,
-				Avatar:        nil,
+				Avatar:        &avatar,
 				Channels:      user.Channels,
 			},
 			"tokens": fiber.Map{
@@ -96,7 +112,7 @@ func Login(c *fiber.Ctx) error {
 	})
 }
 
-func Register(c *fiber.Ctx) error {
+func (a *AuthController) Register(c *fiber.Ctx) error {
 	// Parse request
 	request := validation.RegisterSchema{}
 	if err := c.BodyParser(&request); err != nil {
@@ -162,10 +178,10 @@ func Register(c *fiber.Ctx) error {
 	})
 }
 
-func RefreshToken(c *fiber.Ctx) error {
+func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 	reference := ulid.Make().String()
-	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
-	accessToken, err := utils.GenerateUserToken(user, "access", reference)
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
+	accessToken, err := utils.GenerateUserToken(*user, "access", reference)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -179,5 +195,156 @@ func RefreshToken(c *fiber.Ctx) error {
 		"data": fiber.Map{
 			"access": accessToken,
 		},
+	})
+}
+
+func (a *AuthController) ResendEmailVerification(c *fiber.Ctx) error {
+	// Parse request
+	request := validation.EmailVerificationSchema{}
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	// Check if user exists
+	message := ""
+	user := new(models.User)
+	result := config.DB.Model(&models.User{}).Where("email = ?", request.Email).First(&user)
+
+	// Gorm error
+	if result.Error != nil {
+		message = result.Error.Error()
+
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			message = "An account with the selected email does not exist"
+		}
+	}
+
+	// Sign up provider is not local
+	if user.SignUpProvider != "local" {
+		message = "Sorry you cannot reset your password with this sign up provider"
+	}
+
+	if len(message) > 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: message,
+		})
+	}
+
+	// TODO: Send email verification
+
+	return c.JSON(definitions.MessageResponse{
+		Code:    fiber.StatusOK,
+		Message: "Email verification sent",
+	})
+}
+
+func (a *AuthController) ForgotPassword(c *fiber.Ctx) error {
+	// Parse request
+	request := validation.EmailVerificationSchema{}
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Code:   fiber.StatusUnprocessableEntity,
+			Errors: errs,
+		})
+	}
+
+	// Find user
+	user := models.User{}
+	result := config.DB.Model(&models.User{}).Where("email = ?", request.Email).First(&user)
+	if result.Error != nil {
+		message := "No account is associated with the email provided"
+
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			message = result.Error.Error()
+		}
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: message,
+		})
+	}
+
+	// Check user's sign up provider
+	if user.SignUpProvider != "local" {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: "The sign up provider for this account does not support password reset",
+		})
+	}
+
+	// TODO: Send password reset mail
+	return c.JSON(definitions.MessageResponse{
+		Code:    fiber.StatusOK,
+		Message: "Password reset email sent",
+	})
+}
+
+func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
+	// Parse request
+	request := definitions.ResetPasswordRequest{}
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	// Get the user
+	user := models.User{}
+	result := config.DB.Model(&models.User{}).Where("email ? =", request.Email).First(&user)
+	if result.Error != nil {
+		message := "No account is associated with the email provided"
+
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			message = result.Error.Error()
+		}
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: message,
+		})
+	}
+
+	// Check user's sign up provider
+	if user.SignUpProvider != "local" {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: "The sign up provider for this account does not support password reset",
+		})
+	}
+
+	// Set new password
+	passwordHash, err := utils.MakePasswordHash(request.Password)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	result = config.DB.Model(&user).Update("Password", passwordHash)
+
+	if result.Error != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: result.Error.Error(),
+		})
+	}
+
+	return c.JSON(definitions.MessageResponse{
+		Code:    fiber.StatusOK,
+		Message: "Your password has been reset successfully.",
 	})
 }

@@ -1,11 +1,14 @@
 package jobs
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aikintech/scim-api/pkg/constants"
+	"time"
 
-	"github.com/aikintech/scim/pkg/config"
-	"github.com/aikintech/scim/pkg/models"
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/mmcdole/gofeed"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -13,12 +16,15 @@ import (
 
 func SeedPodcasts() {
 	fp := gofeed.NewParser()
-	feed, err := fp.ParseURL(config.PODCAST_URL)
+	feed, err := fp.ParseURL(constants.PODCAST_URL)
 
 	if err != nil {
 		panic(err.Error())
 	}
 
+	podcasts := make([]models.Podcast, 0)
+
+	// Loop through podcasts
 	for _, items := range lo.Chunk(feed.Items, 100) {
 		for _, item := range items {
 			var podcast = models.Podcast{
@@ -36,8 +42,20 @@ func SeedPodcasts() {
 			}
 
 			updateOrCreate(&podcast)
+			podcasts = append(podcasts, podcast)
 		}
 	}
+
+	// Convert podcasts to JSON
+	podcastsJson, err := json.Marshal(podcasts)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Cache podcasts for 24 hours
+	config.RedisStore.Set(constants.PODCASTS_CACHE_KEY, podcastsJson, time.Hour*24)
+
+	fmt.Println("Podcasts seeded successfully")
 }
 
 func updateOrCreate(podcast *models.Podcast) {

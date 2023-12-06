@@ -1,8 +1,12 @@
 package validation
 
 import (
-	"github.com/go-playground/validator/v10"
+	"github.com/aikintech/scim-api/pkg/constants"
+	"github.com/samber/lo"
 	"regexp"
+	"strings"
+
+	"github.com/go-playground/validator/v10"
 )
 
 func IsValidPasswordValidation(fl validator.FieldLevel) bool {
@@ -34,4 +38,12 @@ func isPasswordValid(password string) bool {
 
 	// Combine all conditions
 	return hasLowercase && hasUppercase && hasDigit && hasSpecialChar && hasValidLength
+}
+
+func IsValidFileKey(key string) bool {
+	return lo.SomeBy(constants.UPLOAD_TYPES, func(item string) bool {
+		uploadType := strings.ToUpper(item)
+
+		return strings.Contains(key, uploadType) // Key contains upload type
+	})
 }
