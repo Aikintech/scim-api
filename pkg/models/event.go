@@ -23,10 +23,11 @@ type EventResource struct {
 	ID              string     `json:"id"`
 	Title           string     `json:"title"`
 	Description     string     `json:"description"`
-	ExcerptImageURL string     `json:"excerptImage"`
+	ExcerptImageURL *string    `json:"excerptImage"`
 	Location        string     `json:"location"`
 	StartDateTime   time.Time  `json:"startDateTime"`
 	EndDateTime     *time.Time `json:"endDateTime"`
+	CreatedAt       time.Time  `json:"createdAt"`
 }
 
 func (e *Event) BeforeCreate(tx *gorm.DB) error {
@@ -35,14 +36,15 @@ func (e *Event) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (e *Event) ToResource() EventResource {
-	return EventResource{
+func (e *Event) ToResource() *EventResource {
+	return &EventResource{
 		ID:              e.ID,
 		Title:           e.Title,
 		Description:     e.Description,
-		ExcerptImageURL: e.ExcerptImageURL,
+		ExcerptImageURL: &e.ExcerptImageURL,
 		Location:        e.Location,
 		StartDateTime:   e.StartDateTime,
 		EndDateTime:     e.EndDateTime,
+		CreatedAt:       e.CreatedAt,
 	}
 }

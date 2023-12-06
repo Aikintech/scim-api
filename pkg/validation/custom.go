@@ -1,7 +1,6 @@
 package validation
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -21,15 +20,16 @@ func IsValidPasswordValidation(fl validator.FieldLevel) bool {
 func IsValidUploadFileKey(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
 
+	if len(value) == 0 {
+		return true
+	}
+
 	return IsValidFileKey(value)
 }
 
 func IsValidDateFormat(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
 	params := fl.Param()
-
-	fmt.Println("value", value)
-	fmt.Println("param", params)
 
 	if len(params) == 0 {
 		return false

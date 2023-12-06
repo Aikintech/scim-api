@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
+	"github.com/aikintech/scim-api/pkg/utils"
 	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/gofiber/fiber/v2"
 	"time"
@@ -37,17 +40,9 @@ func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
 			Errors: errs,
 		})
 	}
-	//if len(request.ExcerptImageURL) > 0 {
-	//	if !validation.IsValidFileKey(request.ExcerptImageURL) {
-	//		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
-	//			Code:   fiber.StatusUnprocessableEntity,
-	//			Errors: []definitions.ValidationErr{{Field: "excerptImage", Reasons: []string{"Invalid excerpt image provided"}}},
-	//		})
-	//	}
-	//}
 
-	startDateTime, _ := time.Parse("2006-01-02 15:04:05", request.StartDateTime)
-	endDateTime, _ := time.Parse("2006-01-02 15:04:05", request.EndDateTime)
+	startDateTime, _ := time.Parse(constants.DATE_TIME_FORMAT, request.StartDateTime)
+	endDateTime, _ := time.Parse(constants.DATE_TIME_FORMAT, request.EndDateTime)
 
 	// Create event
 	event := models.Event{
@@ -57,6 +52,25 @@ func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
 		StartDateTime: startDateTime,
 		EndDateTime:   &endDateTime,
 	}
+	if err := config.DB.Debug().Model(&models.Event{}).Create(&event).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
 
-	return c.JSON(event)
+	excerptImage, _ := utils.GenerateS3FileURL(request.ExcerptImageURL)
+	return c.Status(fiber.StatusCreated).JSON(definitions.DataResponse[*models.EventResource]{
+		Code: fiber.StatusCreated,
+		Data: &models.EventResource{
+			ID:              event.ID,
+			Title:           event.Title,
+			Description:     event.Description,
+			ExcerptImageURL: &excerptImage,
+			Location:        event.Location,
+			StartDateTime:   event.StartDateTime,
+			EndDateTime:     event.EndDateTime,
+			CreatedAt:       event.CreatedAt,
+		},
+	})
 }
