@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"github.com/aikintech/scim-api/pkg/constants"
 
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
@@ -82,6 +83,15 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 		})
 	}
 
+	avatar := ""
+	if user.Avatar != nil {
+		result, err := utils.GenerateS3FileURL(*user.Avatar)
+
+		if err == nil {
+			avatar = result
+		}
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"code": fiber.StatusOK,
 		"data": fiber.Map{
@@ -91,7 +101,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 				LastName:      user.LastName,
 				Email:         user.Email,
 				EmailVerified: user.EmailVerifiedAt != nil,
-				Avatar:        nil,
+				Avatar:        &avatar,
 				Channels:      user.Channels,
 			},
 			"tokens": fiber.Map{
@@ -170,7 +180,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 
 func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 	reference := ulid.Make().String()
-	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
 	accessToken, err := utils.GenerateUserToken(*user, "access", reference)
 
 	if err != nil {

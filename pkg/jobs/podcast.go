@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aikintech/scim-api/pkg/constants"
 	"time"
 
 	"github.com/aikintech/scim-api/pkg/config"
@@ -15,7 +16,7 @@ import (
 
 func SeedPodcasts() {
 	fp := gofeed.NewParser()
-	feed, err := fp.ParseURL(config.PODCAST_URL)
+	feed, err := fp.ParseURL(constants.PODCAST_URL)
 
 	if err != nil {
 		panic(err.Error())
@@ -52,7 +53,7 @@ func SeedPodcasts() {
 	}
 
 	// Cache podcasts for 24 hours
-	config.RedisStore.Set(config.PODCASTS_CACHE_KEY, podcastsJson, time.Hour*24)
+	config.RedisStore.Set(constants.PODCASTS_CACHE_KEY, podcastsJson, time.Hour*24)
 
 	fmt.Println("Podcasts seeded successfully")
 }

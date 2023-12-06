@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"encoding/json"
+	"github.com/aikintech/scim-api/pkg/constants"
 	"sort"
 
 	"github.com/aikintech/scim-api/pkg/config"
@@ -17,7 +18,7 @@ func AllPodcastsCache() func(c *fiber.Ctx) error {
 
 		// Get podcasts from cache
 		podcasts := make([]models.PodcastResource, 0)
-		podcastsJson, err := config.RedisStore.Get(config.PODCASTS_CACHE_KEY)
+		podcastsJson, err := config.RedisStore.Get(constants.PODCASTS_CACHE_KEY)
 		if err != nil {
 			return c.Next()
 		}
@@ -50,7 +51,7 @@ func DBPodcastsCache() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		// Get podcasts from cache
 		podcasts := make([]models.PodcastResource, 0)
-		podcastsJson, err := config.RedisStore.Get(config.PODCASTS_CACHE_KEY)
+		podcastsJson, err := config.RedisStore.Get(constants.PODCASTS_CACHE_KEY)
 		if err != nil {
 			return c.Next()
 		}
@@ -76,7 +77,7 @@ func PodcastByIdCache() func(c *fiber.Ctx) error {
 
 		// Get podcasts from cache
 		podcasts := make([]models.PodcastResource, 0)
-		podcastsJson, err := config.RedisStore.Get(config.PODCASTS_CACHE_KEY)
+		podcastsJson, err := config.RedisStore.Get(constants.PODCASTS_CACHE_KEY)
 		if err != nil {
 			return c.Next()
 		}

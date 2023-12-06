@@ -3,9 +3,9 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"github.com/aikintech/scim-api/pkg/constants"
 	"strings"
 
-	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/go-playground/validator/v10"
@@ -82,7 +82,7 @@ func getValidationMessage(err validator.FieldError) string {
 
 	case "uploadtype":
 		{
-			stringified := strings.Join(config.UPLOAD_TYPES, ",")
+			stringified := strings.Join(constants.UPLOAD_TYPES, ",")
 			return fmt.Sprintf("The %s field must be a valid upload type: %s", fieldName, stringified)
 		}
 
