@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"errors"
+	"github.com/aikintech/scim-api/pkg/constants"
 	"os"
 
 	"github.com/aikintech/scim-api/pkg/config"
@@ -17,7 +18,7 @@ import (
 func JWTMiddleware(accessType string) fiber.Handler {
 	return jwtWare.New(jwtWare.Config{
 		SigningKey:  jwtWare.SigningKey{Key: []byte(os.Getenv("APP_KEY"))},
-		ContextKey:  config.JWT_CONTEXT_KEY,
+		ContextKey:  constants.JWT_CONTEXT_KEY,
 		TokenLookup: "header:X-USER-TOKEN",
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			return c.Status(fiber.StatusUnauthorized).JSON(definitions.MessageResponse{
@@ -26,7 +27,7 @@ func JWTMiddleware(accessType string) fiber.Handler {
 			})
 		},
 		SuccessHandler: func(c *fiber.Ctx) error {
-			userJwt := c.Locals(config.JWT_CONTEXT_KEY).(*jwt.Token)
+			userJwt := c.Locals(constants.JWT_CONTEXT_KEY).(*jwt.Token)
 			claims := userJwt.Claims.(jwt.MapClaims)
 
 			// Refresh token
@@ -55,7 +56,7 @@ func JWTMiddleware(accessType string) fiber.Handler {
 				}
 			}
 
-			c.Locals(config.USER_CONTEXT_KEY, user)
+			c.Locals(constants.USER_CONTEXT_KEY, user)
 
 			return c.Next()
 		},

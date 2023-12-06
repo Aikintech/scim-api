@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/validation"
 	"strings"
 
-	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
@@ -31,7 +31,7 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 
 	// Validate upload type
 	uploadType := c.FormValue("uploadType")
-	if !lo.Contains(config.UPLOAD_TYPES, uploadType) {
+	if !lo.Contains(constants.UPLOAD_TYPES, uploadType) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: "Invalid upload type",
@@ -40,7 +40,7 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 
 	// Validate mime type
 	mime := utils.GetMimeExtension(requestFile.Header["Content-Type"][0])
-	if !lo.Contains(config.ALLOWED_MIME_TYPES, mime) {
+	if !lo.Contains(constants.ALLOWED_MIME_TYPES, mime) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: "Invalid file type",

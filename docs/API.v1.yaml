@@ -1,6 +1,6 @@
 openapi: 3.0.0
 x-stoplight:
-  id: lkd4mjwpm1z5y
+  id: zur6c0dxx3z8a
 info:
   title: API
   version: '1.0'
@@ -389,6 +389,56 @@ paths:
         - X-USER-TOKEN: []
       tags:
         - client
+  '/playlists/{playlistId}/podcasts':
+    parameters:
+      - schema:
+          type: string
+        name: playlistId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      operationId: delete-playlist-podcasts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - X-USER-TOKEN: []
+      tags:
+        - client
+      description: 'Client: Delete playlist podcasts'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistPodcastsRequest'
+    post:
+      summary: ''
+      operationId: add-playlist-podcasts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      description: 'Client: Add podcasts to playlist'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistPodcastsRequest'
+        description: ''
+      tags:
+        - client
   /prayer-requests:
     get:
       summary: ''
@@ -751,42 +801,42 @@ components:
     CommentPodcastRequest:
       title: CommentPodcastRequest
       x-stoplight:
-        id: fbvkzkv2v9pej
+        id: ot54uyydj0o5x
       type: object
       properties:
         comment:
           type: string
           x-stoplight:
-            id: bjyaef46zg2ds
+            id: s7t58bujmz14n
       required:
         - comment
     MessageResponse:
       title: MessageResponse
       x-stoplight:
-        id: 6defb2oihhrik
+        id: gmf8yx586fcto
       type: object
       properties:
         code:
           type: integer
           x-stoplight:
-            id: wuyzq2yhox71k
+            id: 6rfq4kfxun4pn
         message:
           type: string
           x-stoplight:
-            id: q50kmt3wtn7cw
+            id: 5qg0odxm3vfca
       required:
         - code
         - message
     GetPodcastResponse:
       title: GetPodcastResponse
       x-stoplight:
-        id: i0mil8u1vbb85
+        id: vqwawoqutoayb
       type: object
       properties:
         Code:
           type: integer
           x-stoplight:
-            id: w32kif2pc7mz9
+            id: 7cbuuayl4h9wt
         data:
           $ref: '#/components/schemas/Podcast'
       required:
@@ -795,23 +845,23 @@ components:
     GetPodcastsResponse:
       title: GetPodcastsResponse
       x-stoplight:
-        id: cpzser9oo2avs
+        id: ep2dcbt7zbrt9
       type: object
       properties:
         code:
           type: integer
           x-stoplight:
-            id: ypxamztso971t
+            id: euwqr1xr3f86a
         data:
           type: array
           x-stoplight:
-            id: wm4nqhlw4iogm
+            id: fniqy47q0xrcu
           items:
             $ref: '#/components/schemas/Podcast'
         meta:
           type: string
           x-stoplight:
-            id: dwp5ppelnhamp
+            id: zsehgi57gwi91
       required:
         - code
         - data
@@ -881,7 +931,7 @@ components:
     PlaylistsResponse:
       type: object
       x-stoplight:
-        id: nw7xhwopo1wy9
+        id: b4m86sg966ryt
       x-examples:
         Example 1:
           code: 201
@@ -965,7 +1015,7 @@ components:
     PrayersResponse:
       type: object
       x-stoplight:
-        id: i7z5nysvsyubj
+        id: y4qcmdcl1n787
       x-examples:
         Example 1:
           code: 200
@@ -1016,13 +1066,13 @@ components:
     EmailRequest:
       title: EmailRequest
       x-stoplight:
-        id: lr5sz4lumv7pa
+        id: 5fu8dtlpj6ocv
       type: object
       properties:
         email:
           type: string
           x-stoplight:
-            id: 8tzcglhmhrcsr
+            id: 5awcv9b192ctu
       required:
         - email
     StorePlaylistRequest:
@@ -1046,7 +1096,6 @@ components:
       required:
         - title
         - description
-        - podcasts
     PrayerRequest:
       type: object
       x-examples:
@@ -1170,6 +1219,18 @@ components:
       required:
         - code
         - data
+    PlaylistPodcastsRequest:
+      type: object
+      x-examples:
+        Example 1:
+          podcasts: []
+      properties:
+        podcasts:
+          type: array
+          items:
+            type: string
+      required:
+        - podcasts
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey

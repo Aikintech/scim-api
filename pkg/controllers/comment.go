@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"github.com/aikintech/scim-api/pkg/constants"
 
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
@@ -70,7 +71,7 @@ func (cmtCtrl *CommentController) GetPodcastComments(c *fiber.Ctx) error {
 
 // StorePodcastComment - Comment on a podcast
 func (cmtCtrl *CommentController) StorePodcastComment(c *fiber.Ctx) error {
-	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
 	podcastId := c.Params("podcastId", "")
 
 	// Parse request
@@ -136,7 +137,7 @@ func (cmtCtrl *CommentController) StorePodcastComment(c *fiber.Ctx) error {
 
 // UpdatePodcastComment - Update a podcast comment
 func (cmtCtrl *CommentController) UpdatePodcastComment(c *fiber.Ctx) error {
-	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
 	podcastId := c.Params("podcastId", "")
 	commentId := c.Params("commentId", "")
 
@@ -213,7 +214,7 @@ func (cmtCtrl *CommentController) UpdatePodcastComment(c *fiber.Ctx) error {
 
 // DeletePodcastComment - Delete a podcast comment
 func (cmtCtrl *CommentController) DeletePodcastComment(c *fiber.Ctx) error {
-	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
 
 	// Find podcast and comment
 	trx := config.DB.Begin()

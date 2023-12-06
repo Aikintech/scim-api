@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"github.com/aikintech/scim-api/pkg/constants"
 
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
@@ -20,7 +21,7 @@ func NewLikeController() *LikeController {
 func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 	// TODO: Optimize this function
 	// Fetch podcast
-	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
 	podcastId := c.Params("podcastId")
 	podcast := models.Podcast{}
 	result := config.DB.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)

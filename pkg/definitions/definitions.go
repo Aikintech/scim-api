@@ -23,7 +23,7 @@ type ResetPasswordRequest struct {
 type StorePlaylistRequest struct {
 	Title       string   `json:"title" validate:"required"`
 	Description string   `json:"description"`
-	Podcasts    []string `json:"podcasts" validate:"required,min=1"`
+	Podcasts    []string `json:"podcasts"`
 }
 
 type StoreEventRequest struct {
@@ -33,6 +33,10 @@ type StoreEventRequest struct {
 	StartDateTime   string `json:"startDateTime" validate:"required"`
 	EndDateTime     string `json:"endDateTime" validate:"required"`
 	ExcerptImageURL string `json:"excerptImage" validate:"-"`
+}
+
+type PlaylistPodcastsRequest struct {
+	Podcasts []string `json:"podcasts" validate:"required,min=1"`
 }
 
 /**** Responses ****/
