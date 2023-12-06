@@ -48,6 +48,7 @@ type ValidationErrsResponse struct {
 }
 
 type DataResponse[T any] struct {
-	Code int `json:"code"`
-	Data T   `json:"data"`
+	Code    int     `json:"code"`
+	Data    T       `json:"data"`
+	Message *string `json:"message"`
 }

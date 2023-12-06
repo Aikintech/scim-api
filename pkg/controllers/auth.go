@@ -82,6 +82,15 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 		})
 	}
 
+	avatar := ""
+	if user.Avatar != nil {
+		result, err := utils.GenerateS3FileURL(*user.Avatar)
+
+		if err == nil {
+			avatar = result
+		}
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"code": fiber.StatusOK,
 		"data": fiber.Map{
@@ -91,7 +100,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 				LastName:      user.LastName,
 				Email:         user.Email,
 				EmailVerified: user.EmailVerifiedAt != nil,
-				Avatar:        nil,
+				Avatar:        &avatar,
 				Channels:      user.Channels,
 			},
 			"tokens": fiber.Map{

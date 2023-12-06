@@ -8,7 +8,9 @@ import (
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/aikintech/scim-api/pkg/utils"
+	"github.com/aws/smithy-go/ptr"
 	"github.com/gofiber/fiber/v2"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
 
@@ -65,9 +67,12 @@ func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 		})
 	}
 
+	trx := config.DB
+	trx.Begin()
+
 	// Create playlist
-	podcasts := make([]models.Podcast, 0)
-	if result := config.DB.Find(&podcasts, request.Podcasts); result.Error != nil {
+	podcasts := make([]*models.Podcast, 0)
+	if result := trx.Model(&models.Podcast{}).Where(request.Podcasts).Find(&podcasts); result.Error != nil {
 		message := "No podcasts found for the selected ids"
 
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -84,30 +89,43 @@ func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 		Title:       request.Title,
 		Description: request.Description,
 		UserID:      user.ID,
-		Podcasts:    podcasts,
 	}
 
-	if result := config.DB.Create(&playlist); result.Error != nil {
+	if result := trx.Model(&models.Playlist{}).Create(&playlist); result.Error != nil {
+		trx.Rollback()
+
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: result.Error.Error(),
 		})
 	}
 
-	// Return response
+	// Append podcasts to playlist
+	if result := trx.Debug().Model(&playlist).Association("Podcasts").Replace(podcasts); result != nil {
+		trx.Rollback()
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: result.Error(),
+		})
+	}
+
+	trx.Commit()
 	return c.Status(fiber.StatusCreated).JSON(definitions.DataResponse[models.PlaylistResource]{
-		Code: fiber.StatusCreated,
-		Data: *playlist.ToResource(),
+		Code:    fiber.StatusCreated,
+		Data:    *playlist.ToResource(),
+		Message: ptr.String("Playlist created successfully"),
 	})
 }
 
 // GetPlaylist - Get a playlist
 func (plCtrl *PlaylistController) GetPlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+	podcastId := c.Params("podcastId")
 
 	// Get playlist
 	playlist := new(models.Playlist)
-	if result := config.DB.Preload("Podcasts").Where("id = ? AND user_id = ?", c.Params("playlistId"), user.ID).First(&playlist); result.Error != nil {
+	if result := config.DB.Preload("Podcasts").Where(models.Playlist{ID: podcastId, UserID: user.ID}).First(&playlist); result.Error != nil {
 		message := "Playlist not found"
 
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -126,67 +144,67 @@ func (plCtrl *PlaylistController) GetPlaylist(c *fiber.Ctx) error {
 	})
 }
 
-// UpdatePlaylist updates a user's playlist // TODO: Fix me
+// UpdatePlaylist - updates a user's playlist // TODO: Fix me
 func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(config.USER_CONTEXT_KEY).(*models.User)
+	playlistId := c.Params("playlistId")
 
 	// Parse body
 	request := new(definitions.StorePlaylistRequest)
 	if err := c.BodyParser(request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(&definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
-			Message: "Invalid request body",
+			Message: err.Error(),
 		})
 	}
 
-	// Validate body
+	// Validate request
 	if errs := utils.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(&definitions.ValidationErrsResponse{
-			Code:    fiber.StatusUnprocessableEntity,
-			Message: "Invalid request body",
-			Errors:  errs,
+			Code:   fiber.StatusUnprocessableEntity,
+			Errors: errs,
 		})
 	}
 
 	// Get playlist
 	trx := config.DB.Begin()
 	playlist := models.Playlist{}
-	result := trx.Preload("Podcasts").Where("id = ? AND user_id = ?", c.Params("playlistId"), user.ID).First(&playlist)
-	if result.Error != nil {
-		message := "Playlist not found"
+	if result := trx.Debug().Where(&models.Playlist{ID: playlistId, UserID: user.ID}).First(&playlist); result.Error != nil {
+		status := 404
 
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			message = result.Error.Error()
+			status = 400
 		}
 
-		return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusNotFound,
-			Message: message,
+		return c.Status(status).JSON(definitions.MessageResponse{
+			Code:    status,
+			Message: result.Error.Error(),
 		})
 	}
+
+	// Fetch request podcasts
+	podcasts := make([]models.Podcast, 0)
+	if result := trx.Debug().Find(&podcasts, request.Podcasts); result.Error != nil {
+		status := 404
+
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			status = 400
+		}
+
+		return c.Status(status).JSON(definitions.MessageResponse{
+			Code:    status,
+			Message: result.Error.Error(),
+		})
+	}
+
+	fmt.Println(request.Podcasts)
+	fmt.Println(podcasts)
 
 	// Update playlist
-	podcasts := make([]models.Podcast, 0)
-	for _, p := range playlist.Podcasts {
-		for _, id := range request.Podcasts {
-			if p.ID == id {
-				podcasts = append(podcasts, p)
-			}
-		}
-	}
+	playlist.Title = request.Title
+	playlist.Description = request.Description
 
-	if len(podcasts) == 0 {
-		trx.Rollback()
-
-		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
-			Message: "No podcasts found for the selected ids",
-		})
-	}
-
-	err := trx.Association("Podcasts").Replace(podcasts)
-
-	if err != nil {
+	if err := trx.Debug().Save(&playlist).Error; err != nil {
 		trx.Rollback()
 
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -195,24 +213,55 @@ func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 		})
 	}
 
-	result = trx.Model(&playlist).Updates(models.Playlist{
-		Title:       request.Title,
-		Description: request.Description,
-	})
-
-	if result.Error != nil {
+	// Delete associations
+	if err := trx.Model(&playlist).Association("Podcasts").Clear(); err != nil {
 		trx.Rollback()
 
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
-			Message: result.Error.Error(),
+			Message: err.Error(),
+		})
+	}
+
+	// Update playlist podcasts // TODO
+	playlistPodcasts := lo.Map(podcasts, func(item models.Podcast, _ int) models.PodcastPlaylist {
+		return models.PodcastPlaylist{
+			PlaylistID: playlistId,
+			PodcastID:  item.ID,
+		}
+	})
+	if err := trx.Debug().Model(&models.PodcastPlaylist{}).Create(&playlistPodcasts).Error; err != nil {
+		trx.Rollback()
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
 		})
 	}
 
 	trx.Commit()
+
 	return c.JSON(definitions.DataResponse[models.PlaylistResource]{
 		Code: fiber.StatusOK,
-		Data: *playlist.ToResource(),
+		Data: models.PlaylistResource{
+			ID:          playlist.ID,
+			Title:       playlist.Title,
+			Description: playlist.Description,
+			CreatedAt:   playlist.CreatedAt,
+			Podcasts: lo.Map(podcasts, func(item models.Podcast, _ int) *models.PodcastResource {
+				return &models.PodcastResource{
+					ID:          item.ID,
+					Author:      item.Author,
+					Title:       item.Title,
+					Description: item.Description,
+					Duration:    item.Duration,
+					ImageURL:    item.ImageURL,
+					AudioURL:    item.AudioURL,
+					Published:   item.Published,
+					PublishedAt: *item.PublishedAt,
+				}
+			}),
+		},
 	})
 }
 
