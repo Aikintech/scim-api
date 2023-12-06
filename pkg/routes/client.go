@@ -70,6 +70,5 @@ func ClientRoutes(app *fiber.App) {
 	prayers.Post("/", jwtAuthWare, prayerController.RequestPrayer)
 
 	// Dashboard/home
-
 	app.Get("/home", controllers.NewHomeController().ClientHome)
 }

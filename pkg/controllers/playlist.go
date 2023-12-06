@@ -3,11 +3,12 @@ package controllers
 import (
 	"errors"
 	"fmt"
+
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
-	"github.com/aikintech/scim-api/pkg/utils"
+	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/aws/smithy-go/ptr"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
@@ -59,7 +60,7 @@ func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 	}
 
 	// Validate body
-	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(&definitions.ValidationErrsResponse{
 			Code:    fiber.StatusUnprocessableEntity,
 			Message: "Invalid request body",
@@ -167,7 +168,7 @@ func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 	}
 
 	// Validate request
-	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(&definitions.ValidationErrsResponse{
 			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
@@ -385,7 +386,7 @@ func (plCtrl *PlaylistController) AddPlaylistPodcasts(c *fiber.Ctx) error {
 	}
 
 	// Validate request
-	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(&definitions.ValidationErrsResponse{
 			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+
 	"github.com/aikintech/scim-api/pkg/constants"
 
 	"github.com/aikintech/scim-api/pkg/config"
@@ -32,7 +33,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	}
 
 	// Validate request
-	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
 			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
@@ -123,7 +124,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	}
 
 	// Validate request
-	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
 			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
@@ -253,7 +254,7 @@ func (a *AuthController) ForgotPassword(c *fiber.Ctx) error {
 	}
 
 	// Validate request
-	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
 			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,

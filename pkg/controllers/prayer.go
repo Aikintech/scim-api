@@ -58,7 +58,7 @@ func (pryCtrl *PrayerController) RequestPrayer(c *fiber.Ctx) error {
 	}
 
 	// Validate request
-	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
 			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,

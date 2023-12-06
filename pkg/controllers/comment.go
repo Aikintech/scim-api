@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+
 	"github.com/aikintech/scim-api/pkg/constants"
 
 	"github.com/aikintech/scim-api/pkg/config"
@@ -84,7 +85,7 @@ func (cmtCtrl *CommentController) StorePodcastComment(c *fiber.Ctx) error {
 	}
 
 	// Validate request
-	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
 			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
@@ -151,7 +152,7 @@ func (cmtCtrl *CommentController) UpdatePodcastComment(c *fiber.Ctx) error {
 	}
 
 	// Validate request
-	if errs := utils.ValidateStruct(request); len(errs) > 0 {
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
 			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
