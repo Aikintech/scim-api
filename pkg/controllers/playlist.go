@@ -322,19 +322,27 @@ func (plCtrl *PlaylistController) DeletePlaylistPodcasts(c *fiber.Ctx) error {
 		})
 	}
 
+	// Validate request
+	if errs := validation.ValidateStruct(&request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Code:   fiber.StatusUnprocessableEntity,
+			Errors: errs,
+		})
+	}
+
 	// Get playlist with its podcasts
 	trx := database.DB.Begin()
 	playlist := new(models.Playlist)
-	if result := trx.Preload("Podcasts").Where(models.Playlist{ID: playlistId, UserID: user.ID}).Find(&playlist); result != nil {
-		status := 404
+	if err := trx.Preload("Podcasts").Where(&models.Playlist{ID: playlistId, UserID: user.ID}).First(&playlist).Error; err != nil {
+		status := fiber.StatusNotFound
 
-		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			status = 400
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			status = fiber.StatusBadRequest
 		}
 
 		return c.Status(status).JSON(definitions.MessageResponse{
 			Code:    status,
-			Message: result.Error.Error(),
+			Message: err.Error(),
 		})
 	}
 
@@ -348,13 +356,16 @@ func (plCtrl *PlaylistController) DeletePlaylistPodcasts(c *fiber.Ctx) error {
 			PodcastID:  item,
 		}
 	})
-	if err := trx.Delete(&models.PodcastPlaylist{}, toBeDeleted).Error; err != nil {
-		trx.Rollback()
 
-		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
-			Message: err.Error(),
-		})
+	if len(toBeDeleted) > 0 {
+		if err := trx.Delete(&models.PodcastPlaylist{}, toBeDeleted).Error; err != nil {
+			trx.Rollback()
+
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Code:    fiber.StatusBadRequest,
+				Message: err.Error(),
+			})
+		}
 	}
 
 	trx.Commit()
@@ -371,7 +382,7 @@ func (plCtrl *PlaylistController) AddPlaylistPodcasts(c *fiber.Ctx) error {
 	playlistId := c.Params("playlistId")
 
 	// Parse request
-	request := definitions.PlaylistPodcastsRequest{}
+	request := new(definitions.PlaylistPodcastsRequest)
 	if err := c.BodyParser(request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
@@ -390,7 +401,7 @@ func (plCtrl *PlaylistController) AddPlaylistPodcasts(c *fiber.Ctx) error {
 	// Find playlist
 	trx := database.DB.Begin()
 	playlist := new(models.Playlist)
-	if err := trx.Where(&models.Playlist{ID: playlistId, UserID: user.ID}).First(&playlist).Error; err != nil {
+	if err := trx.Preload("Podcasts").Where(&models.Playlist{ID: playlistId, UserID: user.ID}).First(&playlist).Error; err != nil {
 		status := fiber.StatusNotFound
 
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -404,25 +415,34 @@ func (plCtrl *PlaylistController) AddPlaylistPodcasts(c *fiber.Ctx) error {
 	}
 
 	// Find podcasts
-	podcasts := make([]models.Podcast, 0)
-	if err := trx.Find(&podcasts, request.Podcasts).Error; err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
-			Message: err.Error(),
-		})
-	}
-
-	// Attach playlist podcasts
-	playlistPodcasts := lo.Map(podcasts, func(item models.Podcast, _ int) models.PodcastPlaylist {
-		return models.PodcastPlaylist{PlaylistID: playlistId, PodcastID: item.ID}
+	mappedPodcasts := lo.Map(playlist.Podcasts, func(item *models.Podcast, _ int) string {
+		return item.ID
 	})
-	if err := trx.Model(&models.PodcastPlaylist{}).Create(&playlistPodcasts).Error; err != nil {
-		trx.Rollback()
+	diff := lo.Filter(request.Podcasts, func(item string, index int) bool {
+		return !lo.Contains(mappedPodcasts, item)
+	})
 
-		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
-			Message: err.Error(),
+	if len(diff) > 0 {
+		podcasts := make([]models.Podcast, len(diff))
+		if err := trx.Debug().Find(&podcasts, diff).Error; err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Code:    fiber.StatusBadRequest,
+				Message: err.Error(),
+			})
+		}
+
+		// Attach playlist podcasts
+		playlistPodcasts := lo.Map(podcasts, func(item models.Podcast, _ int) models.PodcastPlaylist {
+			return models.PodcastPlaylist{PlaylistID: playlistId, PodcastID: item.ID}
 		})
+		if err := trx.Model(&models.PodcastPlaylist{}).Create(&playlistPodcasts).Error; err != nil {
+			trx.Rollback()
+
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Code:    fiber.StatusBadRequest,
+				Message: err.Error(),
+			})
+		}
 	}
 
 	trx.Commit()
