@@ -16,3 +16,7 @@ type DataResponse[T any] struct {
 	Data    T       `json:"data"`
 	Message *string `json:"message"`
 }
+
+type SuccessResponse struct {
+	Message string `json:"message"`
+}

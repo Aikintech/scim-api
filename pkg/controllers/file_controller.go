@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/validation"
-	"strings"
 
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/utils"
@@ -75,17 +76,14 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(definitions.Map{
-		"code": fiber.StatusOK,
-		"data": result,
-	})
+	return c.JSON(result)
 }
 
 func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
 	key := c.Query("key", "")
 
 	// Validate request
-	if validation.IsValidFileKey(key) {
+	if !validation.IsValidFileKey(key) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: "Invalid file key",
@@ -102,10 +100,7 @@ func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(definitions.Map{
-		"code": fiber.StatusOK,
-		"data": map[string]string{
-			"key": key,
-			"url": location,
-		},
+		"key": key,
+		"url": location,
 	})
 }

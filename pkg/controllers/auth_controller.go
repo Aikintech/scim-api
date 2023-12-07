@@ -86,13 +86,10 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"code": fiber.StatusOK,
-		"data": fiber.Map{
-			"user": models.UserToResource(&user),
-			"tokens": fiber.Map{
-				"access":  accessToken,
-				"refresh": refreshToken,
-			},
+		"user": models.UserToResource(&user),
+		"tokens": fiber.Map{
+			"access":  accessToken,
+			"refresh": refreshToken,
 		},
 	})
 }
@@ -157,8 +154,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 
 	// TODO: Send verification email
 
-	return c.Status(fiber.StatusCreated).JSON(definitions.MessageResponse{
-		Code:    fiber.StatusCreated,
+	return c.Status(fiber.StatusCreated).JSON(definitions.SuccessResponse{
 		Message: "Account created successfully",
 	})
 }
@@ -176,10 +172,7 @@ func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 	}
 	//
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"code": fiber.StatusOK,
-		"data": fiber.Map{
-			"access": accessToken,
-		},
+		"access": accessToken,
 	})
 }
 

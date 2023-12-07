@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"errors"
-	"github.com/aikintech/scim-api/pkg/database"
 	"time"
+
+	"github.com/aikintech/scim-api/pkg/database"
 
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
@@ -68,12 +69,9 @@ func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"code": fiber.StatusOK,
-		"data": fiber.Map{
-			"upcomingEvents":      upcomingEvents,
-			"latestPodcasts":      latestPodcasts,
-			"latestPosts":         latestPosts,
-			"latestAnnouncements": latestAnnouncements,
-		},
+		"upcomingEvents":      upcomingEvents,
+		"latestPodcasts":      latestPodcasts,
+		"latestPosts":         latestPosts,
+		"latestAnnouncements": latestAnnouncements,
 	})
 }
