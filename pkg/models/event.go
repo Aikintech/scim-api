@@ -36,8 +36,8 @@ func (e *Event) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (e *Event) ToResource() *EventResource {
-	return &EventResource{
+func (e *Event) ToResource() EventResource {
+	return EventResource{
 		ID:              e.ID,
 		Title:           e.Title,
 		Description:     e.Description,
@@ -47,4 +47,14 @@ func (e *Event) ToResource() *EventResource {
 		EndDateTime:     e.EndDateTime,
 		CreatedAt:       e.CreatedAt,
 	}
+}
+
+func EventsToResourceCollection(events []*Event) []EventResource {
+	resources := make([]EventResource, len(events))
+
+	for i, event := range events {
+		resources[i] = event.ToResource()
+	}
+
+	return resources
 }

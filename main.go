@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/aikintech/scim-api/pkg/database"
+
 	"github.com/aikintech/scim-api/pkg/routes"
 	"github.com/aikintech/scim-api/pkg/utils"
 
@@ -20,8 +22,8 @@ func init() {
 	config.InitializeRedis()
 
 	// Load database
-	config.ConnectDB()
-	config.MigrateDB()
+	database.ConnectDB()
+	database.MigrateDB()
 }
 
 func main() {

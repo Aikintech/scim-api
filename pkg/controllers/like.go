@@ -3,8 +3,8 @@ package controllers
 import (
 	"errors"
 	"github.com/aikintech/scim-api/pkg/constants"
+	"github.com/aikintech/scim-api/pkg/database"
 
-	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/gofiber/fiber/v2"
@@ -24,7 +24,7 @@ func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
 	podcastId := c.Params("podcastId")
 	podcast := models.Podcast{}
-	result := config.DB.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)
+	result := database.DB.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)
 	if result.Error != nil {
 		message := "Record not found"
 		code := 404
@@ -42,7 +42,7 @@ func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 
 	// Fetch like
 	like := models.Like{}
-	result = config.DB.Model(&models.Like{}).Where(map[string]interface{}{
+	result = database.DB.Model(&models.Like{}).Where(map[string]interface{}{
 		"user_id":       user.ID,
 		"likeable_type": "podcasts",
 		"likeable_id":   podcast.ID,
@@ -60,7 +60,7 @@ func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 	// Like or unlike podcast
 	message := "Podcast liked successfully"
 	if len(like.ID) == 0 {
-		result = config.DB.Model(&models.Like{}).Create(&models.Like{
+		result = database.DB.Model(&models.Like{}).Create(&models.Like{
 			UserID:       user.ID,
 			LikeableID:   podcast.ID,
 			LikeableType: "podcasts",
@@ -73,7 +73,7 @@ func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 			})
 		}
 	} else {
-		result = config.DB.Delete(&models.Like{}, "id = ?", like.ID)
+		result = database.DB.Delete(&models.Like{}, "id = ?", like.ID)
 		message = "Podcast unliked successfully"
 
 		if result.Error != nil {

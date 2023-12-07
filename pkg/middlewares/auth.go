@@ -3,9 +3,9 @@ package middlewares
 import (
 	"errors"
 	"github.com/aikintech/scim-api/pkg/constants"
+	"github.com/aikintech/scim-api/pkg/database"
 	"os"
 
-	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
 	jwtWare "github.com/gofiber/contrib/jwt"
@@ -42,7 +42,7 @@ func JWTMiddleware(accessType string) fiber.Handler {
 
 			// Get user
 			user := new(models.User)
-			if result := config.DB.Model(&models.User{}).Where("id = ?", claims["sub"].(string)).First(&user); result.Error != nil {
+			if result := database.DB.Model(&models.User{}).Where("id = ?", claims["sub"].(string)).First(&user); result.Error != nil {
 				if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 					return c.Status(fiber.StatusUnauthorized).JSON(definitions.MessageResponse{
 						Code:    fiber.StatusUnauthorized,

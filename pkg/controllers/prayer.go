@@ -3,10 +3,10 @@ package controllers
 import (
 	"errors"
 
-	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/database"
+
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
-	"github.com/aikintech/scim-api/pkg/utils"
 	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -28,7 +28,7 @@ func (pryCtrl *PrayerController) MyPrayers(c *fiber.Ctx) error {
 
 	// Get prayer requests
 	prayers := []models.PrayerRequestResource{}
-	result := config.DB.Model(&models.PrayerRequest{}).Where("user_id = ?", user.ID).Order(orderBy).Find(&prayers)
+	result := database.DB.Model(&models.PrayerRequest{}).Where("user_id = ?", user.ID).Order(orderBy).Find(&prayers)
 
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -67,7 +67,7 @@ func (pryCtrl *PrayerController) RequestPrayer(c *fiber.Ctx) error {
 
 	// Create prayer request
 	prayer := new(models.PrayerRequest)
-	result := config.DB.Model(&prayer).Create(&models.PrayerRequest{
+	result := database.DB.Model(&prayer).Create(&models.PrayerRequest{
 		Title:       request.Title,
 		Body:        request.Description,
 		UserID:      user.ID,
@@ -94,8 +94,8 @@ func (pryCtrl *PrayerController) BackOfficeGetPrayers(c *fiber.Ctx) error {
 	search := c.Query("search", "")
 
 	// Get prayers
-	prayers := make([]models.PrayerRequest, 0)
-	result := config.DB.Debug().Scopes(models.PaginateScope(c)).Model(&models.PrayerRequest{}).Preload("User").Where("title LIKE ?", "%"+search+"%").Find(&prayers)
+	prayers := make([]*models.PrayerRequest, 0)
+	result := database.DB.Scopes(models.PaginateScope(c)).Model(&models.PrayerRequest{}).Preload("User").Where("title LIKE ?", "%"+search+"%").Find(&prayers)
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -105,31 +105,10 @@ func (pryCtrl *PrayerController) BackOfficeGetPrayers(c *fiber.Ctx) error {
 		}
 	}
 
-	prayerResources := make([]models.PrayerRequestResource, 0)
-	for _, p := range prayers {
-		user := p.User
-		avatar, _ := utils.GenerateS3FileURL(*user.Avatar)
-
-		prayerResources = append(prayerResources, models.PrayerRequestResource{
-			ID:          p.ID,
-			Title:       p.Title,
-			Body:        p.Body,
-			CompletedAt: p.CompletedAt,
-			CreatedAt:   p.CreatedAt,
-			User: &models.AuthUserResource{
-				ID:            user.ID,
-				FirstName:     user.FirstName,
-				LastName:      user.LastName,
-				Email:         user.Email,
-				EmailVerified: user.EmailVerifiedAt != nil,
-				Avatar:        &avatar,
-				Channels:      user.Channels,
-			},
-		})
-	}
+	prayerCollection := models.PrayersToResourceCollection(prayers)
 
 	return c.JSON(definitions.DataResponse[[]models.PrayerRequestResource]{
 		Code: fiber.StatusOK,
-		Data: prayerResources,
+		Data: prayerCollection,
 	})
 }

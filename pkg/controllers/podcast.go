@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"github.com/aikintech/scim-api/pkg/database"
 	"strings"
 
-	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/jobs"
 	"github.com/aikintech/scim-api/pkg/models"
@@ -30,7 +30,7 @@ func (podCtrl *PodcastController) ListPodcasts(c *fiber.Ctx) error {
 
 	// Fetch podcasts
 	podcasts := make([]models.PodcastResource, 0)
-	results := config.DB.Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Where("title LIKE ?", "%"+search+"%").Order(orderBy).Find(&podcasts)
+	results := database.DB.Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Where("title LIKE ?", "%"+search+"%").Order(orderBy).Find(&podcasts)
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -55,7 +55,7 @@ func (podCtrl *PodcastController) ListAllPodcasts(c *fiber.Ctx) error {
 	}
 	// Fetch podcasts
 	podcasts := make([]models.PodcastResource, 0)
-	results := config.DB.Model(&models.Podcast{}).Order(orderBy).Find(&podcasts)
+	results := database.DB.Model(&models.Podcast{}).Order(orderBy).Find(&podcasts)
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -84,7 +84,7 @@ func (podCtrl *PodcastController) ShowPodcast(c *fiber.Ctx) error {
 
 	// Fetch podcast
 	podcast := models.PodcastResource{}
-	result := config.DB.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)
+	result := database.DB.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {

@@ -1,4 +1,4 @@
-package config
+package database
 
 import (
 	"fmt"
@@ -15,8 +15,6 @@ import (
 )
 
 var DB *gorm.DB
-
-// TODO: Remove all the Debug() calls before production
 
 func ConnectDB() {
 	newLogger := logger.New(
@@ -45,7 +43,11 @@ func ConnectDB() {
 		log.Fatal("Failed to connect database")
 	}
 
-	DB = db
+	if os.Getenv("APP_ENV") == "local" {
+		DB = db.Debug()
+	} else {
+		DB = db
+	}
 
 	fmt.Println("Database connection established")
 }

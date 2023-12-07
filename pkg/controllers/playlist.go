@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/database"
+
 	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
@@ -27,7 +28,7 @@ func (plCtrl *PlaylistController) GetPlaylists(c *fiber.Ctx) error {
 
 	// Get playlists
 	playlists := make([]*models.Playlist, 0)
-	if result := config.DB.Preload("Podcasts").Where("user_id = ?", user.ID).Find(&playlists); result.Error != nil {
+	if result := database.DB.Preload("Podcasts").Where("user_id = ?", user.ID).Find(&playlists); result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: result.Error.Error(),
@@ -35,10 +36,7 @@ func (plCtrl *PlaylistController) GetPlaylists(c *fiber.Ctx) error {
 	}
 
 	// Convert to resource
-	resources := make([]*models.PlaylistResource, len(playlists))
-	for i, playlist := range playlists {
-		resources[i] = playlist.ToResource()
-	}
+	resources := models.PlaylistsToResourceCollection(playlists)
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"code": fiber.StatusOK,
@@ -68,7 +66,7 @@ func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 		})
 	}
 
-	trx := config.DB.Begin()
+	trx := database.DB.Begin()
 	podcasts := make([]*models.Podcast, 0)
 
 	// Create playlist
@@ -84,7 +82,7 @@ func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 
 	// Append podcasts to playlist
 	if len(request.Podcasts) > 0 {
-		if result := trx.Debug().Model(&models.Podcast{}).Where(request.Podcasts).Find(&podcasts); result.Error != nil {
+		if result := trx.Model(&models.Podcast{}).Where(request.Podcasts).Find(&podcasts); result.Error != nil {
 			if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 				trx.Rollback()
 				return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -120,9 +118,7 @@ func (plCtrl *PlaylistController) CreatePlaylist(c *fiber.Ctx) error {
 			ShortURL:    nil,
 			Description: playlist.Description,
 			CreatedAt:   playlist.CreatedAt,
-			Podcasts: lo.Map(podcasts, func(item *models.Podcast, index int) *models.PodcastResource {
-				return item.ToResource()
-			}),
+			Podcasts:    models.PodcastsToResourceCollection(podcasts),
 		},
 	})
 }
@@ -134,7 +130,7 @@ func (plCtrl *PlaylistController) GetPlaylist(c *fiber.Ctx) error {
 
 	// Get playlist
 	playlist := new(models.Playlist)
-	if result := config.DB.Preload("Podcasts").Where(models.Playlist{ID: podcastId, UserID: user.ID}).First(&playlist); result.Error != nil {
+	if result := database.DB.Preload("Podcasts").Where(models.Playlist{ID: podcastId, UserID: user.ID}).First(&playlist); result.Error != nil {
 		message := "Playlist not found"
 
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -149,7 +145,7 @@ func (plCtrl *PlaylistController) GetPlaylist(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(definitions.DataResponse[models.PlaylistResource]{
 		Code: fiber.StatusOK,
-		Data: *playlist.ToResource(),
+		Data: models.PlaylistToResource(playlist),
 	})
 }
 
@@ -175,8 +171,8 @@ func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 		})
 	}
 
-	trx := config.DB.Begin()
-	podcasts := make([]models.Podcast, 0)
+	trx := database.DB.Begin()
+	podcasts := make([]*models.Podcast, 0)
 
 	// Get playlist
 	playlist := models.Playlist{}
@@ -231,7 +227,7 @@ func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 			}
 
 			// Update playlist podcasts
-			playlistPodcasts := lo.Map(podcasts, func(item models.Podcast, _ int) models.PodcastPlaylist {
+			playlistPodcasts := lo.Map(podcasts, func(item *models.Podcast, _ int) models.PodcastPlaylist {
 				return models.PodcastPlaylist{
 					PlaylistID: playlistId,
 					PodcastID:  item.ID,
@@ -257,9 +253,7 @@ func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 			Title:       playlist.Title,
 			Description: playlist.Description,
 			CreatedAt:   playlist.CreatedAt,
-			Podcasts: lo.Map(podcasts, func(item models.Podcast, _ int) *models.PodcastResource {
-				return item.ToResource()
-			}),
+			Podcasts:    models.PodcastsToResourceCollection(podcasts),
 		},
 	})
 }
@@ -269,7 +263,7 @@ func (plCtrl *PlaylistController) DeletePlaylist(c *fiber.Ctx) error {
 	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
 
 	// Get playlist
-	trx := config.DB.Begin()
+	trx := database.DB.Begin()
 	playlist := new(models.Playlist)
 	result := trx.Where("id = ? AND user_id = ?", c.Params("playlistId"), user.ID).First(&playlist)
 	if result.Error != nil {
@@ -329,7 +323,7 @@ func (plCtrl *PlaylistController) DeletePlaylistPodcasts(c *fiber.Ctx) error {
 	}
 
 	// Get playlist with its podcasts
-	trx := config.DB.Begin()
+	trx := database.DB.Begin()
 	playlist := new(models.Playlist)
 	if result := trx.Preload("Podcasts").Where(models.Playlist{ID: playlistId, UserID: user.ID}).Find(&playlist); result != nil {
 		status := 404
@@ -394,7 +388,7 @@ func (plCtrl *PlaylistController) AddPlaylistPodcasts(c *fiber.Ctx) error {
 	}
 
 	// Find playlist
-	trx := config.DB.Begin()
+	trx := database.DB.Begin()
 	playlist := new(models.Playlist)
 	if err := trx.Where(&models.Playlist{ID: playlistId, UserID: user.ID}).First(&playlist).Error; err != nil {
 		status := fiber.StatusNotFound

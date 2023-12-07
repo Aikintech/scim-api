@@ -1,14 +1,15 @@
 package controllers
 
 import (
-	"github.com/aikintech/scim-api/pkg/config"
+	"time"
+
 	"github.com/aikintech/scim-api/pkg/constants"
+	"github.com/aikintech/scim-api/pkg/database"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/aikintech/scim-api/pkg/utils"
 	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/gofiber/fiber/v2"
-	"time"
 )
 
 type EventController struct{}
@@ -52,7 +53,7 @@ func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
 		StartDateTime: startDateTime,
 		EndDateTime:   &endDateTime,
 	}
-	if err := config.DB.Debug().Model(&models.Event{}).Create(&event).Error; err != nil {
+	if err := database.DB.Model(&models.Event{}).Create(&event).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),

@@ -19,12 +19,12 @@ type PrayerRequest struct {
 }
 
 type PrayerRequestResource struct {
-	ID          string            `json:"id"`
-	Title       string            `json:"title"`
-	Body        string            `json:"description"`
-	CompletedAt *time.Time        `json:"completedAt"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	User        *AuthUserResource `json:"user"`
+	ID          string           `json:"id"`
+	Title       string           `json:"title"`
+	Body        string           `json:"description"`
+	CompletedAt *time.Time       `json:"completedAt"`
+	CreatedAt   time.Time        `json:"createdAt"`
+	User        AuthUserResource `json:"user"`
 }
 
 func (p *PrayerRequest) BeforeCreate(tx *gorm.DB) error {
@@ -33,13 +33,23 @@ func (p *PrayerRequest) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (p *PrayerRequest) ToResource() PrayerRequestResource {
+func PrayerToResource(p *PrayerRequest) PrayerRequestResource {
 	return PrayerRequestResource{
 		ID:          p.ID,
 		Title:       p.Title,
 		Body:        p.Body,
 		CompletedAt: p.CompletedAt,
 		CreatedAt:   p.CreatedAt,
-		User:        p.User.ToResource(),
+		User:        UserToResource(p.User),
 	}
+}
+
+func PrayersToResourceCollection(prayers []*PrayerRequest) []PrayerRequestResource {
+	resources := make([]PrayerRequestResource, len(prayers))
+
+	for i, prayer := range prayers {
+		resources[i] = PrayerToResource(prayer)
+	}
+
+	return resources
 }

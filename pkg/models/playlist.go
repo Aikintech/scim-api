@@ -20,12 +20,12 @@ type Playlist struct {
 }
 
 type PlaylistResource struct {
-	ID          string             `json:"id"`
-	Title       string             `json:"title"`
-	ShortURL    *string            `json:"shortUrl"`
-	Description string             `json:"description"`
-	CreatedAt   time.Time          `json:"createdAt"`
-	Podcasts    []*PodcastResource `json:"podcasts"`
+	ID          string            `json:"id"`
+	Title       string            `json:"title"`
+	ShortURL    *string           `json:"shortUrl"`
+	Description string            `json:"description"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	Podcasts    []PodcastResource `json:"podcasts"`
 }
 
 func (p *Playlist) BeforeCreate(tx *gorm.DB) error {
@@ -34,18 +34,23 @@ func (p *Playlist) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (p *Playlist) ToResource() *PlaylistResource {
-	podcasts := make([]*PodcastResource, len(p.Podcasts))
-	for i, podcast := range p.Podcasts {
-		podcasts[i] = podcast.ToResource()
-	}
-
-	return &PlaylistResource{
+func PlaylistToResource(p *Playlist) PlaylistResource {
+	return PlaylistResource{
 		ID:          p.ID,
 		Title:       p.Title,
 		ShortURL:    p.ShortURL,
 		Description: p.Description,
 		CreatedAt:   p.CreatedAt,
-		Podcasts:    podcasts,
+		Podcasts:    PodcastsToResourceCollection(p.Podcasts),
 	}
+}
+
+func PlaylistsToResourceCollection(playlists []*Playlist) []PlaylistResource {
+	resources := make([]PlaylistResource, len(playlists))
+
+	for i, playlist := range playlists {
+		resources[i] = PlaylistToResource(playlist)
+	}
+
+	return resources
 }

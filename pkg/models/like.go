@@ -14,7 +14,10 @@ type Like struct {
 	LikeableType string
 	CreatedAt    time.Time `gorm:"not null"`
 	UpdatedAt    time.Time `gorm:"not null"`
+	User         *User
 }
+
+type LikeResource struct{}
 
 func (c *Like) BeforeCreate(tx *gorm.DB) error {
 	c.ID = ulid.Make().String()
