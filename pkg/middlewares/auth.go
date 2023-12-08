@@ -2,9 +2,10 @@ package middlewares
 
 import (
 	"errors"
+	"os"
+
 	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/database"
-	"os"
 
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
@@ -22,7 +23,6 @@ func JWTMiddleware(accessType string) fiber.Handler {
 		TokenLookup: "header:X-USER-TOKEN",
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			return c.Status(fiber.StatusUnauthorized).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusUnauthorized,
 				Message: err.Error(),
 			})
 		},
@@ -34,7 +34,6 @@ func JWTMiddleware(accessType string) fiber.Handler {
 			if accessType == "refresh" {
 				if tokenType := claims["tokenType"].(string); tokenType != "refresh" {
 					return c.Status(fiber.StatusUnauthorized).JSON(definitions.MessageResponse{
-						Code:    fiber.StatusUnauthorized,
 						Message: "Invalid token type provided",
 					})
 				}
@@ -45,12 +44,10 @@ func JWTMiddleware(accessType string) fiber.Handler {
 			if result := database.DB.Model(&models.User{}).Where("id = ?", claims["sub"].(string)).First(&user); result.Error != nil {
 				if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 					return c.Status(fiber.StatusUnauthorized).JSON(definitions.MessageResponse{
-						Code:    fiber.StatusUnauthorized,
 						Message: "Invalid token provided",
 					})
 				} else {
-					return c.Status(fiber.StatusInternalServerError).JSON(definitions.MessageResponse{
-						Code:    fiber.StatusInternalServerError,
+					return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 						Message: result.Error.Error(),
 					})
 				}

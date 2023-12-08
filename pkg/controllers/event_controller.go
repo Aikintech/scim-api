@@ -29,7 +29,6 @@ func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
 	request := new(definitions.StoreEventRequest)
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
@@ -37,7 +36,6 @@ func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
 	// Validate request
 	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
-			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
 		})
 	}
@@ -55,7 +53,6 @@ func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
 	}
 	if err := database.DB.Model(&models.Event{}).Create(&event).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+
 	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/database"
 
@@ -35,7 +36,6 @@ func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 		}
 
 		return c.Status(code).JSON(definitions.MessageResponse{
-			Code:    code,
 			Message: message,
 		})
 	}
@@ -51,7 +51,6 @@ func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
 				Message: result.Error.Error(),
 			})
 		}
@@ -68,7 +67,6 @@ func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 
 		if result.Error != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
 				Message: result.Error.Error(),
 			})
 		}
@@ -78,14 +76,12 @@ func (likeCtrl *LikeController) LikePodcast(c *fiber.Ctx) error {
 
 		if result.Error != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
 				Message: result.Error.Error(),
 			})
 		}
 	}
 
 	return c.Status(fiber.StatusOK).JSON(definitions.MessageResponse{
-		Code:    fiber.StatusOK,
 		Message: message,
 	})
 }

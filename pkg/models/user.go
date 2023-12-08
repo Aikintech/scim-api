@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -52,10 +53,9 @@ func (u *User) BeforeCreate(*gorm.DB) error {
 
 func UserToResource(u *User) AuthUserResource {
 	// Generate avatarURL
-	avatar := ""
-	v, err := utils.GenerateS3FileURL(u.Avatar)
-	if err == nil {
-		avatar = v
+	avatar, err := utils.GenerateS3FileURL(u.Avatar)
+	if err != nil {
+		fmt.Println("Error generating avatar url", err.Error())
 	}
 
 	return AuthUserResource{

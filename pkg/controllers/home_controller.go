@@ -29,7 +29,6 @@ func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
 				Message: result.Error.Error(),
 			})
 		}
@@ -40,7 +39,6 @@ func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
 				Message: result.Error.Error(),
 			})
 		}
@@ -51,7 +49,6 @@ func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
 				Message: result.Error.Error(),
 			})
 		}
@@ -62,7 +59,6 @@ func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
 				Message: result.Error.Error(),
 			})
 		}

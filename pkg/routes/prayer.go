@@ -7,7 +7,7 @@ import (
 )
 
 func MountPrayerRoutes(app *fiber.App) {
-	prayers := app.Group("/prayers")
+	prayers := app.Group("/prayer-requests")
 
 	// Middlewares
 	jwtAuthWare := middlewares.JWTMiddleware("access")

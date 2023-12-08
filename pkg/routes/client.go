@@ -11,6 +11,6 @@ func ClientRoutes(app *fiber.App) {
 	// Routers
 	MountAuthRoutes(app)
 	MountPodcastRoutes(app)
-	MountPodcastRoutes(app)
+	MountPlaylistRoutes(app)
 	MountPrayerRoutes(app)
 }

@@ -28,7 +28,6 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	request := validation.LoginSchema{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
@@ -36,7 +35,6 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	// Validate request
 	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
-			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
 		})
 	}
@@ -46,7 +44,6 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	result := database.DB.Where("email = ?", request.Email).First(&user)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: "Invalid credentials provided",
 		})
 	}
@@ -55,7 +52,6 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	ok, err := utils.VerifyPasswordHash(request.Password, user.Password)
 	if err != nil || !ok {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: "Invalid credentials provided",
 		})
 	}
@@ -63,7 +59,6 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	// Check if user is verified
 	if user.EmailVerifiedAt == nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: "Account not verified. Please verify your email address",
 		})
 	}
@@ -73,14 +68,12 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	accessToken, err := models.GenerateUserToken(user, "access", reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
 	refreshToken, err := models.GenerateUserToken(user, "refresh", reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
@@ -99,7 +92,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	request := validation.RegisterSchema{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: err.Error(),
 		})
 	}
@@ -107,7 +100,6 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	// Validate request
 	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
-			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
 		})
 	}
@@ -117,13 +109,13 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	result := database.DB.Where("email = ?", request.Email).First(&user)
 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: result.Error.Error(),
 		})
 	}
 	if len(user.ID) > 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: "An account with this email already exists",
 		})
 	}
@@ -131,8 +123,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	// Create user
 	password, err := utils.MakePasswordHash(request.Password)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusInternalServerError,
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})
 	}
@@ -146,8 +137,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	result = database.DB.Model(&models.User{}).Create(&user)
 
 	if result.Error != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusInternalServerError,
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: result.Error.Error(),
 		})
 	}
@@ -166,7 +156,7 @@ func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: err.Error(),
 		})
 	}
@@ -181,7 +171,7 @@ func (a *AuthController) ResendEmailVerification(c *fiber.Ctx) error {
 	request := validation.EmailVerificationSchema{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: err.Error(),
 		})
 	}
@@ -207,15 +197,14 @@ func (a *AuthController) ResendEmailVerification(c *fiber.Ctx) error {
 
 	if len(message) > 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: message,
 		})
 	}
 
 	// TODO: Send email verification
 
-	return c.JSON(definitions.MessageResponse{
-		Code:    fiber.StatusOK,
+	return c.JSON(definitions.SuccessResponse{
 		Message: "Email verification sent",
 	})
 }
@@ -225,7 +214,6 @@ func (a *AuthController) ForgotPassword(c *fiber.Ctx) error {
 	request := validation.EmailVerificationSchema{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
@@ -233,7 +221,6 @@ func (a *AuthController) ForgotPassword(c *fiber.Ctx) error {
 	// Validate request
 	if errs := validation.ValidateStruct(request); len(errs) > 0 {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
-			Code:   fiber.StatusUnprocessableEntity,
 			Errors: errs,
 		})
 	}
@@ -249,7 +236,7 @@ func (a *AuthController) ForgotPassword(c *fiber.Ctx) error {
 		}
 
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: message,
 		})
 	}
@@ -257,14 +244,13 @@ func (a *AuthController) ForgotPassword(c *fiber.Ctx) error {
 	// Check user's sign up provider
 	if user.SignUpProvider != "local" {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: "The sign up provider for this account does not support password reset",
 		})
 	}
 
 	// TODO: Send password reset mail
 	return c.JSON(definitions.MessageResponse{
-		Code:    fiber.StatusOK,
 		Message: "Password reset email sent",
 	})
 }
@@ -274,7 +260,7 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 	request := definitions.ResetPasswordRequest{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: err.Error(),
 		})
 	}
@@ -290,7 +276,7 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 		}
 
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: message,
 		})
 	}
@@ -298,7 +284,7 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 	// Check user's sign up provider
 	if user.SignUpProvider != "local" {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: "The sign up provider for this account does not support password reset",
 		})
 	}
@@ -307,7 +293,7 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 	passwordHash, err := utils.MakePasswordHash(request.Password)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: err.Error(),
 		})
 	}
@@ -316,13 +302,18 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
+
 			Message: result.Error.Error(),
 		})
 	}
 
 	return c.JSON(definitions.MessageResponse{
-		Code:    fiber.StatusOK,
 		Message: "Your password has been reset successfully.",
 	})
+}
+
+func (a *AuthController) User(c *fiber.Ctx) error {
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
+
+	return c.JSON(models.UserToResource(user))
 }

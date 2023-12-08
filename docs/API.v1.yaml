@@ -115,6 +115,23 @@ paths:
       security:
         - X-USER-TOKEN: []
     parameters: []
+  /auth/user:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUser'
+      operationId: auth-user
+      description: 'Auth: Get user'
+      security:
+        - X-USER-TOKEN: []
+    parameters: []
   /podcasts:
     get:
       summary: ''
@@ -233,7 +250,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: '#/components/schemas/Comment'
         '401':
           description: Unauthorized
       operationId: comment-podcast
@@ -281,7 +298,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: '#/components/schemas/Comment'
         '401':
           description: Unauthorized
       operationId: update-podcast-comment
@@ -294,6 +311,19 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CommentPodcastRequest'
+    delete:
+      summary: ''
+      operationId: delete-podcast-comment
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      description: Delete podcast comment
+      security:
+        - X-USER-TOKEN: []
   /playlists:
     get:
       summary: ''
@@ -319,7 +349,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlaylistResponse'
+                $ref: '#/components/schemas/Playlist'
       security:
         - X-USER-TOKEN: []
       requestBody:
@@ -472,7 +502,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: '#/components/schemas/Prayer'
       description: 'Client: Request prayer'
       security:
         - X-USER-TOKEN: []
@@ -695,11 +725,20 @@ components:
       type: object
       x-examples:
         Example 1:
-          id: 01HGRFM7M1F03D6014034KEF2P
-          title: This is a test
+          id: 01HH45VD7HQJWGG5ZEQNDY1YN4
+          title: This is a test 4
           description: This is a test description
           completedAt: null
-          createdAt: '2023-12-03T18:39:07.393849Z'
+          createdAt: '2023-12-08T07:39:09.937651Z'
+          user:
+            id: 01HH1KGM9S1H086GV1EGPFP16X
+            firstName: Nana
+            lastName: Aikinson
+            email: nanaaikinson24@example.com
+            emailVerified: true
+            avatar: 'https://scimapp-test-uploads.s3.eu-west-1.amazonaws.com/AVATAR/c5wlQgTksTLGkMLhA55gMCOenWPqo4.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAW3W3GZGQ66DHX5JB%2F20231207%2Feu-west-1%2Fs3%2Faws4_request&X-Amz-Date=20231207T222154Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=f9140b24726dc7c625df3638a667ab143ecb98b522e0bc41ddfc76b27fbbfd31'
+            channels:
+              - web
       properties:
         id:
           type: string
@@ -712,12 +751,15 @@ components:
           nullable: true
         createdAt:
           type: string
+        user:
+          $ref: '#/components/schemas/AuthUser'
       required:
         - id
         - title
         - description
         - completedAt
         - createdAt
+        - user
     Comment:
       type: object
       x-examples:
@@ -823,44 +865,14 @@ components:
       required:
         - message
     GetPodcastResponse:
-      title: GetPodcastResponse
-      x-stoplight:
-        id: vqwawoqutoayb
-      type: object
-      properties:
-        Code:
-          type: integer
-          x-stoplight:
-            id: 7cbuuayl4h9wt
-        data:
-          $ref: '#/components/schemas/Podcast'
-      required:
-        - Code
-        - data
+      $ref: '#/components/schemas/Podcast'
     GetPodcastsResponse:
       title: GetPodcastsResponse
       x-stoplight:
         id: ep2dcbt7zbrt9
-      type: object
-      properties:
-        code:
-          type: integer
-          x-stoplight:
-            id: euwqr1xr3f86a
-        data:
-          type: array
-          x-stoplight:
-            id: fniqy47q0xrcu
-          items:
-            $ref: '#/components/schemas/Podcast'
-        meta:
-          type: string
-          x-stoplight:
-            id: zsehgi57gwi91
-      required:
-        - code
-        - data
-        - meta
+      type: array
+      items:
+        $ref: '#/components/schemas/Podcast'
     LoginResponse:
       type: object
       x-examples:
@@ -904,91 +916,16 @@ components:
       required:
         - access
     PlaylistsResponse:
-      type: object
+      type: array
       x-stoplight:
         id: b4m86sg966ryt
-      x-examples:
-        Example 1:
-          code: 201
-          data:
-            id: 01HGN0RK7FYJH596PE0X8TTZH1
-            title: Honour
-            shortUrl: null
-            description: ''
-            createdAt: '2023-12-02T10:21:38.415726Z'
-            podcasts:
-              - id: 01HGN0RK7GKJ3MXARR598PN0DG
-                author: Evangelist Elijah Ben
-                title: 'SCIM UK Stages of honour and dishonour '
-                summary: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
-                description: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
-                duration: '82:43'
-                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
-                audioUrl: 'http://awscdn.podcasts.com/SCIM-UK-Stages-of-honour-and-dishonour--eebe.mp3'
-                published: true
-                publishedAt: '2020-10-19T13:54:06Z'
-              - id: 01HGN0RK7GKJ3MXARR59WXVF1F
-                author: Evangelist Elijah Ben
-                title: Those Who Dishonour / Signs of Dishonour
-                summary: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
-                description: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
-                duration: '93:39'
-                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
-                audioUrl: 'http://awscdn.podcasts.com/Those-Who-Dishonour-Signs-of-Dishonour-d3e1.mp3'
-                published: true
-                publishedAt: '2020-10-19T08:02:37Z'
-      properties:
-        code:
-          type: integer
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Playlist'
-      required:
-        - code
-        - data
+      x-examples: {}
+      items:
+        $ref: '#/components/schemas/Playlist'
     PlaylistResponse:
-      type: object
-      x-examples:
-        Example 1:
-          code: 201
-          data:
-            id: 01HGN0RK7FYJH596PE0X8TTZH1
-            title: Honour
-            shortUrl: null
-            description: ''
-            createdAt: '2023-12-02T10:21:38.415726Z'
-            podcasts:
-              - id: 01HGN0RK7GKJ3MXARR598PN0DG
-                author: Evangelist Elijah Ben
-                title: 'SCIM UK Stages of honour and dishonour '
-                summary: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
-                description: 'Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fear to whom fear; honour to whom honour. Romans 13:7'
-                duration: '82:43'
-                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
-                audioUrl: 'http://awscdn.podcasts.com/SCIM-UK-Stages-of-honour-and-dishonour--eebe.mp3'
-                published: true
-                publishedAt: '2020-10-19T13:54:06Z'
-              - id: 01HGN0RK7GKJ3MXARR59WXVF1F
-                author: Evangelist Elijah Ben
-                title: Those Who Dishonour / Signs of Dishonour
-                summary: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
-                description: 'ROMANS 13:7Render therefore to all their dues: tribute to whom tribute is due; custom to whom custom; fearto whom fear; honour to whom honour.'
-                duration: '93:39'
-                imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
-                audioUrl: 'http://awscdn.podcasts.com/Those-Who-Dishonour-Signs-of-Dishonour-d3e1.mp3'
-                published: true
-                publishedAt: '2020-10-19T08:02:37Z'
-      properties:
-        code:
-          type: integer
-        data:
-          $ref: '#/components/schemas/Playlist'
-      required:
-        - code
-        - data
+      $ref: '#/components/schemas/Playlist'
     PrayersResponse:
-      type: object
+      type: array
       x-stoplight:
         id: y4qcmdcl1n787
       x-examples:
@@ -1000,44 +937,26 @@ components:
               description: This is a test description
               completedAt: null
               createdAt: '2023-12-03T18:39:07.393849Z'
-      properties:
-        code:
-          type: integer
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Prayer'
-      required:
-        - code
-        - data
+      items:
+        $ref: '#/components/schemas/Prayer'
     PodcastCommentsResponse:
-      type: object
+      type: array
       x-examples:
         Example 1:
-          code: 200
-          data:
-            - id: 01HGTH4JBT0KMPYW4KD505SAS0
-              body: Lorem ipsum 3
-              createdAt: '2023-12-04T13:44:00.122063Z'
-              user:
-                id: 01HGHB89XH660W6HDM3FWBAEVB
-                firstName: Nana
-                lastName: Aikinson
-                email: nanaaikinson24@example.com
-                emailVerified: true
-                avatar: null
-                channels:
-                  - web
-      properties:
-        code:
-          type: integer
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Comment'
-      required:
-        - code
-        - data
+          - id: 01HGTH4JBT0KMPYW4KD505SAS0
+            body: Lorem ipsum 3
+            createdAt: '2023-12-04T13:44:00.122063Z'
+            user:
+              id: 01HGHB89XH660W6HDM3FWBAEVB
+              firstName: Nana
+              lastName: Aikinson
+              email: nanaaikinson24@example.com
+              emailVerified: true
+              avatar: null
+              channels:
+                - web
+      items:
+        $ref: '#/components/schemas/Comment'
     EmailRequest:
       title: EmailRequest
       x-stoplight:

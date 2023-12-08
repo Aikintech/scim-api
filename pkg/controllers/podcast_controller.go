@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"github.com/aikintech/scim-api/pkg/database"
 	"strings"
+
+	"github.com/aikintech/scim-api/pkg/database"
 
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/jobs"
@@ -34,16 +35,12 @@ func (podCtrl *PodcastController) ListPodcasts(c *fiber.Ctx) error {
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: results.Error.Error(),
 		})
 	}
 
 	// Return podcasts
-	return c.Status(fiber.StatusOK).JSON(definitions.DataResponse[[]models.PodcastResource]{
-		Code: fiber.StatusOK,
-		Data: podcasts,
-	})
+	return c.Status(fiber.StatusOK).JSON(podcasts)
 }
 
 func (podCtrl *PodcastController) ListAllPodcasts(c *fiber.Ctx) error {
@@ -59,16 +56,12 @@ func (podCtrl *PodcastController) ListAllPodcasts(c *fiber.Ctx) error {
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: results.Error.Error(),
 		})
 	}
 
 	// Return podcasts
-	return c.Status(fiber.StatusOK).JSON(definitions.DataResponse[[]models.PodcastResource]{
-		Code: fiber.StatusOK,
-		Data: podcasts,
-	})
+	return c.Status(fiber.StatusOK).JSON(podcasts)
 }
 
 // ShowPodcast - Get a podcast
@@ -77,7 +70,6 @@ func (podCtrl *PodcastController) ShowPodcast(c *fiber.Ctx) error {
 
 	if len(podcastId) == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusNotFound,
 			Message: "No record found",
 		})
 	}
@@ -89,22 +81,17 @@ func (podCtrl *PodcastController) ShowPodcast(c *fiber.Ctx) error {
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusNotFound,
 				Message: "No record found",
 			})
 		} else {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
 				Message: result.Error.Error(),
 			})
 		}
 	}
 
 	// Return podcast
-	return c.JSON(definitions.DataResponse[models.PodcastResource]{
-		Code: fiber.StatusOK,
-		Data: podcast,
-	})
+	return c.JSON(podcast)
 }
 
 // SeedPodcasts - Seed podcasts

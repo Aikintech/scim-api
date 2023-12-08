@@ -10,7 +10,7 @@ func MountAuthRoutes(app *fiber.App) {
 	auth := app.Group("/auth")
 
 	// Middlewares
-	// jwtAuthWare := middlewares.JWTMiddleware("access")
+	jwtAuthWare := middlewares.JWTMiddleware("access")
 	refreshJwtAuthWare := middlewares.JWTMiddleware("refresh")
 
 	// Routes
@@ -22,4 +22,5 @@ func MountAuthRoutes(app *fiber.App) {
 	auth.Post("/reset-password", authController.ResetPassword)
 	auth.Post("/resend-email-verification", authController.ResendEmailVerification)
 	auth.Get("/refresh-token", refreshJwtAuthWare, authController.RefreshToken)
+	auth.Get("/user", jwtAuthWare, authController.User)
 }

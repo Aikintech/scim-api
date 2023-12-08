@@ -25,7 +25,6 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 	requestFile, err := c.FormFile("file")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: "File upload failed",
 		})
 	}
@@ -34,7 +33,6 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 	uploadType := c.FormValue("uploadType")
 	if !lo.Contains(constants.UPLOAD_TYPES, uploadType) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: "Invalid upload type",
 		})
 	}
@@ -43,7 +41,6 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 	mime := utils.GetMimeExtension(requestFile.Header["Content-Type"][0])
 	if !lo.Contains(constants.ALLOWED_MIME_TYPES, mime) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: "Invalid file type",
 		})
 	}
@@ -59,7 +56,6 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 	}
 	if len(fileErrMsg) > 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: fileErrMsg,
 		})
 	}
@@ -71,7 +67,6 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 	result, err := utils.UploadFileS3(requestFile, filename)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
@@ -85,7 +80,6 @@ func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
 	// Validate request
 	if !validation.IsValidFileKey(key) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: "Invalid file key",
 		})
 	}
@@ -94,7 +88,6 @@ func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
 	location, err := utils.GenerateS3FileURL(key)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
