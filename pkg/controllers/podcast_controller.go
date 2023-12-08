@@ -6,7 +6,6 @@ import (
 	"github.com/aikintech/scim-api/pkg/database"
 
 	"github.com/aikintech/scim-api/pkg/definitions"
-	"github.com/aikintech/scim-api/pkg/jobs"
 	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -92,12 +91,4 @@ func (podCtrl *PodcastController) ShowPodcast(c *fiber.Ctx) error {
 
 	// Return podcast
 	return c.JSON(podcast)
-}
-
-// SeedPodcasts - Seed podcasts
-func (podCtrl *PodcastController) SeedPodcasts(c *fiber.Ctx) error {
-	// Background job
-	go jobs.SeedPodcasts()
-
-	return c.SendString("Podcasts seeding initiated")
 }
