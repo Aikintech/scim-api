@@ -2,25 +2,30 @@
 
 #### External service integrations
 
-- [ ] Cron job execution
+##### Cron job execution
 
-  - [https://cron-job.org/en](https://cron-job.org/en)
-  - [https://cronitor.io](https://cronitor.io)
+- [https://cron-job.org/en](https://cron-job.org/en)
+- [https://cronitor.io](https://cronitor.io)
 
-- [ ] Payments
+##### Payments
 
-  - [https://stripe.com](https://stripe.com)
-  - [https://paystack.com](https://paystack.com)
+- [https://stripe.com](https://stripe.com)
+- [https://paystack.com](https://paystack.com)
 
-- [ ] Email
+##### Emailing
 
-  - [https://resend.com](https://resend.com)
+- [https://mailjet.com](https://mailjet.com)
+- [https://resend.com](https://resend.com)
 
-- [ ] Testimonies
-  - [https://developers.tiktok.com](https://developers.tiktok.com)
-  - [https://developers.google.com/youtube/v3](https://developers.google.com/youtube/v3)
+##### Testimonies
 
-####
+- [https://developers.tiktok.com](https://developers.tiktok.com)
+- [https://developers.google.com/youtube/v3](https://developers.google.com/youtube/v3)
+
+##### Logging
+
+- [betterstack.com](betterstack.com)
+
+##### Others
 
 - Email forwarding: [https://app.improvmx.com](https://app.improvmx.com)
-- Sending of emails: [https://mailjet.com](https://mailjet.com)

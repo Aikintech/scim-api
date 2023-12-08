@@ -10,6 +10,9 @@ COPY go.mod go.sum ./
 # Download and install Go module dependencies
 RUN go mod download
 
+# Install PostgreSQL client
+RUN apt-get update && apt-get install -y postgresql-client
+
 # Copy the rest of the application code to the container
 COPY . .
 
