@@ -3,7 +3,8 @@ package controllers
 import (
 	"strings"
 
-	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/aikintech/scim-api/pkg/database"
+
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/jobs"
 	"github.com/aikintech/scim-api/pkg/models"
@@ -30,20 +31,16 @@ func (podCtrl *PodcastController) ListPodcasts(c *fiber.Ctx) error {
 
 	// Fetch podcasts
 	podcasts := make([]models.PodcastResource, 0)
-	results := config.DB.Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Where("title LIKE ?", "%"+search+"%").Order(orderBy).Find(&podcasts)
+	results := database.DB.Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Where("title LIKE ?", "%"+search+"%").Order(orderBy).Find(&podcasts)
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: results.Error.Error(),
 		})
 	}
 
 	// Return podcasts
-	return c.Status(fiber.StatusOK).JSON(definitions.DataResponse[[]models.PodcastResource]{
-		Code: fiber.StatusOK,
-		Data: podcasts,
-	})
+	return c.Status(fiber.StatusOK).JSON(podcasts)
 }
 
 func (podCtrl *PodcastController) ListAllPodcasts(c *fiber.Ctx) error {
@@ -55,20 +52,16 @@ func (podCtrl *PodcastController) ListAllPodcasts(c *fiber.Ctx) error {
 	}
 	// Fetch podcasts
 	podcasts := make([]models.PodcastResource, 0)
-	results := config.DB.Model(&models.Podcast{}).Order(orderBy).Find(&podcasts)
+	results := database.DB.Model(&models.Podcast{}).Order(orderBy).Find(&podcasts)
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusBadRequest,
 			Message: results.Error.Error(),
 		})
 	}
 
 	// Return podcasts
-	return c.Status(fiber.StatusOK).JSON(definitions.DataResponse[[]models.PodcastResource]{
-		Code: fiber.StatusOK,
-		Data: podcasts,
-	})
+	return c.Status(fiber.StatusOK).JSON(podcasts)
 }
 
 // ShowPodcast - Get a podcast
@@ -77,34 +70,28 @@ func (podCtrl *PodcastController) ShowPodcast(c *fiber.Ctx) error {
 
 	if len(podcastId) == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
-			Code:    fiber.StatusNotFound,
 			Message: "No record found",
 		})
 	}
 
 	// Fetch podcast
 	podcast := models.PodcastResource{}
-	result := config.DB.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)
+	result := database.DB.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusNotFound,
 				Message: "No record found",
 			})
 		} else {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-				Code:    fiber.StatusBadRequest,
 				Message: result.Error.Error(),
 			})
 		}
 	}
 
 	// Return podcast
-	return c.JSON(definitions.DataResponse[models.PodcastResource]{
-		Code: fiber.StatusOK,
-		Data: podcast,
-	})
+	return c.JSON(podcast)
 }
 
 // SeedPodcasts - Seed podcasts

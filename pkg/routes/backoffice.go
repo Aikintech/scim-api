@@ -17,7 +17,7 @@ func BackOfficeRoutes(app *fiber.App) {
 	eventController := controllers.NewEventController()
 
 	// Events
-	events.Post("/", jwtAuthWare, eventController.BackofficeStoreEvent)
+	events.Post("/", jwtAuthWare, eventController.BackofficeCreateEvent)
 
 	// Prayer requests
 	prayers.Get("/", prayerController.BackOfficeGetPrayers)

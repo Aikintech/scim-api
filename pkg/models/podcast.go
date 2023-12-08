@@ -62,8 +62,8 @@ func (p *Podcast) GetPolymorphicType() string {
 	return "podcasts"
 }
 
-func (p *Podcast) ToResource() *PodcastResource {
-	return &PodcastResource{
+func PodcastToResource(p *Podcast) PodcastResource {
+	return PodcastResource{
 		ID:     p.ID,
 		Author: p.Author,
 		Title:  p.Title,
@@ -75,4 +75,14 @@ func (p *Podcast) ToResource() *PodcastResource {
 		Published:   p.Published,
 		PublishedAt: *p.PublishedAt,
 	}
+}
+
+func PodcastsToResourceCollection(podcasts []*Podcast) []PodcastResource {
+	resources := make([]PodcastResource, len(podcasts))
+
+	for i, podcast := range podcasts {
+		resources[i] = PodcastToResource(podcast)
+	}
+
+	return resources
 }

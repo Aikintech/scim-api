@@ -20,10 +20,10 @@ type Comment struct {
 }
 
 type CommentResource struct {
-	ID        string            `json:"id"`
-	Body      string            `json:"body"`
-	CreatedAt time.Time         `json:"createdAt"`
-	User      *AuthUserResource `json:"user"`
+	ID        string           `json:"id"`
+	Body      string           `json:"body"`
+	CreatedAt time.Time        `json:"createdAt"`
+	User      AuthUserResource `json:"user"`
 }
 
 func (c *Comment) BeforeCreate(tx *gorm.DB) error {
@@ -32,11 +32,21 @@ func (c *Comment) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (c *Comment) ToResource() *CommentResource {
-	return &CommentResource{
+func CommentToResource(c *Comment) CommentResource {
+	return CommentResource{
 		ID:        c.ID,
 		Body:      c.Body,
 		CreatedAt: c.CreatedAt,
-		User:      c.User.ToResource(),
+		User:      UserToResource(c.User),
 	}
+}
+
+func CommentsToResourceCollection(comments []*Comment) []CommentResource {
+	resources := make([]CommentResource, len(comments))
+
+	for i, comment := range comments {
+		resources[i] = CommentToResource(comment)
+	}
+
+	return resources
 }

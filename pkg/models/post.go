@@ -41,7 +41,7 @@ func (p *Post) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (p *Post) ToResource() PostResource {
+func PostToResource(p *Post) PostResource {
 	return PostResource{
 		ID:              p.ID,
 		Title:           p.Title,
@@ -52,14 +52,15 @@ func (p *Post) ToResource() PostResource {
 		IsAnnouncement:  p.IsAnnouncement,
 		MinutesToRead:   p.MinutesToRead,
 		CreatedAt:       p.CreatedAt,
-		User: AuthUserResource{
-			ID:            p.User.ID,
-			FirstName:     p.User.FirstName,
-			LastName:      p.User.LastName,
-			Email:         p.User.Email,
-			EmailVerified: p.User.EmailVerifiedAt != nil,
-			Avatar:        nil,
-			Channels:      p.User.Channels,
-		},
+		User:            UserToResource(p.User),
 	}
+}
+
+func PostsToResourceCollection(posts []*Post) []PostResource {
+	postResources := make([]PostResource, len(posts))
+	for i, post := range posts {
+		postResources[i] = PostToResource(post)
+	}
+
+	return postResources
 }

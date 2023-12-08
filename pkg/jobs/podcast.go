@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/aikintech/scim-api/pkg/constants"
 	"time"
+
+	"github.com/aikintech/scim-api/pkg/constants"
+	"github.com/aikintech/scim-api/pkg/database"
 
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/models"
@@ -59,11 +61,11 @@ func SeedPodcasts() {
 }
 
 func updateOrCreate(podcast *models.Podcast) {
-	result := config.DB.First(&podcast, "guid = ?", podcast.GUID)
+	result := database.DB.First(&podcast, "guid = ?", podcast.GUID)
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			result := config.DB.Debug().Create(&podcast)
+			result := database.DB.Create(&podcast)
 
 			if result.Error != nil {
 				fmt.Println(result.Error.Error())

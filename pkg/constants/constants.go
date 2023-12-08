@@ -5,6 +5,7 @@ const (
 	JWT_CONTEXT_KEY    = "jwt-claims"
 	USER_CONTEXT_KEY   = "user"
 	PODCASTS_CACHE_KEY = "podcasts"
+	DATE_TIME_FORMAT   = "2023-12-21T21:00:00"
 )
 
 var (

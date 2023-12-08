@@ -1,35 +1,39 @@
-package utils
+package validation
 
 import (
 	"errors"
 	"fmt"
-	"github.com/aikintech/scim-api/pkg/constants"
 	"strings"
 
+	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/definitions"
-	"github.com/aikintech/scim-api/pkg/validation"
-	"github.com/go-playground/validator/v10"
+	v "github.com/go-playground/validator/v10"
+
+	"github.com/iancoleman/strcase"
 )
 
 func ValidateStruct(schema interface{}) []definitions.ValidationErr {
 	var errs []definitions.ValidationErr
-	var err error
-	validate := validator.New(validator.WithRequiredStructEnabled())
+	validate := v.New(v.WithRequiredStructEnabled())
 
 	// Custom error validation registration
-	if err = validate.RegisterValidation("validpassword", validation.IsValidPasswordValidation); err != nil {
+	if err := validate.RegisterValidation("validpassword", IsValidPasswordValidation); err != nil {
+		fmt.Println("Error registering custom validation :", err.Error())
+	}
+	if err := validate.RegisterValidation("validfilekey", IsValidUploadFileKey); err != nil {
+		fmt.Println("Error registering custom validation :", err.Error())
+	}
+	if err := validate.RegisterValidation("dateformat", IsValidDateFormat); err != nil {
 		fmt.Println("Error registering custom validation :", err.Error())
 	}
 
 	// Validate struct
-	err = validate.Struct(schema)
-
-	if err != nil {
-		var validationErrors validator.ValidationErrors
+	if err := validate.Struct(schema); err != nil {
+		var validationErrors v.ValidationErrors
 		errors.As(err, &validationErrors)
 
 		for i, err := range validationErrors {
-			field := strings.ToLower(err.Field())
+			field := strcase.ToLowerCamel(err.Field())
 
 			if existsInValidationErrs(field, errs) {
 				errs[i].Reasons = append(errs[i].Reasons, getValidationMessage(err))
@@ -42,8 +46,9 @@ func ValidateStruct(schema interface{}) []definitions.ValidationErr {
 	return errs
 }
 
-func getValidationMessage(err validator.FieldError) string {
-	fieldName := strings.ToLower(err.Field())
+func getValidationMessage(err v.FieldError) string {
+	// Convert field to camel case
+	fieldName := strcase.ToLowerCamel(err.Field())
 
 	switch err.Tag() {
 	case "required":
@@ -71,7 +76,6 @@ func getValidationMessage(err validator.FieldError) string {
 		}
 	case "isValidPassword":
 		return fmt.Sprintf("The %s field must contain at least one uppercase, one lowercase, one number and one special case character.", fieldName)
-
 	case "mimes":
 		{
 			split := strings.Split(err.Param(), " ")
@@ -79,15 +83,23 @@ func getValidationMessage(err validator.FieldError) string {
 
 			return fmt.Sprintf("The %s must be one of the following types: %s.", fieldName, joined)
 		}
-
 	case "uploadtype":
 		{
 			stringified := strings.Join(constants.UPLOAD_TYPES, ",")
 			return fmt.Sprintf("The %s field must be a valid upload type: %s", fieldName, stringified)
 		}
-
 	case "filesize":
 		return fmt.Sprintf("The %s field must be a valid file size.", fieldName)
+	case "validfilekey":
+		return fmt.Sprintf("The %s field provided is invalid.", fieldName)
+	case "datetime":
+		return fmt.Sprintf("The %s field must be a valid date time.", fieldName)
+	case "dateformat":
+		{
+			params := err.Param()
+
+			return fmt.Sprintf("The %s field must be a valid date time with format %s.", fieldName, params)
+		}
 
 	// Add more cases for other validation tags as needed
 	default:
@@ -95,6 +107,7 @@ func getValidationMessage(err validator.FieldError) string {
 	}
 }
 
+// TODO: Replace with samber/lo
 func existsInValidationErrs(field string, errs []definitions.ValidationErr) bool {
 	result := false
 

@@ -1,10 +1,12 @@
 package validation
 
 import (
-	"github.com/aikintech/scim-api/pkg/constants"
-	"github.com/samber/lo"
 	"regexp"
 	"strings"
+	"time"
+
+	"github.com/aikintech/scim-api/pkg/constants"
+	"github.com/samber/lo"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -13,6 +15,31 @@ func IsValidPasswordValidation(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
 
 	return isPasswordValid(value)
+}
+
+func IsValidUploadFileKey(fl validator.FieldLevel) bool {
+	value := fl.Field().String()
+
+	if len(value) == 0 {
+		return true
+	}
+
+	return IsValidFileKey(value)
+}
+
+func IsValidDateFormat(fl validator.FieldLevel) bool {
+	value := fl.Field().String()
+	params := fl.Param()
+
+	if len(params) == 0 {
+		return false
+	}
+
+	if _, err := time.Parse(params, value); err != nil {
+		return false
+	}
+
+	return true
 }
 
 func isPasswordValid(password string) bool {
