@@ -11,7 +11,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Install PostgreSQL client
-RUN apt-get update && apt-get install -y postgresql-client
+# RUN apt-get update && apt-get install -y postgresql-client
 
 # Copy the rest of the application code to the container
 COPY . .
@@ -20,7 +20,7 @@ COPY . .
 RUN go build -o main .
 
 # Expose the port that the application will run on
-# EXPOSE 9000
+EXPOSE 9000
 
 # Command to run the application
 CMD ["./main"]
