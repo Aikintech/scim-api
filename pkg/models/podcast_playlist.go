@@ -1,8 +1,8 @@
 package models
 
 type PodcastPlaylist struct {
-	PlaylistID string `gorm:"column:playlist_id;index"`
-	PodcastID  string `gorm:"column:podcast_id;index"`
+	PlaylistID string `gorm:"column:playlist_id"`
+	PodcastID  string `gorm:"column:podcast_id"`
 	Podcast    Podcast
 	Playlist   Playlist
 }

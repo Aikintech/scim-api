@@ -11,9 +11,9 @@ import (
 
 type Podcast struct {
 	ID          string         `gorm:"primaryKey;size:40"`
-	GUID        string         `gorm:"size:191;not null;index"`
+	GUID        string         `gorm:"size:191;not null"`
 	Author      string         `gorm:"size:191;not null"`
-	Title       string         `gorm:"not null;index"`
+	Title       string         `gorm:"not null"`
 	SubTitle    string         `gorm:"not null"`
 	Summary     string         `gorm:"not null"`
 	Description string         `gorm:"type:TEXT"`
