@@ -9,13 +9,13 @@ import (
 
 type Post struct {
 	ID              string    `gorm:"primaryKey;size:40"`
-	UserID          string    `gorm:"not null;index"`
-	Title           string    `gorm:"not null;index"`
-	Slug            string    `gorm:"not null;index"`
+	UserID          string    `gorm:"not null"`
+	Title           string    `gorm:"not null"`
+	Slug            string    `gorm:"not null"`
 	Body            string    `gorm:"not null"`
-	Published       bool      `gorm:"not null;index;default:false"`
+	Published       bool      `gorm:"not null;default:false"`
 	ExcerptImageURL string    `gorm:"text"`
-	IsAnnouncement  bool      `gorm:"not null;index;default:false"`
+	IsAnnouncement  bool      `gorm:"not null;default:false"`
 	MinutesToRead   int       `gorm:"not null;default:0"`
 	CreatedAt       time.Time `gorm:"not null"`
 	UpdatedAt       time.Time `gorm:"not null"`

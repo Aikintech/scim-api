@@ -9,12 +9,12 @@ import (
 
 type Event struct {
 	ID              string `gorm:"primaryKey;size:40"`
-	Title           string `gorm:"not null;index"`
+	Title           string `gorm:"not null"`
 	Description     string `gorm:"not null"`
 	ExcerptImageURL string
 	Location        string    `gorm:"size:255;not null"`
-	StartDateTime   time.Time `gorm:"not null;index"`
-	EndDateTime     time.Time `gorm:"not null;index`
+	StartDateTime   time.Time `gorm:"not null"`
+	EndDateTime     *time.Time
 	CreatedAt       time.Time `gorm:"not null"`
 	UpdatedAt       time.Time `gorm:"not null"`
 }
@@ -44,7 +44,7 @@ func (e *Event) ToResource() EventResource {
 		ExcerptImageURL: &e.ExcerptImageURL,
 		Location:        e.Location,
 		StartDateTime:   e.StartDateTime,
-		EndDateTime:     &e.EndDateTime,
+		EndDateTime:     e.EndDateTime,
 		CreatedAt:       e.CreatedAt,
 	}
 }
