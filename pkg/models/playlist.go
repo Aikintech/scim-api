@@ -8,8 +8,8 @@ import (
 )
 
 type Playlist struct {
-	ID          string `gorm:"primaryKey;size:40"`
-	UserID      string
+	ID          string     `gorm:"primaryKey;size:40"`
+	UserID      string     `gorm:"not null;index"`
 	Title       string     `gorm:"size:191;not null"`
 	ShortURL    *string    `gorm:"size:191"`
 	Description string     `gorm:"size:191"`

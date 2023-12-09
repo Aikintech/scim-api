@@ -8,10 +8,10 @@ import (
 )
 
 type Like struct {
-	ID           string `gorm:"primaryKey;size:40"`
-	UserID       string `gorm:"not null"`
-	LikeableID   string
-	LikeableType string
+	ID           string    `gorm:"primaryKey;size:40"`
+	UserID       string    `gorm:"not null;index"`
+	LikeableID   string    `gorm:"not null;index"`
+	LikeableType string    `gorm:"not null;index"`
 	CreatedAt    time.Time `gorm:"not null"`
 	UpdatedAt    time.Time `gorm:"not null"`
 	User         *User
