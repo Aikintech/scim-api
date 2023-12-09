@@ -25,3 +25,15 @@ type StoreEventRequest struct {
 type PlaylistPodcastsRequest struct {
 	Podcasts []string `json:"podcasts" validate:"required,min=1"`
 }
+
+type SocialAuthRequest struct {
+	Provider string `json:"provider" validate:"required,oneof=apple google"`
+	Token    string `json:"token" validate:"required"`
+}
+
+type StorePrayerRequest struct {
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	PhoneNumber string `json:"phoneNumber" validate:"required,len=10"`
+	CountryCode string `json:"countryCode" validate:"required,len=2"`
+}

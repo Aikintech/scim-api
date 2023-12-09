@@ -24,6 +24,7 @@ type User struct {
 	EmailVerifiedAt   *time.Time
 	SignUpProvider    string `gorm:"not null"`
 	Avatar            string
+	PhoneNumber       string
 	Channels          datatypes.JSON
 	CreatedAt         time.Time
 	UpdatedAt         time.Time

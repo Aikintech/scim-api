@@ -1003,9 +1003,19 @@ components:
           type: string
         description:
           type: string
+        phoneNumber:
+          type: string
+          x-stoplight:
+            id: itjqecfffw1l6
+        countryCode:
+          type: string
+          x-stoplight:
+            id: orgxyeb8y3gb1
       required:
         - title
         - description
+        - phoneNumber
+        - countryCode
     HomeDataResponse:
       type: object
       x-examples:

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/aikintech/scim-api/pkg/database"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/gofiber/fiber/v2"
+	"github.com/ttacon/libphonenumber"
 	"gorm.io/gorm"
 )
 
@@ -45,7 +47,7 @@ func (pryCtrl *PrayerController) RequestPrayer(c *fiber.Ctx) error {
 	user := c.Locals("user").(*models.User)
 
 	// Parse body
-	var request validation.StorePrayerSchema
+	var request definitions.StorePrayerRequest
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
@@ -59,11 +61,22 @@ func (pryCtrl *PrayerController) RequestPrayer(c *fiber.Ctx) error {
 		})
 	}
 
+	// Parse phone number
+	num, err := libphonenumber.Parse(request.PhoneNumber, strings.ToUpper(request.CountryCode))
+	if err != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: []definitions.ValidationErr{
+				{Field: "phoneNumber", Reasons: []string{"Invalid phone number"}},
+			},
+		})
+	}
+
 	// Create prayer request
 	prayer := models.PrayerRequest{
 		Title:       request.Title,
 		Body:        request.Description,
 		UserID:      user.ID,
+		PhoneNumber: libphonenumber.Format(num, libphonenumber.E164),
 		CompletedAt: nil,
 	}
 	result := database.DB.Model(&prayer).Create(&prayer)
