@@ -9,9 +9,9 @@ import (
 
 type VerificationCode struct {
 	ID        string    `gorm:"primaryKey;siz:40"`
-	UserID    string    `gorm:"not null"`
-	Code      string    `gorm:"not null"`
-	Expired   bool      `gorm:"not null;default:false"`
+	UserID    string    `gorm:"not null;index"`
+	Code      string    `gorm:"not null;index"`
+	Expired   bool      `gorm:"not null;index;default:false"`
 	ExpiresAt time.Time `gorm:"not null"`
 	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null"`

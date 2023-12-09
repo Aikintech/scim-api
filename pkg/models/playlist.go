@@ -8,9 +8,9 @@ import (
 )
 
 type Playlist struct {
-	ID          string `gorm:"primaryKey;size:40"`
-	UserID      string
-	Title       string     `gorm:"size:191;not null"`
+	ID          string     `gorm:"primaryKey;size:40"`
+	UserID      string     `gorm:"not null;index"`
+	Title       string     `gorm:"size:191;not null;index"`
 	ShortURL    *string    `gorm:"size:191"`
 	Description string     `gorm:"size:191"`
 	CreatedAt   time.Time  `gorm:"not null"`
