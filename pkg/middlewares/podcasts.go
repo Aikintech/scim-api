@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 
 	"github.com/aikintech/scim-api/pkg/constants"
@@ -38,6 +39,8 @@ func AllPodcastsCache() func(c *fiber.Ctx) error {
 				return podcasts[i].PublishedAt.String() < podcasts[j].PublishedAt.String()
 			})
 		}
+
+		fmt.Println("Podcasts from cache")
 
 		return c.JSON(podcasts)
 	}

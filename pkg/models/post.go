@@ -9,8 +9,8 @@ import (
 
 type Post struct {
 	ID              string    `gorm:"primaryKey;size:40"`
-	UserID          string    `gorm:"not null"`
-	Title           string    `gorm:"not null"`
+	UserID          string    `gorm:"not null;index"`
+	Title           string    `gorm:"not null;index"`
 	Slug            string    `gorm:"not null"`
 	Body            string    `gorm:"not null"`
 	Published       bool      `gorm:"not null;default:false"`
