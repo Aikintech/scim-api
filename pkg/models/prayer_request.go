@@ -9,7 +9,7 @@ import (
 
 type PrayerRequest struct {
 	ID          string `gorm:"primaryKey;size:40"`
-	UserID      string `gorm:"not null"`
+	UserID      string `gorm:"not null;index"`
 	Title       string `gorm:"not null"`
 	Body        string `gorm:"not null"`
 	CompletedAt *time.Time

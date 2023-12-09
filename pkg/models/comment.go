@@ -11,9 +11,9 @@ type Comment struct {
 	ID              string `gorm:"primaryKey;size:40"`
 	Body            string `gorm:"not null"`
 	ParentID        string
-	UserID          string `gorm:"not null"`
-	CommentableID   string
-	CommentableType string
+	UserID          string    `gorm:"not null;index"`
+	CommentableID   string    `gorm:"not null;index"`
+	CommentableType string    `gorm:"not null;index"`
 	CreatedAt       time.Time `gorm:"not null"`
 	UpdatedAt       time.Time `gorm:"not null"`
 	User            *User

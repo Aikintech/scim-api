@@ -9,10 +9,10 @@ import (
 
 type UserToken struct {
 	ID          string    `gorm:"primaryKey;size:40"`
-	UserID      string    `gorm:"size:40;not null"`
-	Reference   string    `gorm:"size:40;not null"`
+	UserID      string    `gorm:"size:40;not null;index"`
+	Reference   string    `gorm:"size:40;not null;index"`
 	Token       string    `gorm:"not null"`
-	Whitelisted bool      `gorm:"not null"`
+	Whitelisted bool      `gorm:"not null;index"`
 	CreatedAt   time.Time `gorm:"not null"`
 	UpdatedAt   time.Time `gorm:"not null"`
 	User        *User

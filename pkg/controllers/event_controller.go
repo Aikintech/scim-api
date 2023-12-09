@@ -49,7 +49,7 @@ func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
 		Description:   request.Description,
 		Location:      request.Location,
 		StartDateTime: startDateTime,
-		EndDateTime:   &endDateTime,
+		EndDateTime:   endDateTime,
 	}
 	if err := database.DB.Model(&models.Event{}).Create(&event).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -67,7 +67,7 @@ func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
 			ExcerptImageURL: &excerptImage,
 			Location:        event.Location,
 			StartDateTime:   event.StartDateTime,
-			EndDateTime:     event.EndDateTime,
+			EndDateTime:     &event.EndDateTime,
 			CreatedAt:       event.CreatedAt,
 		},
 	})

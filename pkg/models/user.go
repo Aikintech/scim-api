@@ -19,7 +19,7 @@ type User struct {
 	ExternalID        string `gorm:"not null"`
 	FirstName         string `gorm:"not null"`
 	LastName          string `gorm:"not null"`
-	Email             string `gorm:"not null"`
+	Email             string `gorm:"not null;index"`
 	Password          string
 	EmailVerifiedAt   *time.Time
 	SignUpProvider    string `gorm:"not null"`
