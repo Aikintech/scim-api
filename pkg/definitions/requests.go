@@ -17,8 +17,8 @@ type StoreEventRequest struct {
 	Title           string `json:"title" validate:"required,min=3"`
 	Description     string `json:"description" validate:"required,min=3"`
 	Location        string `json:"location" validate:"required"`
-	StartDateTime   string `json:"startDateTime" validate:"required,dateformat=2006-01-02T15:04:05"`
-	EndDateTime     string `json:"endDateTime" validate:"required,dateformat=2006-01-02T15:04:05"`
+	StartDateTime   string `json:"startDateTime" validate:"required,dateformat=2006-01-02T15:04:05.000Z"`
+	EndDateTime     string `json:"endDateTime" validate:"required,dateformat=2006-01-02T15:04:05.000Z"`
 	ExcerptImageURL string `json:"excerptImage" validate:"omitnil,validfilekey"`
 }
 

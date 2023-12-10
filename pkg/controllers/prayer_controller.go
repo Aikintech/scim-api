@@ -100,7 +100,7 @@ func (pryCtrl *PrayerController) BackOfficeGetPrayers(c *fiber.Ctx) error {
 
 	// Get prayers
 	prayers := make([]*models.PrayerRequest, 0)
-	result := database.DB.Scopes(models.PaginateScope(c)).Model(&models.PrayerRequest{}).Preload("User").Where("title LIKE ?", "%"+search+"%").Find(&prayers)
+	result := database.DB.Scopes(models.PaginationScope(c)).Model(&models.PrayerRequest{}).Preload("User").Where("title LIKE ?", "%"+search+"%").Find(&prayers)
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
