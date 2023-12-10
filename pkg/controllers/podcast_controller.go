@@ -30,7 +30,7 @@ func (podCtrl *PodcastController) ListPodcasts(c *fiber.Ctx) error {
 
 	// Fetch podcasts
 	podcasts := make([]models.PodcastResource, 0)
-	results := database.DB.Scopes(models.PaginateScope(c)).Model(&models.Podcast{}).Where("title LIKE ?", "%"+search+"%").Order(orderBy).Find(&podcasts)
+	results := database.DB.Scopes(models.PaginationScope(c)).Model(&models.Podcast{}).Where("title LIKE ?", "%"+search+"%").Order(orderBy).Find(&podcasts)
 
 	if results.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{

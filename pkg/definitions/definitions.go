@@ -11,3 +11,11 @@ type Token struct {
 }
 
 type Map map[string]interface{}
+
+type PaginationResult struct {
+	Limit      int           `json:"limit"`
+	Page       int           `json:"page"`
+	Sort       string        `json:"sort,omitempty;query:sort"`
+	TotalItems int64         `json:"totalItems"`
+	Items      []interface{} `json:"items"`
+}

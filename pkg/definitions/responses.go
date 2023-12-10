@@ -18,3 +18,7 @@ type DataResponse[T any] struct {
 type SuccessResponse struct {
 	Message string `json:"message"`
 }
+
+type PaginationResponse struct {
+	PaginationResult
+}

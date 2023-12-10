@@ -1,8 +1,10 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/aikintech/scim-api/pkg/utils"
 	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
@@ -15,6 +17,7 @@ type Event struct {
 	Location        string    `gorm:"size:255;not null"`
 	StartDateTime   time.Time `gorm:"not null"`
 	EndDateTime     *time.Time
+	Published       bool      `gorm:"default:false"`
 	CreatedAt       time.Time `gorm:"not null"`
 	UpdatedAt       time.Time `gorm:"not null"`
 }
@@ -27,6 +30,7 @@ type EventResource struct {
 	Location        string     `json:"location"`
 	StartDateTime   time.Time  `json:"startDateTime"`
 	EndDateTime     *time.Time `json:"endDateTime"`
+	Published       bool       `json:"published"`
 	CreatedAt       time.Time  `json:"createdAt"`
 }
 
@@ -37,19 +41,26 @@ func (e *Event) BeforeCreate(tx *gorm.DB) error {
 }
 
 func (e *Event) ToResource() EventResource {
+	// Generate avatarURL
+	excerptImage, err := utils.GenerateS3FileURL(e.ExcerptImageURL)
+	if err != nil {
+		fmt.Println("Error generating avatar url", err.Error())
+	}
+
 	return EventResource{
 		ID:              e.ID,
 		Title:           e.Title,
 		Description:     e.Description,
-		ExcerptImageURL: &e.ExcerptImageURL,
+		ExcerptImageURL: &excerptImage,
 		Location:        e.Location,
 		StartDateTime:   e.StartDateTime,
 		EndDateTime:     e.EndDateTime,
+		Published:       e.Published,
 		CreatedAt:       e.CreatedAt,
 	}
 }
 
-func EventsToResourceCollection(events []*Event) []EventResource {
+func EventsToResourceCollection(events []Event) []EventResource {
 	resources := make([]EventResource, len(events))
 
 	for i, event := range events {

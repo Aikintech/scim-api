@@ -9,6 +9,8 @@ info:
     name: Nana Kwesi Ofosu-Aikins
     email: nanaaikinson24@gmail.com
 servers:
+  - url: 'https://api.scimapp.org'
+    description: ''
   - url: 'https://staging-api.scimapp.org'
     description: ''
 tags:
@@ -206,7 +208,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetPodcastResponse'
+                $ref: '#/components/schemas/Podcast'
       operationId: get-podcast
       description: 'Client: Get podcast'
   '/podcasts/{podcastId}/like':
@@ -380,7 +382,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlaylistResponse'
+                $ref: '#/components/schemas/Playlist'
       operationId: get-playlist
       description: 'Client: Get playlist'
       security:
@@ -586,6 +588,101 @@ paths:
           name: key
           required: true
       description: 'Client: Get file url'
+  /backoffice/events:
+    get:
+      summary: ''
+      tags:
+        - backoffice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsResponse'
+      operationId: backoffice-get-events
+      description: 'Backoffice: Get events'
+      security:
+        - X-USER-TOKEN: []
+    post:
+      summary: ''
+      operationId: backoffice-create-event
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+      description: 'Backoffcie: Create event'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRequest'
+      tags:
+        - backoffice
+  '/backoffice/events/{eventId}':
+    get:
+      summary: ''
+      tags:
+        - backoffice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+      operationId: backoffice-get-event
+      description: 'Backoffice: Get event'
+      security:
+        - X-USER-TOKEN: []
+    parameters:
+      - schema:
+          type: string
+        name: eventId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      operationId: backoffice-update-event
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+      description: 'Backoffice: Update event'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRequest'
+      tags:
+        - backoffice
+    delete:
+      summary: ''
+      operationId: backoffice-delete-event
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      description: 'Backoffice: Delete event'
+      security:
+        - X-USER-TOKEN: []
+      tags:
+        - backoffice
 components:
   schemas:
     AuthUser:
@@ -753,6 +850,14 @@ components:
           nullable: true
         createdAt:
           type: string
+        status:
+          type: string
+          x-stoplight:
+            id: 9brcin5hlkla3
+          enum:
+            - fulfilled
+            - pending
+            - rejected
         user:
           $ref: '#/components/schemas/AuthUser'
       required:
@@ -762,6 +867,39 @@ components:
         - completedAt
         - createdAt
         - user
+        - status
+    Event:
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        excerptImage:
+          type: string
+        location:
+          type: string
+        startDateTime:
+          type: string
+        endDateTime:
+          type: string
+        published:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - excerptImage
+        - location
+        - startDateTime
+        - endDateTime
+        - published
+        - createdAt
     Comment:
       type: object
       x-examples:
@@ -1003,9 +1141,19 @@ components:
           type: string
         description:
           type: string
+        phoneNumber:
+          type: string
+          x-stoplight:
+            id: itjqecfffw1l6
+        countryCode:
+          type: string
+          x-stoplight:
+            id: orgxyeb8y3gb1
       required:
         - title
         - description
+        - phoneNumber
+        - countryCode
     HomeDataResponse:
       type: object
       x-examples:
@@ -1107,6 +1255,98 @@ components:
             type: string
       required:
         - podcasts
+    EventsResponse:
+      type: object
+      x-stoplight:
+        id: 09td3cquu09hj
+      x-examples:
+        Example 1:
+          items:
+            - id: 01HHAM7SDVSZBX67XBJWC4F8G6
+              title: Test event 3
+              description: Test description
+              excerptImage: ''
+              location: test location 2
+              startDateTime: '0000-12-31T23:43:52-00:16'
+              endDateTime: '0000-12-31T23:43:52-00:16'
+              published: false
+              createdAt: '2023-12-10T19:46:02.299722Z'
+            - id: 01HHAM7SDZJNN74F3HN0ZSCFX9
+              title: Test event 3
+              description: Test description
+              excerptImage: ''
+              location: test location 2
+              startDateTime: '0000-12-31T23:43:52-00:16'
+              endDateTime: '0000-12-31T23:43:52-00:16'
+              published: false
+              createdAt: '2023-12-10T19:46:02.303918Z'
+            - id: 01HHAM7SECNFH1VJWHH6E8ZDVD
+              title: Test event 3
+              description: Test description
+              excerptImage: ''
+              location: test location 2
+              startDateTime: '0000-12-31T23:43:52-00:16'
+              endDateTime: '0000-12-31T23:43:52-00:16'
+              published: false
+              createdAt: '2023-12-10T19:46:02.31655Z'
+            - id: 01HHAM7SM3KXJZEAY4ZS41ZF2J
+              title: Test event 3
+              description: Test description
+              excerptImage: ''
+              location: test location 2
+              startDateTime: '0000-12-31T23:43:52-00:16'
+              endDateTime: '0000-12-31T23:43:52-00:16'
+              published: false
+              createdAt: '2023-12-10T19:46:02.499953Z'
+          limit: 10
+          page: 2
+          total: 14
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        limit:
+          type: integer
+        page:
+          type: integer
+        total:
+          type: integer
+      required:
+        - items
+        - limit
+        - page
+        - total
+      title: ''
+    EventRequest:
+      type: object
+      x-examples:
+        Example 1:
+          title: Test event 4
+          description: Test description
+          location: test location 2
+          startDateTime: '2023-12-21T21:00:00.000Z'
+          endDateTime: '2024-01-01T02:00:00.000Z'
+          excerptImage: AVATAR/w6lG4ZUMcJ3DGMMXI27RW3VhZUT3BF.jpeg
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+        startDateTime:
+          type: string
+        endDateTime:
+          type: string
+        excerptImage:
+          type: string
+      required:
+        - title
+        - description
+        - location
+        - startDateTime
+        - endDateTime
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey

@@ -12,6 +12,8 @@ type PrayerRequest struct {
 	UserID      string `gorm:"not null;index"`
 	Title       string `gorm:"not null"`
 	Body        string `gorm:"not null"`
+	PhoneNumber string `gorm:"not null"`
+	Status      string `gorm:"not null;default:pending"`
 	CompletedAt *time.Time
 	CreatedAt   time.Time `gorm:"not null"`
 	UpdatedAt   time.Time `gorm:"not null"`
@@ -22,6 +24,8 @@ type PrayerRequestResource struct {
 	ID          string           `json:"id"`
 	Title       string           `json:"title"`
 	Body        string           `json:"description"`
+	PhoneNumber string           `json:"phoneNumber"`
+	Status      string           `json:"status"`
 	CompletedAt *time.Time       `json:"completedAt"`
 	CreatedAt   time.Time        `json:"createdAt"`
 	User        AuthUserResource `json:"user"`
@@ -38,6 +42,8 @@ func PrayerToResource(p *PrayerRequest) PrayerRequestResource {
 		ID:          p.ID,
 		Title:       p.Title,
 		Body:        p.Body,
+		PhoneNumber: p.PhoneNumber,
+		Status:      p.Status,
 		CompletedAt: p.CompletedAt,
 		CreatedAt:   p.CreatedAt,
 		User:        UserToResource(p.User),
