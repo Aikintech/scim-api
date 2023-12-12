@@ -17,7 +17,7 @@ RUN go run github.com/steebchen/prisma-client-go prefetch
 COPY . .
 
 # Push migrations to production database
-RUN go run github.com/steebchen/prisma-client-go migrate deploy
+# RUN go run github.com/steebchen/prisma-client-go migrate deploy
 
 # Build the Go application
 RUN go build -o main .
