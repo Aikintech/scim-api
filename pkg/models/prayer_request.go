@@ -12,8 +12,8 @@ type PrayerRequest struct {
 	UserID      string `gorm:"not null;index"`
 	Title       string `gorm:"not null"`
 	Body        string `gorm:"not null"`
-	PhoneNumber string `gorm:"not null"`
-	Status      string `gorm:"not null;default:pending"`
+	PhoneNumber string `gorm:"not null;index"`
+	Status      string `gorm:"not null;index;default:pending"`
 	CompletedAt *time.Time
 	CreatedAt   time.Time `gorm:"not null"`
 	UpdatedAt   time.Time `gorm:"not null"`

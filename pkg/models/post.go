@@ -11,7 +11,7 @@ type Post struct {
 	ID              string    `gorm:"primaryKey;size:40"`
 	UserID          string    `gorm:"not null;index"`
 	Title           string    `gorm:"not null;index"`
-	Slug            string    `gorm:"not null"`
+	Slug            string    `gorm:"not null;index"`
 	Body            string    `gorm:"not null"`
 	Published       bool      `gorm:"not null;default:false"`
 	ExcerptImageURL string    `gorm:"text"`
