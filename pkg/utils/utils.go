@@ -10,10 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aikintech/scim-api/pkg/config"
-	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func init() {
@@ -31,43 +28,6 @@ func GenerateCoe(max int) string {
 		b[i] = table[int(b[i])%len(table)]
 	}
 	return string(b)
-}
-
-func GenerateUserToken(user models.User, tokenType string, reference string) (string, error) {
-	// Create the Claims
-	expiry := time.Now().Add(time.Hour * 1).Unix()
-	if tokenType == "refresh" {
-		expiry = time.Now().Add(time.Hour * 24).Unix()
-	}
-	claims := jwt.MapClaims{
-		"sub":       user.ID,
-		"tokenType": tokenType,
-		"reference": reference,
-		"exp":       expiry,
-		"iat":       time.Now().Unix(),
-		"iss":       os.Getenv("APP_ISS"),
-	}
-	// Create token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte(os.Getenv("APP_KEY")))
-	if err != nil {
-		return "", err
-	}
-
-	// Create user token
-	result := config.DB.Model(&models.UserToken{}).Create(&models.UserToken{
-		UserID:      user.ID,
-		Reference:   reference,
-		Token:       t,
-		Whitelisted: true,
-	})
-	if result.Error != nil {
-		return "", result.Error
-	}
-
-	return t, nil
 }
 
 func GenerateRandomString(length int) string {
@@ -124,4 +84,8 @@ func GetMimeExtension(mime string) string {
 	}
 
 	return ""
+}
+
+func StructToPtr(i interface{}) interface{} {
+	return &i
 }

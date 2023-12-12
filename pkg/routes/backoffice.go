@@ -17,8 +17,12 @@ func BackOfficeRoutes(app *fiber.App) {
 	eventController := controllers.NewEventController()
 
 	// Events
-	events.Post("/", jwtAuthWare, eventController.BackofficeStoreEvent)
+	events.Get("/", jwtAuthWare, eventController.BackofficeGetEvents)
+	events.Post("/", jwtAuthWare, eventController.BackofficeCreateEvent)
+	events.Get("/:eventId", jwtAuthWare, eventController.BackofficeGetEvent)
+	events.Patch("/:eventId", jwtAuthWare, eventController.BackofficeUpdateEvent)
+	events.Delete("/:eventId", jwtAuthWare, eventController.BackofficeDeleteEvent)
 
 	// Prayer requests
-	prayers.Get("/", prayerController.BackOfficeGetPrayers)
+	prayers.Get("/", jwtAuthWare, prayerController.BackOfficeGetPrayers)
 }

@@ -2,11 +2,12 @@ package middlewares
 
 import (
 	"encoding/json"
-	"github.com/aikintech/scim-api/pkg/constants"
+	"fmt"
 	"sort"
 
+	"github.com/aikintech/scim-api/pkg/constants"
+
 	"github.com/aikintech/scim-api/pkg/config"
-	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/gofiber/fiber/v2"
 )
@@ -39,10 +40,9 @@ func AllPodcastsCache() func(c *fiber.Ctx) error {
 			})
 		}
 
-		return c.JSON(definitions.DataResponse[[]models.PodcastResource]{
-			Code: fiber.StatusOK,
-			Data: podcasts,
-		})
+		fmt.Println("Podcasts from cache")
+
+		return c.JSON(podcasts)
 	}
 }
 
@@ -63,10 +63,7 @@ func DBPodcastsCache() func(c *fiber.Ctx) error {
 
 		// podcasts = processPodcasts(c, podcasts)
 
-		return c.JSON(definitions.DataResponse[[]models.PodcastResource]{
-			Code: fiber.StatusOK,
-			Data: podcasts,
-		})
+		return c.JSON(podcasts)
 	}
 }
 
@@ -96,9 +93,6 @@ func PodcastByIdCache() func(c *fiber.Ctx) error {
 			}
 		}
 
-		return c.JSON(definitions.DataResponse[models.PodcastResource]{
-			Code: fiber.StatusOK,
-			Data: podcast,
-		})
+		return c.JSON(podcast)
 	}
 }

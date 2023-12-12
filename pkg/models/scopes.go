@@ -16,7 +16,7 @@ type Pagination struct {
 	Rows       interface{} `json:"rows"`
 }
 
-func PaginateScope(c *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
+func PaginationScope(c *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		page, _ := strconv.Atoi(c.Query("page", "1"))
 		limit, _ := strconv.Atoi(c.Query("limit", "10"))
