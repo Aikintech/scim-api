@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/utils"
-	"github.com/oklog/ulid/v2"
+	naoid "github.com/matoous/go-nanoid/v2"
 	"gorm.io/gorm"
 )
 
@@ -35,7 +36,7 @@ type EventResource struct {
 }
 
 func (e *Event) BeforeCreate(tx *gorm.DB) error {
-	e.ID = ulid.Make().String()
+	e.ID = naoid.MustGenerate(constants.ALPHABETS, 26)
 
 	return nil
 }

@@ -166,6 +166,8 @@ func (plCtrl *PlaylistController) UpdatePlaylist(c *fiber.Ctx) error {
 	// Update playlist
 	playlist.Title = request.Title
 	playlist.Description = request.Description
+
+	// TODO: Update without adding new podcasts
 	if err := trx.Save(&playlist).Error; err != nil {
 		trx.Rollback()
 

@@ -16,11 +16,14 @@ require (
 	github.com/grokify/html-strip-tags-go v0.1.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/joho/godotenv v1.5.1
+	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/matthewhartstonge/argon2 v1.0.0
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/rs/zerolog v1.31.0
 	github.com/samber/lo v1.39.0
+	github.com/shopspring/decimal v1.3.1
+	github.com/steebchen/prisma-client-go v0.31.0
 	github.com/ttacon/libphonenumber v1.2.1
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/postgres v1.5.4

@@ -6,8 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/aikintech/scim-api/pkg/models"
-
 	"gorm.io/driver/postgres"
 
 	"gorm.io/gorm"
@@ -53,15 +51,16 @@ func ConnectDB() {
 }
 
 func MigrateDB() {
-	err := DB.AutoMigrate(
-		&models.User{}, &models.Podcast{},
-		&models.Post{}, &models.Playlist{},
-		&models.PrayerRequest{}, &models.Like{},
-		&models.Comment{}, &models.Event{},
-		&models.UserToken{}, &models.VerificationCode{},
-	)
+	// err := DB.AutoMigrate(
+	// 	&models.User{}, &models.Podcast{},
+	// 	&models.Post{}, &models.Playlist{},
+	// 	&models.PrayerRequest{}, &models.Like{},
+	// 	&models.Comment{}, &models.Event{},
+	// 	&models.UserToken{}, &models.VerificationCode{},
+	// 	&models.UserDevice{},
+	// )
 
-	if err != nil {
-		return
-	}
+	// if err != nil {
+	// 	return
+	// }
 }

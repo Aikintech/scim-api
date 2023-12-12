@@ -3,15 +3,16 @@ package models
 import (
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/aikintech/scim-api/pkg/constants"
+	nanoid "github.com/matoous/go-nanoid/v2"
 	"gorm.io/gorm"
 )
 
 type Comment struct {
-	ID              string `gorm:"primaryKey;size:40"`
-	Body            string `gorm:"not null"`
-	ParentID        string
+	ID              string    `gorm:"primaryKey;size:40"`
+	ParentID        string    `gorm:"index"`
 	UserID          string    `gorm:"not null;index"`
+	Body            string    `gorm:"not null"`
 	CommentableID   string    `gorm:"not null;index"`
 	CommentableType string    `gorm:"not null;index"`
 	CreatedAt       time.Time `gorm:"not null"`
@@ -27,7 +28,7 @@ type CommentResource struct {
 }
 
 func (c *Comment) BeforeCreate(tx *gorm.DB) error {
-	c.ID = ulid.Make().String()
+	c.ID = nanoid.MustGenerate(constants.ALPHABETS, 30)
 
 	return nil
 }

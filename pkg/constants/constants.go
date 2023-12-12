@@ -8,6 +8,7 @@ const (
 	USER_CONTEXT_KEY   = "user"
 	PODCASTS_CACHE_KEY = "podcasts"
 	DATE_TIME_FORMAT   = "2006-01-02T15:04:05.000Z"
+	ALPHABETS          = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
 var (

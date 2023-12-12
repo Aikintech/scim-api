@@ -3,7 +3,10 @@ package models
 import (
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/aikintech/scim-api/pkg/constants"
+	nanoid "github.com/matoous/go-nanoid/v2"
+
+	// "github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +23,7 @@ type Like struct {
 type LikeResource struct{}
 
 func (c *Like) BeforeCreate(tx *gorm.DB) error {
-	c.ID = ulid.Make().String()
+	c.ID = nanoid.MustGenerate(constants.ALPHABETS, 30)
 
 	return nil
 }

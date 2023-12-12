@@ -10,11 +10,14 @@ COPY go.mod go.sum ./
 # Download and install Go module dependencies
 RUN go mod download
 
-# Install PostgreSQL client
-# RUN apt-get update && apt-get install -y postgresql-client
+# Prefetch the binaries, so that they will be cached and not downloaded on each change
+RUN go run github.com/steebchen/prisma-client-go prefetch
 
 # Copy the rest of the application code to the container
 COPY . .
+
+# Push migrations to production database
+RUN go run github.com/steebchen/prisma-client-go migrate deploy
 
 # Build the Go application
 RUN go build -o main .

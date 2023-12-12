@@ -1,0 +1,225 @@
+datasource db {
+  // could be postgresql or mysql
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator db {
+  provider = "go run github.com/steebchen/prisma-client-go"
+}
+
+model User {
+  id                String    @id @db.VarChar(40)
+  first_name        String
+  last_name         String
+  email             String    @unique
+  password          String?
+  email_verified_at DateTime?
+  sign_up_provider  String
+  avatar            String?
+  phone_number      String    @default("")
+  channels          Json
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  // Add relations here
+  PrayerRequest    PrayerRequest[]
+  Playlist         Playlist[]
+  UserDevice       UserDevice[]
+  VerificationCode VerificationCode[]
+  Comment          Comment[]
+  Like             Like[]
+  Post             Post[]
+  Token            Token[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Podcast {
+  id           String    @id @db.VarChar(40)
+  guid         String    @unique
+  author       String
+  title        String
+  sub_title    String
+  summary      String
+  description  String
+  duration     String    @db.VarChar(10)
+  image_url    String
+  audio_url    String
+  published    Boolean   @default(true)
+  published_at DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  // Add relations here
+  PodcastPlalist PodcastPlalist[]
+
+  @@index([title])
+  @@map("podcasts")
+}
+
+model Playlist {
+  id          String   @id @db.VarChar(40)
+  user_id     String   @db.VarChar(40)
+  title       String
+  description String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Add relations here
+  User           User             @relation(fields: [user_id], references: [id])
+  PodcastPlalist PodcastPlalist[]
+
+  @@index([title, user_id])
+  @@map("playlists")
+}
+
+model PodcastPlalist {
+  id          String   @id @db.VarChar(40)
+  playlist    Playlist @relation(fields: [playlist_id], references: [id])
+  playlist_id String   @db.VarChar(40)
+  podcast_id  String   @db.VarChar(40)
+  podcast     Podcast  @relation(fields: [podcast_id], references: [id])
+
+  @@index([playlist_id, podcast_id])
+  @@map("podcast_playlist")
+}
+
+model PrayerRequest {
+  id           String    @id @db.VarChar(40)
+  user_id      String    @db.VarChar(40)
+  title        String
+  body         String
+  phone_number String
+  status       String    @default("pending") @db.VarChar(20)
+  completed_at DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  User         User      @relation(fields: [user_id], references: [id])
+
+  // Add relations here
+
+  @@index([user_id, phone_number, status])
+  @@map("prayer_requests")
+}
+
+model UserDevice {
+  id          String   @id @db.VarChar(40)
+  user_id     String   @db.VarChar(40)
+  device_os   String   @db.VarChar(10) // ios, android, web
+  device_type String   @db.VarChar(10) // phone, tablet, desktop
+  fcm_token   String
+  active      Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Add relations here
+  User User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@map("user_devices")
+}
+
+model VerificationCode {
+  id         String    @id @db.VarChar(40)
+  user_id    String    @db.VarChar(40)
+  code       String    @db.VarChar(10)
+  expires_at DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  // Add relations here
+  User User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, code, expires_at])
+  @@map("verification_codes")
+}
+
+model Comment {
+  id               String   @id @db.VarChar(40)
+  parent_id        String?  @db.VarChar(40)
+  user_id          String   @db.VarChar(40)
+  body             String
+  commentable_id   String   @db.VarChar(40)
+  commentable_type String   @db.VarChar(40)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  // Add relations here
+  User User @relation(fields: [user_id], references: [id])
+  // Comment  Comment?  @relation("CommentToComment", fields: [parent_id], references: [id])
+  // Comments Comment[] @relation("CommentToComment")
+
+  @@index([user_id, commentable_id, commentable_type, parent_id])
+  @@map("comments")
+}
+
+model Event {
+  id                String   @id @db.VarChar(40)
+  title             String
+  description       String
+  excerpt_image_url String?
+  location          String   @db.VarChar(191)
+  start_date_time   DateTime
+  end_date_time     DateTime
+  published         Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  // Add relations here
+
+  @@map("events")
+}
+
+model Like {
+  id            String   @id @db.VarChar(40)
+  user_id       String   @db.VarChar(40)
+  likeable_id   String   @db.VarChar(40)
+  likeable_type String   @db.VarChar(40)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  // Add relations here
+  User User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, likeable_id, likeable_type])
+  @@map("likes")
+}
+
+model Post {
+  id                String   @id @db.VarChar(40)
+  user_id           String   @db.VarChar(40)
+  title             String
+  slug              String   @unique
+  body              String
+  published         Boolean  @default(false)
+  excerpt_image_url String?
+  is_announcement   Boolean  @default(false)
+  minutes_to_read   Int      @default(0)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  // Add relations here
+  User User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, title, slug])
+  @@map("posts")
+}
+
+model Token {
+  id          String    @id @db.VarChar(40)
+  user_id     String    @db.VarChar(40)
+  reference   String    @db.VarChar(40)
+  token       String
+  whitelisted Boolean   @default(true)
+  expires_at  DateTime?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Add relations here
+  User User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, reference, whitelisted])
+  @@map("tokens")
+}
