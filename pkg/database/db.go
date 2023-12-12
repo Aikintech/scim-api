@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -63,4 +64,15 @@ func MigrateDB() {
 	// if err != nil {
 	// 	return
 	// }
+
+	// Prisma migration go run github.com/steebchen/prisma-client-go migrate deploy
+	if os.Getenv("APP_ENV") == "production" {
+		cmd := exec.Command("go", "run", "github.com/steebchen/prisma-client-go", "migrate", "deploy")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		if err := cmd.Run(); err != nil {
+			log.Fatal(err.Error())
+		}
+	}
 }
