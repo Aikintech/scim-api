@@ -355,3 +355,77 @@ func (a *AuthController) User(c *fiber.Ctx) error {
 
 	return c.JSON(models.UserToResource(user))
 }
+
+func (a *AuthController) VerifyAccount(c *fiber.Ctx) error {
+	request := definitions.VerifyEmailRequest{}
+
+	// Parse request
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Get user
+	trx := database.DB.Begin()
+	user := new(models.User)
+	if err := trx.First(&user, "email = ?", request.Email).Error; err != nil {
+		status := fiber.StatusBadRequest
+		message := err.Error()
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status = fiber.StatusNotFound
+			message = "No account is associated with the email provided"
+		}
+
+		return c.Status(status).JSON(definitions.MessageResponse{
+			Message: message,
+		})
+	}
+
+	// Check if user is already verified
+	if user.EmailVerifiedAt != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Account already verified",
+		})
+	}
+
+	// Check if code is valid
+	code, err := config.RedisStore.Get(constants.USER_VERIFICATION_CODE_CACHE_KEY + user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid verification code",
+		})
+	}
+	if request.Code != string(code) {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid verification code",
+		})
+	}
+
+	// Update user
+	if err := trx.Model(&user).Update("email_verified_at", time.Now()).Error; err != nil {
+		trx.Rollback()
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Send welcome email
+	go jobs.NewMail().SendUserWelcomeMail(*user)
+
+	// Commit transaction
+	trx.Commit()
+
+	return c.JSON(definitions.MessageResponse{
+		Message: "Account verified successfully",
+	})
+}

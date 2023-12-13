@@ -49,3 +49,8 @@ type StorePostRequest struct {
 type StoreCommentRequest struct {
 	Comment string `json:"comment" validate:"required,min=3,max=400"`
 }
+
+type VerifyEmailRequest struct {
+	Code  string `json:"code" validate:"required"`
+	Email string `json:"email" validate:"required,email"`
+}

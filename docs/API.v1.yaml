@@ -100,6 +100,27 @@ paths:
               $ref: '#/components/schemas/EmailRequest'
       description: Auth forgot password
     parameters: []
+  /auth/verify-account:
+    post:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      operationId: auth-verify-account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyAccountRequest'
+      description: Auth account verification
+    parameters: []
   /auth/refresh-token:
     get:
       summary: ''
@@ -1765,6 +1786,20 @@ components:
         - body
         - published
         - minutesToRead
+    VerifyAccountRequest:
+      type: object
+      x-examples:
+        Example 1:
+          email: nanaaikinson2020@gmail.com
+          code: '378801'
+      properties:
+        email:
+          type: string
+        code:
+          type: string
+      required:
+        - email
+        - code
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey
