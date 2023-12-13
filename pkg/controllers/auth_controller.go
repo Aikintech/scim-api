@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/database"
 	"github.com/aikintech/scim-api/pkg/jobs"
+	"github.com/ttacon/libphonenumber"
 
 	"github.com/aikintech/scim-api/pkg/constants"
 
@@ -428,4 +430,118 @@ func (a *AuthController) VerifyAccount(c *fiber.Ctx) error {
 	return c.JSON(definitions.MessageResponse{
 		Message: "Account verified successfully",
 	})
+}
+
+func (a *AuthController) UpdateUserAvatar(c *fiber.Ctx) error {
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
+
+	// Parse request
+	request := definitions.UpdateAvatarRequest{}
+	avatar := ""
+	key := ""
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Avatar key exists
+	_, err := config.RedisStore.Get(request.AvatarKey)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid avatar key",
+		})
+	}
+
+	if request.Action == "remove" {
+		// Delete avatar key from redis
+		if err := config.RedisStore.Delete(request.AvatarKey); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+
+		// Delete avatar from s3
+		if err := utils.DeleteS3File(request.AvatarKey); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+	}
+
+	if request.Action == "update" {
+		key = request.AvatarKey
+		avatar, err = utils.GenerateS3FileURL(request.AvatarKey)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+	}
+
+	// Update user
+	if err := database.DB.Model(&user).Update("avatar", key).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(definitions.Map{
+		"avatarUrl": avatar,
+		"message":   "Avatar updated successfully",
+	})
+}
+
+func (a *AuthController) UpdateUserDetails(c *fiber.Ctx) error {
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
+	request := new(definitions.UpdateUserDetailsRequest)
+
+	// Parse request
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Update user
+	user.FirstName = request.FirstName
+	user.LastName = request.LastName
+
+	if len(request.PhoneNumber) == 10 && len(request.CountryCode) == 2 {
+		// Parse phone number
+		num, err := libphonenumber.Parse(request.PhoneNumber, strings.ToUpper(request.CountryCode))
+		if err != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+				Errors: []definitions.ValidationErr{
+					{Field: "phoneNumber", Reasons: []string{"Invalid phone number"}},
+				},
+			})
+		}
+
+		phoneNumber := libphonenumber.Format(num, libphonenumber.E164)
+
+		user.PhoneNumber = phoneNumber
+	}
+
+	if err := database.DB.Model(&user).Updates(user).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(models.UserToResource(user))
 }

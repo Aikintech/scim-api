@@ -4,15 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"mime/multipart"
+	"os"
+	"time"
+
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"mime/multipart"
-	"os"
-	"time"
 )
 
 func getS3Client() (*s3.Client, error) {
@@ -97,4 +98,21 @@ func GenerateS3FileURL(key string) (string, error) {
 	}
 
 	return preSignedURL.URL, nil
+}
+
+func DeleteS3File(key string) error {
+	client, err := getS3Client()
+	if err != nil {
+		return err
+	}
+
+	_, err = client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
+		Bucket: aws.String(os.Getenv("AWS_BUCKET")),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
