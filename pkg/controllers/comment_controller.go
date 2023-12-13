@@ -51,7 +51,7 @@ func (cmtCtrl *CommentController) StorePodcastComment(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 
 	// Parse request
-	request := validation.StorePodcastCommentSchema{}
+	request := definitions.StoreCommentRequest{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
@@ -98,7 +98,7 @@ func (cmtCtrl *CommentController) UpdatePodcastComment(c *fiber.Ctx) error {
 	commentId := c.Params("commentId", "")
 
 	// Parse request
-	request := validation.StorePodcastCommentSchema{}
+	request := definitions.StoreCommentRequest{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),

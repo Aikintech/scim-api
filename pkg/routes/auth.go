@@ -21,6 +21,9 @@ func MountAuthRoutes(app *fiber.App) {
 	auth.Post("/forgot-password", authController.ForgotPassword)
 	auth.Post("/reset-password", authController.ResetPassword)
 	auth.Post("/resend-email-verification", authController.ResendEmailVerification)
+	auth.Post("/verify-account", authController.VerifyAccount)
+
 	auth.Get("/refresh-token", refreshJwtAuthWare, authController.RefreshToken)
 	auth.Get("/user", jwtAuthWare, authController.User)
+
 }

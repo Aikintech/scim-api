@@ -3,7 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/aikintech/scim-api/pkg/constants"
+	nanoid "github.com/matoous/go-nanoid/v2"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +21,8 @@ type Post struct {
 	CreatedAt       time.Time `gorm:"not null"`
 	UpdatedAt       time.Time `gorm:"not null"`
 	User            *User
+	Comments        []*Comment `gorm:"polymorphic:Commentable"`
+	Likes           []*Like    `gorm:"polymorphic:Likeable"`
 }
 
 type PostResource struct {
@@ -38,9 +41,13 @@ type PostResource struct {
 }
 
 func (p *Post) BeforeCreate(tx *gorm.DB) error {
-	p.ID = ulid.Make().String()
+	p.ID = nanoid.MustGenerate(constants.ALPHABETS, 26)
 
 	return nil
+}
+
+func (p *Post) GetPolymorphicType() string {
+	return "posts"
 }
 
 func PostToResource(p *Post) PostResource {

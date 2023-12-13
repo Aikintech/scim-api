@@ -100,6 +100,27 @@ paths:
               $ref: '#/components/schemas/EmailRequest'
       description: Auth forgot password
     parameters: []
+  /auth/verify-account:
+    post:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      operationId: auth-verify-account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyAccountRequest'
+      description: Auth account verification
+    parameters: []
   /auth/refresh-token:
     get:
       summary: ''
@@ -264,7 +285,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentPodcastRequest'
+              $ref: '#/components/schemas/CommentRequest'
     get:
       summary: ''
       operationId: get-podcast-comments
@@ -274,7 +295,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PodcastCommentsResponse'
+                $ref: '#/components/schemas/CommentsResponse'
       description: 'Client: Get podcast comments'
       tags:
         - client
@@ -312,7 +333,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentPodcastRequest'
+              $ref: '#/components/schemas/CommentRequest'
     delete:
       summary: ''
       operationId: delete-podcast-comment
@@ -515,6 +536,143 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PrayerRequest'
+      tags:
+        - client
+  /posts:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostsResponse'
+      operationId: get-posts
+      description: 'Client: get posts'
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: isAnnouncement
+          required: true
+  '/posts/{postId}':
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Not Found
+      operationId: get-post
+      description: 'Client: get post'
+    parameters:
+      - schema:
+          type: string
+        name: postId
+        in: path
+        required: true
+  '/posts/{postId}/comments':
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentsResponse'
+        '404':
+          description: Not Found
+      operationId: get-post-comments
+      description: 'Client: get post comments'
+    parameters:
+      - schema:
+          type: string
+        name: postId
+        in: path
+        required: true
+    post:
+      summary: ''
+      operationId: create-post-comment
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+      description: 'Client: create post comment'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+        description: ''
+      tags:
+        - client
+  '/posts/{postId}/comments/{commentId}':
+    delete:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Not Found
+      operationId: delete-post-comment
+      description: 'Client: delete post comment'
+      security:
+        - X-USER-TOKEN: []
+    parameters:
+      - schema:
+          type: string
+        name: postId
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: commentId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      operationId: update-post-comment
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+      description: 'Client: update post comment'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+        description: ''
       tags:
         - client
   /home:
@@ -1086,8 +1244,8 @@ components:
         - email
         - password
         - channel
-    CommentPodcastRequest:
-      title: CommentPodcastRequest
+    CommentRequest:
+      title: CommentRequest
       x-stoplight:
         id: ot54uyydj0o5x
       type: object
@@ -1185,8 +1343,10 @@ components:
               createdAt: '2023-12-03T18:39:07.393849Z'
       items:
         $ref: '#/components/schemas/Prayer'
-    PodcastCommentsResponse:
+    CommentsResponse:
       type: array
+      x-stoplight:
+        id: f043d02f509bc
       x-examples:
         Example 1:
           - id: 01HGTH4JBT0KMPYW4KD505SAS0
@@ -1626,6 +1786,20 @@ components:
         - body
         - published
         - minutesToRead
+    VerifyAccountRequest:
+      type: object
+      x-examples:
+        Example 1:
+          email: nanaaikinson2020@gmail.com
+          code: '378801'
+      properties:
+        email:
+          type: string
+        code:
+          type: string
+      required:
+        - email
+        - code
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey
