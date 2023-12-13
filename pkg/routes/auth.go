@@ -26,4 +26,7 @@ func MountAuthRoutes(app *fiber.App) {
 	auth.Get("/refresh-token", refreshJwtAuthWare, authController.RefreshToken)
 	auth.Get("/user", jwtAuthWare, authController.User)
 
+	auth.Patch("/update-user-avatar", jwtAuthWare, authController.UpdateUserAvatar)
+	auth.Patch("/update-user-details", jwtAuthWare, authController.UpdateUserDetails)
+
 }

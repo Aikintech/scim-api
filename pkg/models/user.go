@@ -42,6 +42,7 @@ type AuthUserResource struct {
 	Email         string         `json:"email"`
 	EmailVerified bool           `json:"emailVerified"`
 	Avatar        string         `json:"avatar"`
+	AvatarKey     string         `json:"avatarKey"`
 	Channels      datatypes.JSON `json:"channels"`
 }
 
@@ -65,6 +66,7 @@ func UserToResource(u *User) AuthUserResource {
 		Email:         u.Email,
 		EmailVerified: u.EmailVerifiedAt != nil,
 		Avatar:        avatar,
+		AvatarKey:     u.Avatar,
 		Channels:      u.Channels,
 	}
 }
