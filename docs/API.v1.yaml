@@ -144,6 +144,29 @@ paths:
       security:
         - X-USER-TOKEN: []
     parameters: []
+  /auth/update-user-details:
+    patch:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUser'
+      operationId: auth-update-user-details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDetailsRequest'
+      description: Auth update user details
+      security:
+        - X-USER-TOKEN: []
+    parameters: []
   /auth/refresh-token:
     get:
       summary: ''
@@ -1860,6 +1883,26 @@ components:
       required:
         - avatarUrl
         - message
+    UpdateUserDetailsRequest:
+      type: object
+      x-examples:
+        Example 1:
+          firstName: Kwesi
+          lastName: Arthur
+          phoneNumber: '0241726707'
+          countryCode: GH
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phoneNumber:
+          type: string
+        countryCode:
+          type: string
+      required:
+        - firstName
+        - lastName
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey

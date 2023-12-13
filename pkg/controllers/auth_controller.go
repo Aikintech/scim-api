@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/database"
 	"github.com/aikintech/scim-api/pkg/jobs"
+	"github.com/ttacon/libphonenumber"
 
 	"github.com/aikintech/scim-api/pkg/constants"
 
@@ -495,4 +497,51 @@ func (a *AuthController) UpdateUserAvatar(c *fiber.Ctx) error {
 		"avatarUrl": avatar,
 		"message":   "Avatar updated successfully",
 	})
+}
+
+func (a *AuthController) UpdateUserDetails(c *fiber.Ctx) error {
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
+	request := new(definitions.UpdateUserDetailsRequest)
+
+	// Parse request
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Update user
+	user.FirstName = request.FirstName
+	user.LastName = request.LastName
+
+	if len(request.PhoneNumber) == 10 && len(request.CountryCode) == 2 {
+		// Parse phone number
+		num, err := libphonenumber.Parse(request.PhoneNumber, strings.ToUpper(request.CountryCode))
+		if err != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+				Errors: []definitions.ValidationErr{
+					{Field: "phoneNumber", Reasons: []string{"Invalid phone number"}},
+				},
+			})
+		}
+
+		phoneNumber := libphonenumber.Format(num, libphonenumber.E164)
+
+		user.PhoneNumber = phoneNumber
+	}
+
+	if err := database.DB.Model(&user).Updates(user).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(models.UserToResource(user))
 }

@@ -68,3 +68,10 @@ type UpdateAvatarRequest struct {
 	AvatarKey string `json:"avatarKey" validate:"required,validfilekey"`
 	Action    string `json:"action" validate:"required,oneof=update remove"`
 }
+
+type UpdateUserDetailsRequest struct {
+	FirstName   string `json:"firstName" validate:"required"`
+	LastName    string `json:"lastName" validate:"required"`
+	PhoneNumber string `json:"phoneNumber"`
+	CountryCode string `json:"countryCode"`
+}
