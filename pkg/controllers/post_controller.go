@@ -19,8 +19,7 @@ func NewPostController() *PostController {
 	return &PostController{}
 }
 
-// Backoffice handlers
-func (pc *PostController) BackofficeGetPosts(c *fiber.Ctx) error {
+func (pc *PostController) GetPosts(c *fiber.Ctx) error {
 	var total int64
 	isAnnouncement := c.Query("isAnnouncement") == "true"
 	search := c.Query("search", "")
@@ -55,6 +54,178 @@ func (pc *PostController) BackofficeGetPosts(c *fiber.Ctx) error {
 	})
 }
 
+func (pc *PostController) GetPost(c *fiber.Ctx) error {
+	postId := c.Params("postId")
+
+	// Query post
+	post := new(models.Post)
+	if err := database.DB.Model(&models.Post{}).Preload("User").First(&post, "id = ?", postId).Error; err != nil {
+		status := fiber.StatusBadRequest
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status = fiber.StatusNotFound
+		}
+
+		return c.Status(status).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(models.PostToResource(post))
+}
+
+// Client handlers
+func (pc *PostController) GetPostComments(c *fiber.Ctx) error {
+	postId := c.Params("postId")
+	isAnnouncement := c.Query("isAnnouncement") == "true"
+
+	// Query post
+	post := new(models.Post)
+	if err := database.DB.Model(&models.Post{}).
+		Preload("Comments").Where("is_announcement = ?", isAnnouncement).
+		First(&post, "id = ?", postId).Error; err != nil {
+		status := fiber.StatusBadRequest
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status = fiber.StatusNotFound
+		}
+
+		return c.Status(status).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(models.CommentsToResourceCollection(post.Comments))
+}
+
+func (pc *PostController) CreatePostComment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*models.User)
+	postId := c.Params("postId")
+	request := new(definitions.StoreCommentRequest)
+
+	// Parse request
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Query post
+	post := new(models.Post)
+	if err := database.DB.Model(&models.Post{}).First(&post, "id = ?", postId).Error; err != nil {
+		status := fiber.StatusBadRequest
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status = fiber.StatusNotFound
+		}
+		return c.Status(status).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Create comment
+	comment := &models.Comment{
+		UserID:          user.ID,
+		Body:            request.Comment,
+		CommentableID:   post.ID,
+		CommentableType: post.GetPolymorphicType(),
+	}
+	if err := database.DB.Create(&comment).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	comment.User = user
+
+	return c.Status(fiber.StatusCreated).JSON(models.CommentToResource(comment))
+}
+
+func (pc *PostController) UpdatePostComment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*models.User)
+	postId := c.Params("postId")
+	commentId := c.Params("commentId")
+	request := new(definitions.StoreCommentRequest)
+
+	// Parse request
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Query comment
+	trx := database.DB.Begin()
+	comment := new(models.Comment)
+	if err := trx.Model(&models.Comment{}).
+		First(&comment, "id = ? AND user_id = ? AND commentable_type = 'posts' AND commentable_id = ?", commentId, user.ID, postId).
+		Error; err != nil {
+		status := fiber.StatusBadRequest
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status = fiber.StatusNotFound
+		}
+
+		trx.Rollback()
+
+		return c.Status(status).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Update comment
+	comment.Body = request.Comment
+	if err := trx.Save(&comment).Error; err != nil {
+		trx.Rollback()
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	trx.Commit()
+
+	comment.User = user
+
+	return c.JSON(models.CommentToResource(comment))
+}
+
+func (pc *PostController) DeletePostComment(c *fiber.Ctx) error {
+	user := c.Locals("user").(*models.User)
+	postId := c.Params("postId")
+	commentId := c.Params("commentId")
+
+	// Delete comment
+	trx := database.DB.Begin()
+	if err := trx.Where("id = ? AND user_id = ? AND commentable_type = 'posts' AND commentable_id = ?", commentId, user.ID, postId).
+		Delete(&models.Comment{}).Error; err != nil {
+		trx.Rollback()
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	trx.Commit()
+
+	return c.JSON(definitions.MessageResponse{
+		Message: "Comment deleted successfully",
+	})
+}
+
+// Backoffice handlers
 func (pc *PostController) BackofficeCreatePost(c *fiber.Ctx) error {
 	user := c.Locals("user").(*models.User)
 	isAnnouncement := c.Query("isAnnouncement") == "true"
@@ -98,26 +269,6 @@ func (pc *PostController) BackofficeCreatePost(c *fiber.Ctx) error {
 	trx.Commit()
 
 	post.User = user
-
-	return c.JSON(models.PostToResource(post))
-}
-
-func (pc *PostController) BackofficeGetPost(c *fiber.Ctx) error {
-	postId := c.Params("postId")
-
-	// Query post
-	post := new(models.Post)
-	if err := database.DB.Model(&models.Post{}).Preload("User").First(&post, "id = ?", postId).Error; err != nil {
-		status := fiber.StatusBadRequest
-
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			status = fiber.StatusNotFound
-		}
-
-		return c.Status(status).JSON(definitions.MessageResponse{
-			Message: err.Error(),
-		})
-	}
 
 	return c.JSON(models.PostToResource(post))
 }
