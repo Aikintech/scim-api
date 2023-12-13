@@ -5,8 +5,8 @@ type MessageResponse struct {
 }
 
 type ValidationErrsResponse struct {
-	Message string `json:"message"`
-	Errors  []ValidationErr
+	Message string          `json:"message"`
+	Errors  []ValidationErr `json:"errors"`
 }
 
 type DataResponse[T any] struct {

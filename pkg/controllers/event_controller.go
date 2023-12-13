@@ -28,12 +28,13 @@ func (evtCtrl *EventController) BackofficeGetEvents(c *fiber.Ctx) error {
 
 	// Query events
 	events := make([]models.Event, 0)
-	if err := database.DB.Model(&models.Event{}).Where("title LIKE ?", "%"+search+"%").Count(&total).Error; err != nil {
+	query := database.DB.Model(&models.Event{}).Where("title LIKE ?", "%"+search+"%")
+	if err := query.Count(&total).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})
 	}
-	if err := database.DB.Model(&models.Event{}).Scopes(models.PaginationScope(c)).Where("title LIKE ?", "%"+search+"%").Find(&events).Error; err != nil {
+	if err := query.Scopes(models.PaginationScope(c)).Find(&events).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})

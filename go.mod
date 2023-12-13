@@ -13,9 +13,11 @@ require (
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/gofiber/storage/redis/v3 v3.1.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
+	github.com/gosimple/slug v1.13.1
 	github.com/grokify/html-strip-tags-go v0.1.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/joho/godotenv v1.5.1
+	github.com/mailjet/mailjet-apiv3-go v0.0.0-20201009050126-c24bc15a9394
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/matthewhartstonge/argon2 v1.0.0
 	github.com/mmcdole/gofeed v1.2.1
@@ -58,6 +60,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.4.0 // indirect
+	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.4.3 // indirect

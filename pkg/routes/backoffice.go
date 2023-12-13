@@ -9,12 +9,14 @@ import (
 func BackOfficeRoutes(app *fiber.App) {
 	backoffice := app.Group("/backoffice")
 	events := backoffice.Group("/events")
+	posts := backoffice.Group("/posts")
 	prayers := backoffice.Group("/prayer-requests")
 	jwtAuthWare := middlewares.JWTMiddleware("access")
 
 	// Controller initializations
 	prayerController := controllers.NewPrayerController()
 	eventController := controllers.NewEventController()
+	postController := controllers.NewPostController()
 
 	// Events
 	events.Get("/", jwtAuthWare, eventController.BackofficeGetEvents)
@@ -25,4 +27,11 @@ func BackOfficeRoutes(app *fiber.App) {
 
 	// Prayer requests
 	prayers.Get("/", jwtAuthWare, prayerController.BackOfficeGetPrayers)
+
+	// Posts
+	posts.Get("/", jwtAuthWare, postController.BackofficeGetPosts)
+	posts.Post("/", jwtAuthWare, postController.BackofficeCreatePost)
+	posts.Get("/:postId", jwtAuthWare, postController.BackofficeGetPost)
+	posts.Patch("/:postId", jwtAuthWare, postController.BackofficeUpdatePost)
+	posts.Delete("/:postId", jwtAuthWare, postController.BackofficeDeletePost)
 }

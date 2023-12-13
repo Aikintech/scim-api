@@ -16,7 +16,7 @@ type Post struct {
 	Published       bool      `gorm:"not null;default:false"`
 	ExcerptImageURL string    `gorm:"text"`
 	IsAnnouncement  bool      `gorm:"not null;default:false"`
-	MinutesToRead   int       `gorm:"not null;default:0"`
+	MinutesToRead   float32   `gorm:"not null;default:0"`
 	CreatedAt       time.Time `gorm:"not null"`
 	UpdatedAt       time.Time `gorm:"not null"`
 	User            *User
@@ -30,9 +30,11 @@ type PostResource struct {
 	Published       bool             `json:"published"`
 	ExcerptImageURL string           `json:"excerptImage"`
 	IsAnnouncement  bool             `json:"isAnnouncement"`
-	MinutesToRead   int              `json:"minutesToRead"`
+	MinutesToRead   float32          `json:"minutesToRead"`
 	CreatedAt       time.Time        `json:"createdAt"`
 	User            AuthUserResource `json:"user"`
+	LikesCount      int              `json:"likesCount"`
+	CommentsCount   int              `json:"commentsCount"`
 }
 
 func (p *Post) BeforeCreate(tx *gorm.DB) error {

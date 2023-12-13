@@ -683,6 +683,112 @@ paths:
         - X-USER-TOKEN: []
       tags:
         - backoffice
+  /backoffice/posts:
+    get:
+      summary: ''
+      tags:
+        - backoffice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostsResponse'
+      operationId: backoffice-get-posts
+      description: 'Backoffice: Get posts'
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: isAnnouncement
+          required: true
+    post:
+      summary: ''
+      operationId: backoffice-create-post
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+      tags:
+        - backoffice
+      description: 'Backoffice: Create post'
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: isAnnouncement
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePostRequest'
+  '/backoffice/posts/{postId}':
+    parameters:
+      - schema:
+          type: string
+        name: postId
+        in: path
+        required: true
+    get:
+      summary: ''
+      tags:
+        - backoffice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+      operationId: backoffice-get-post
+      description: 'Backoffice: Get post'
+      security:
+        - X-USER-TOKEN: []
+    patch:
+      summary: ''
+      operationId: backoffice-update-post
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+      description: 'Backoffice: update post'
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePostRequest'
+      tags:
+        - backoffice
+    delete:
+      summary: ''
+      operationId: backoffice-delete-post
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      tags:
+        - backoffice
+      description: 'Backoffice: delete post'
+      security:
+        - X-USER-TOKEN: []
 components:
   schemas:
     AuthUser:
@@ -1347,6 +1453,179 @@ components:
         - location
         - startDateTime
         - endDateTime
+    Post:
+      type: object
+      x-examples:
+        Example 1:
+          id: 01HHH61PCD95D8PCAFDWH54E1P
+          title: Test post
+          slug: test-post
+          body: Test body
+          published: true
+          excerptImage: ''
+          isAnnouncement: false
+          minutesToRead: 1.5
+          createdAt: '2023-12-13T08:52:43.533Z'
+          user:
+            id: 01HHH5M48X7QR4TMPMT5DFHGQ8
+            firstName: Nana
+            lastName: Aikinson
+            email: nanaaikinson24@gmail.com
+            emailVerified: true
+            avatar: ''
+            channels:
+              - mobile
+          likesCount: 0
+          commentsCount: 0
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+        body:
+          type: string
+        published:
+          type: boolean
+        excerptImage:
+          type: string
+        isAnnouncement:
+          type: boolean
+        minutesToRead:
+          type: number
+        createdAt:
+          type: string
+        user:
+          $ref: '#/components/schemas/AuthUser'
+        likesCount:
+          type: integer
+        commentsCount:
+          type: integer
+      required:
+        - id
+        - title
+        - slug
+        - body
+        - published
+        - excerptImage
+        - isAnnouncement
+        - minutesToRead
+        - createdAt
+        - user
+        - likesCount
+        - commentsCount
+    PostsResponse:
+      type: object
+      x-examples:
+        Example 1:
+          items:
+            - id: 01HHH61PCD95D8PCAFDWH54E1P
+              title: Test post
+              slug: test-post
+              body: Test body
+              published: true
+              excerptImage: ''
+              isAnnouncement: false
+              minutesToRead: 1.5
+              createdAt: '2023-12-13T08:52:43.533Z'
+              user:
+                id: 01HHH5M48X7QR4TMPMT5DFHGQ8
+                firstName: Nana
+                lastName: Aikinson
+                email: nanaaikinson24@gmail.com
+                emailVerified: true
+                avatar: ''
+                channels:
+                  - mobile
+              likesCount: 0
+              commentsCount: 0
+            - id: 01HHH67MND3FCHSDVH65PMPQ4R
+              title: Test post 2
+              slug: test-post-2
+              body: Test body
+              published: true
+              excerptImage: ''
+              isAnnouncement: false
+              minutesToRead: 1.5
+              createdAt: '2023-12-13T08:55:58.382Z'
+              user:
+                id: 01HHH5M48X7QR4TMPMT5DFHGQ8
+                firstName: Nana
+                lastName: Aikinson
+                email: nanaaikinson24@gmail.com
+                emailVerified: true
+                avatar: ''
+                channels:
+                  - mobile
+              likesCount: 0
+              commentsCount: 0
+            - id: 01HHH69D5C0QVQH6WYVVDF0AB5
+              title: Test post 3
+              slug: test-post-3
+              body: Test body
+              published: true
+              excerptImage: ''
+              isAnnouncement: false
+              minutesToRead: 1.5
+              createdAt: '2023-12-13T08:56:56.236Z'
+              user:
+                id: 01HHH5M48X7QR4TMPMT5DFHGQ8
+                firstName: Nana
+                lastName: Aikinson
+                email: nanaaikinson24@gmail.com
+                emailVerified: true
+                avatar: ''
+                channels:
+                  - mobile
+              likesCount: 0
+              commentsCount: 0
+          limit: 10
+          page: 1
+          total: 3
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        limit:
+          type: integer
+        page:
+          type: integer
+        total:
+          type: integer
+      required:
+        - items
+        - limit
+        - page
+        - total
+    StorePostRequest:
+      type: object
+      x-examples:
+        Example 1:
+          title: Test post 3
+          body: Test body
+          published: true
+          minutesToRead: 1.5
+          excerptImageUrl: ''
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        published:
+          type: boolean
+        minutesToRead:
+          type: number
+        excerptImage:
+          type: string
+          x-stoplight:
+            id: hyjedg14jniru
+      required:
+        - title
+        - body
+        - published
+        - minutesToRead
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey

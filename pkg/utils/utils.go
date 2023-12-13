@@ -17,7 +17,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func GenerateCoe(max int) string {
+func GenerateRandomNumbers(max int) string {
 	var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
 	b := make([]byte, max)
 	n, err := io.ReadAtLeast(crand.Reader, b, max)
