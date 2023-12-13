@@ -429,3 +429,70 @@ func (a *AuthController) VerifyAccount(c *fiber.Ctx) error {
 		Message: "Account verified successfully",
 	})
 }
+
+func (a *AuthController) UpdateUserAvatar(c *fiber.Ctx) error {
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
+
+	// Parse request
+	request := definitions.UpdateAvatarRequest{}
+	avatar := ""
+	key := ""
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Avatar key exists
+	_, err := config.RedisStore.Get(request.AvatarKey)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid avatar key",
+		})
+	}
+
+	if request.Action == "remove" {
+		// Delete avatar key from redis
+		if err := config.RedisStore.Delete(request.AvatarKey); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+
+		// Delete avatar from s3
+		if err := utils.DeleteS3File(request.AvatarKey); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+	}
+
+	if request.Action == "update" {
+		key = request.AvatarKey
+		avatar, err = utils.GenerateS3FileURL(request.AvatarKey)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+	}
+
+	// Update user
+	if err := database.DB.Model(&user).Update("avatar", key).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(definitions.Map{
+		"avatarUrl": avatar,
+		"message":   "Avatar updated successfully",
+	})
+}

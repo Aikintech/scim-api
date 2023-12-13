@@ -23,14 +23,15 @@ model User {
   updated_at        DateTime  @updatedAt
 
   // Add relations here
-  PrayerRequest    PrayerRequest[]
-  Playlist         Playlist[]
-  UserDevice       UserDevice[]
-  VerificationCode VerificationCode[]
-  Comment          Comment[]
-  Like             Like[]
-  Post             Post[]
-  Token            Token[]
+  PrayerRequests    PrayerRequest[]
+  Playlists         Playlist[]
+  UserDevices       UserDevice[]
+  VerificationCodes VerificationCode[]
+  Comments          Comment[]
+  Likes             Like[]
+  Posts             Post[]
+  Tokens            Token[]
+  Transactions      Transaction[]
 
   @@index([email])
   @@map("users")
@@ -222,4 +223,62 @@ model Token {
 
   @@index([user_id, reference, whitelisted])
   @@map("tokens")
+}
+
+model Transaction {
+  id              String                   @id @db.VarChar(40)
+  user_id         String                   @db.VarChar(40)
+  reference_id    String?                  @db.VarChar(40)
+  provider        TransactionProviderEnum? @default(PAYSTACK)
+  idempotency_key String                   @db.VarChar(40)
+  currency        CurrencyEnum             @default(GHS)
+  amount          Decimal                  @db.Decimal(10, 2)
+  type            TransactionTypeEnum      @default(FREEWILL)
+  method          TransactionMethod        @default(MOBILE_MONEY)
+  status          TransactionStatusEnum    @default(PENDING)
+  description     String?
+  created_at      DateTime                 @default(now())
+  updated_at      DateTime                 @updatedAt
+
+  // Add relations here
+  User User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, type, provider])
+  @@map("transactions")
+}
+
+// Enums
+enum TransactionTypeEnum {
+  TITHE            @map("tithe")
+  PLEDGE           @map("pledge")
+  OFFERTORY        @map("offertory")
+  FREEWILL         @map("freewill")
+  BUSING           @map("busing")
+  COVENANT_PARTNER @map("covenant_partner")
+  OTHER            @map("other")
+}
+
+enum TransactionProviderEnum {
+  PAYSTACK  @map("paystack")
+  STRIPE    @map("stripe")
+  THETELLER @map("theteller")
+}
+
+enum TransactionStatusEnum {
+  PENDING @map("pending")
+  SUCCESS @map("success")
+  FAILED  @map("failed")
+}
+
+enum TransactionMethod {
+  CARD         @map("card")
+  BANK         @map("bank")
+  MOBILE_MONEY @map("mobile_money")
+}
+
+enum CurrencyEnum {
+  GHS @map("GHS")
+  USD @map("USD")
+  EUR @map("EUR")
+  GBP @map("GBP")
 }

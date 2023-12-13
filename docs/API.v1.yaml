@@ -121,6 +121,29 @@ paths:
               $ref: '#/components/schemas/VerifyAccountRequest'
       description: Auth account verification
     parameters: []
+  /auth/update-user-avatar:
+    patch:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAvatarResponse'
+      operationId: auth-update-avatar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAvatarRequest'
+      description: Auth update user avatar
+      security:
+        - X-USER-TOKEN: []
+    parameters: []
   /auth/refresh-token:
     get:
       summary: ''
@@ -975,6 +998,11 @@ components:
         avatar:
           type: string
           nullable: true
+        avatarKey:
+          type: string
+          x-stoplight:
+            id: 9euk9pvwruaul
+          nullable: true
         channels:
           type: array
           items:
@@ -990,6 +1018,7 @@ components:
         - email
         - emailVerified
         - avatar
+        - avatarKey
         - channels
     Podcast:
       type: object
@@ -1800,6 +1829,37 @@ components:
       required:
         - email
         - code
+    UpdateAvatarRequest:
+      type: object
+      x-examples:
+        Example 1:
+          action: update
+          avatarKey: AVATAR/qPPdIWhxEO1wowHqMxTe7VMoDHLrFf.jpeg
+      properties:
+        action:
+          type: string
+          enum:
+            - update
+            - remove
+        avatarKey:
+          type: string
+      required:
+        - action
+        - avatarKey
+    UpdateAvatarResponse:
+      type: object
+      x-examples:
+        Example 1:
+          avatarUrl: 'https://scimapp-test-uploads.s3.eu-west-1.amazonaws.com/AVATAR/qPPdIWhxEO1wowHqMxTe7VMoDHLrFf.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAW3W3GZGQ66DHX5JB%2F20231213%2Feu-west-1%2Fs3%2Faws4_request&X-Amz-Date=20231213T185058Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=cc8869c70d911edc3f60ffb9029ed2730b57a153b4bc72bb144b7a494ca2feae'
+          message: Avatar updated successfully
+      properties:
+        avatarUrl:
+          type: string
+        message:
+          type: string
+      required:
+        - avatarUrl
+        - message
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey
