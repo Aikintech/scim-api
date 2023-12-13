@@ -2,8 +2,11 @@ package controllers
 
 import (
 	"errors"
+	"time"
 
+	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/database"
+	"github.com/aikintech/scim-api/pkg/jobs"
 
 	"github.com/aikintech/scim-api/pkg/constants"
 
@@ -106,7 +109,8 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 
 	// Check if email exists
 	user := models.User{}
-	result := database.DB.Where("email = ?", request.Email).First(&user)
+	trx := database.DB.Begin()
+	result := trx.Where("email = ?", request.Email).First(&user)
 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 
@@ -134,7 +138,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	user.Channels = datatypes.JSON([]byte(`["` + request.Channel + `"]`))
 	user.SignUpProvider = "local"
 	user.EmailVerifiedAt = nil
-	result = database.DB.Model(&models.User{}).Create(&user)
+	result = trx.Model(&models.User{}).Create(&user)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -142,7 +146,21 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: Send verification email
+	// Save user verification code to redis
+	code := utils.GenerateRandomNumbers(6)
+	if err := config.RedisStore.Set(constants.USER_VERIFICATION_CODE_CACHE_KEY+user.ID, []byte(code), time.Minute*10); err != nil {
+		trx.Rollback()
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Send email verification mail
+	go jobs.NewMail().SendUserVerificationMail(user, code)
+
+	// Commit transaction
+	trx.Commit()
 
 	return c.Status(fiber.StatusCreated).JSON(definitions.SuccessResponse{
 		Message: "Account created successfully",
@@ -202,7 +220,17 @@ func (a *AuthController) ResendEmailVerification(c *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: Send email verification
+	// Save user verification code to redis
+	code := utils.GenerateRandomNumbers(6)
+	if err := config.RedisStore.Set(constants.USER_VERIFICATION_CODE_CACHE_KEY+user.ID, []byte(code), time.Minute*10); err != nil {
+
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Send email verification mail
+	go jobs.NewMail().SendUserVerificationMail(*user, code)
 
 	return c.JSON(definitions.SuccessResponse{
 		Message: "Email verification sent",
@@ -249,7 +277,17 @@ func (a *AuthController) ForgotPassword(c *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: Send password reset mail
+	// Save user verification code to redis
+	code := utils.GenerateRandomNumbers(6)
+	if err := config.RedisStore.Set(constants.USER_VERIFICATION_CODE_CACHE_KEY+user.ID, []byte(code), time.Minute*10); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Send email verification mail
+	go jobs.NewMail().SendUserPasswordResetMail(user, code)
+
 	return c.JSON(definitions.MessageResponse{
 		Message: "Password reset email sent",
 	})
