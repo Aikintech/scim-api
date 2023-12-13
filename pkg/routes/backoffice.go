@@ -29,9 +29,9 @@ func BackOfficeRoutes(app *fiber.App) {
 	prayers.Get("/", jwtAuthWare, prayerController.BackOfficeGetPrayers)
 
 	// Posts
-	posts.Get("/", jwtAuthWare, postController.BackofficeGetPosts)
+	posts.Get("/", jwtAuthWare, postController.GetPosts)
 	posts.Post("/", jwtAuthWare, postController.BackofficeCreatePost)
-	posts.Get("/:postId", jwtAuthWare, postController.BackofficeGetPost)
+	posts.Get("/:postId", jwtAuthWare, postController.GetPost)
 	posts.Patch("/:postId", jwtAuthWare, postController.BackofficeUpdatePost)
 	posts.Delete("/:postId", jwtAuthWare, postController.BackofficeDeletePost)
 }
