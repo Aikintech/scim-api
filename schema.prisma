@@ -232,7 +232,7 @@ model Transaction {
   provider        TransactionProviderEnum? @default(PAYSTACK)
   idempotency_key String                   @db.VarChar(40)
   currency        CurrencyEnum             @default(GHS)
-  amount          Decimal                  @db.Decimal(10, 2)
+  amount          BigInt                   @default(0)
   type            TransactionTypeEnum      @default(FREEWILL)
   method          TransactionMethod        @default(MOBILE_MONEY)
   status          TransactionStatusEnum    @default(PENDING)

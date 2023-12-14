@@ -121,6 +121,27 @@ paths:
               $ref: '#/components/schemas/VerifyAccountRequest'
       description: Auth account verification
     parameters: []
+  /auth/verify-code:
+    post:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      operationId: auth-verify-code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyAccountRequest'
+      description: Auth verify code
+    parameters: []
   /auth/update-user-avatar:
     patch:
       summary: ''
