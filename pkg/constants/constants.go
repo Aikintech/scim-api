@@ -12,9 +12,10 @@ const (
 	MAILJET_VERIFY_MAIL_TEMPLATE_ID         = 5423172
 	MAILJET_WELCOME_MAIL_TEMPLATE_ID        = 5423196
 	MAILJET_RESET_PASSWORD_MAIL_TEMPLATE_ID = 5423195
-	NO_REPLY_EMAIL                          = "noreply@scimapp.org"
-	SUPPORT_EMAIL                           = "support@scimapp.org"
-	USER_VERIFICATION_CODE_CACHE_KEY        = "user_verification_code_" // + user.ID
+	// NO_REPLY_EMAIL                          = "admin@scimapp.org"
+	NO_REPLY_EMAIL                   = "noreply@scimapp.org"
+	SUPPORT_EMAIL                    = "support@scimapp.org"
+	USER_VERIFICATION_CODE_CACHE_KEY = "user_verification_code_" // + user.ID
 )
 
 var (
