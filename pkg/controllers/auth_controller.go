@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -638,4 +639,39 @@ func (a *AuthController) UpdateUserDetails(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(models.UserToResource(user))
+}
+
+func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
+	// Parse request
+	request := definitions.SocialAuthRequest{}
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Get user
+	getUser(request.Provider, request.Token)
+
+	return c.SendString("Social auth")
+}
+
+func getUser(provider string, token string) {
+	// Get user from provider
+	ctx := context.Background()
+
+	if provider == "google" {
+		getGoogleUserDetails(ctx, token)
+	}
+}
+
+func getGoogleUserDetails(ctx context.Context, token string) {
+	fmt.Println(token)
 }

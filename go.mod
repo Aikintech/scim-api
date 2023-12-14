@@ -13,6 +13,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/gofiber/storage/redis/v3 v3.1.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
+	github.com/golang-module/carbon/v2 v2.2.14
 	github.com/gosimple/slug v1.13.1
 	github.com/grokify/html-strip-tags-go v0.1.0
 	github.com/iancoleman/strcase v0.3.0
@@ -33,7 +34,7 @@ require (
 )
 
 require (
-	github.com/golang-module/carbon/v2 v2.2.14 // indirect
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 )
 
