@@ -17,6 +17,7 @@ type UserDevice struct {
 	Active     bool      `gorm:"not null;default:true"`
 	CreatedAt  time.Time `gorm:"not null"`
 	UpdatedAt  time.Time `gorm:"not null"`
+	User       *User
 
 	// TODO: Check for user device when logging in
 }

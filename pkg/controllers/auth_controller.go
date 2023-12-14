@@ -432,6 +432,59 @@ func (a *AuthController) VerifyAccount(c *fiber.Ctx) error {
 	})
 }
 
+func (a *AuthController) VerifyCode(c *fiber.Ctx) error {
+	request := definitions.VerifyEmailRequest{}
+
+	// Parse request
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Get user
+	user := new(models.User)
+	if err := database.DB.First(&user, "email = ?", request.Email).Error; err != nil {
+		status := fiber.StatusBadRequest
+		message := err.Error()
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status = fiber.StatusNotFound
+			message = "No account is associated with the email provided"
+		}
+
+		return c.Status(status).JSON(definitions.MessageResponse{
+			Message: message,
+		})
+	}
+
+	// Check if code is valid
+	code, err := config.RedisStore.Get(constants.USER_VERIFICATION_CODE_CACHE_KEY + user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid verification code",
+		})
+	}
+	if request.Code != string(code) {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid verification code",
+		})
+	}
+
+	config.RedisStore.Delete(constants.USER_VERIFICATION_CODE_CACHE_KEY + user.ID)
+
+	return c.JSON(definitions.MessageResponse{
+		Message: "Code verified successfully",
+	})
+}
+
 func (a *AuthController) UpdateUserAvatar(c *fiber.Ctx) error {
 	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
 
