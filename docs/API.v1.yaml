@@ -101,7 +101,7 @@ paths:
       description: Auth forgot password
     parameters: []
   /auth/verify-account:
-    post:
+    patch:
       summary: ''
       tags:
         - client
@@ -121,6 +121,27 @@ paths:
               $ref: '#/components/schemas/VerifyAccountRequest'
       description: Auth account verification
     parameters: []
+  /auth/reset-password:
+    patch:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      operationId: auth-reset-password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      description: Auth reset password
+    parameters: []
   /auth/verify-code:
     post:
       summary: ''
@@ -132,14 +153,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: '#/components/schemas/VerifyCodeResponse'
       operationId: auth-verify-code
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/VerifyAccountRequest'
+              $ref: '#/components/schemas/VerifyEmailRequest'
       description: Auth verify code
     parameters: []
   /auth/update-user-avatar:
@@ -1859,17 +1880,27 @@ components:
         - body
         - published
         - minutesToRead
-    VerifyAccountRequest:
+    VerifyEmailRequest:
       type: object
+      x-stoplight:
+        id: 9cad4275294e8
       x-examples:
         Example 1:
           email: nanaaikinson2020@gmail.com
           code: '378801'
+          action: account_verification
       properties:
         email:
           type: string
         code:
           type: string
+        action:
+          type: string
+          x-stoplight:
+            id: isqojezx3vnyd
+          enum:
+            - reset_password
+            - account_verification
       required:
         - email
         - code
@@ -1924,6 +1955,67 @@ components:
       required:
         - firstName
         - lastName
+    VerifyCodeResponse:
+      title: VerifyCodeResponse
+      x-stoplight:
+        id: kvt06uja7e5wn
+      type: object
+      properties:
+        message:
+          type: string
+          x-stoplight:
+            id: kqanhtlwe8snp
+        key:
+          type: string
+          x-stoplight:
+            id: tf7fbsuvckavu
+      required:
+        - message
+        - key
+    VerifyAccountRequest:
+      title: VerifyAccountRequest
+      x-stoplight:
+        id: pwzgpv6ggr130
+      type: object
+      properties:
+        key:
+          type: string
+          x-stoplight:
+            id: 15j5s2pa7t9vp
+        email:
+          type: string
+          x-stoplight:
+            id: uf5tda0wt9fgv
+      required:
+        - key
+        - email
+    ResetPasswordRequest:
+      title: ResetPasswordRequest
+      x-stoplight:
+        id: djnanx7qhejqs
+      type: object
+      properties:
+        key:
+          type: string
+          x-stoplight:
+            id: nrfoxetniboyf
+        email:
+          type: string
+          x-stoplight:
+            id: 10xsjngek7tjp
+        password:
+          type: string
+          x-stoplight:
+            id: maq0kigyjsjst
+        passwordConfirmation:
+          type: string
+          x-stoplight:
+            id: yry1vj7b79wqs
+      required:
+        - key
+        - email
+        - password
+        - passwordConfirmation
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey
