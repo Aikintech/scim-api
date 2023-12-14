@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/database"
+	"github.com/aikintech/scim-api/pkg/facades"
 	"github.com/aikintech/scim-api/pkg/jobs"
 	"github.com/ttacon/libphonenumber"
 
@@ -20,6 +22,8 @@ import (
 	"github.com/oklog/ulid/v2"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
+
+	"github.com/golang-module/carbon/v2"
 )
 
 type AuthController struct{}
@@ -329,6 +333,22 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 		})
 	}
 
+	// Decrypt key
+	str, err := facades.Crypt().DecryptString(request.Key)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate key, action, userId and timestamp
+	split := strings.Split(str, "|")
+	if len(split) != 3 || split[0] != "reset_password" || split[1] != user.ID || len(split[2]) == 0 || carbon.Now().DiffInMinutes(carbon.Parse(split[2])) > 10 {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid key provided",
+		})
+	}
+
 	// Set new password
 	passwordHash, err := utils.MakePasswordHash(request.Password)
 	if err != nil {
@@ -339,6 +359,8 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 	}
 
 	result = database.DB.Model(&user).Update("Password", passwordHash)
+
+	// TODO: Delete all user tokens and log user out of all devices
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -359,7 +381,7 @@ func (a *AuthController) User(c *fiber.Ctx) error {
 }
 
 func (a *AuthController) VerifyAccount(c *fiber.Ctx) error {
-	request := definitions.VerifyEmailRequest{}
+	request := definitions.VerifyAccountRequest{}
 
 	// Parse request
 	if err := c.BodyParser(&request); err != nil {
@@ -392,6 +414,13 @@ func (a *AuthController) VerifyAccount(c *fiber.Ctx) error {
 		})
 	}
 
+	// Check if user's sign up provider is local
+	if user.SignUpProvider != "local" {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "The sign up provider for this account does not support account verification",
+		})
+	}
+
 	// Check if user is already verified
 	if user.EmailVerifiedAt != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -399,16 +428,19 @@ func (a *AuthController) VerifyAccount(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check if code is valid
-	code, err := config.RedisStore.Get(constants.USER_VERIFICATION_CODE_CACHE_KEY + user.ID)
+	// Decrypt key
+	str, err := facades.Crypt().DecryptString(request.Key)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: "Invalid verification code",
+			Message: err.Error(),
 		})
 	}
-	if request.Code != string(code) {
+
+	// Validate key, action, userId and timestamp
+	split := strings.Split(str, "|")
+	if len(split) != 3 || split[0] != "account_verification" || split[1] != user.ID || len(split[2]) == 0 || carbon.Now().DiffInMinutes(carbon.Parse(split[2])) > 10 {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: "Invalid verification code",
+			Message: "Invalid key provided",
 		})
 	}
 
@@ -478,10 +510,19 @@ func (a *AuthController) VerifyCode(c *fiber.Ctx) error {
 		})
 	}
 
+	// Set encrypted code for password reset - action, userId, timestamp
+	str, err := facades.Crypt().EncryptString(fmt.Sprintf("%s|%s|%s", request.Action, user.ID, time.Now().String()))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
 	config.RedisStore.Delete(constants.USER_VERIFICATION_CODE_CACHE_KEY + user.ID)
 
-	return c.JSON(definitions.MessageResponse{
-		Message: "Code verified successfully",
+	return c.JSON(definitions.Map{
+		"message": "Code verified successfully",
+		"key":     str,
 	})
 }
 

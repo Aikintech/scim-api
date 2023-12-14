@@ -1,7 +1,7 @@
 package definitions
 
 type ResetPasswordRequest struct {
-	Code                 string `json:"code"`
+	Key                  string `json:"key" validate:"required"`
 	Email                string `json:"email" validate:"required,email"`
 	Password             string `json:"password" validate:"required,validpassword"`
 	PasswordConfirmation string `json:"passwordConfirmation" validate:"required,eqfield=Password"`
@@ -51,8 +51,9 @@ type StoreCommentRequest struct {
 }
 
 type VerifyEmailRequest struct {
-	Code  string `json:"code" validate:"required"`
-	Email string `json:"email" validate:"required,email"`
+	Code   string `json:"code" validate:"required"`
+	Email  string `json:"email" validate:"required,email"`
+	Action string `json:"action" validate:"required,oneof=reset_password account_verification"`
 }
 
 type DonateRequest struct {
@@ -74,4 +75,9 @@ type UpdateUserDetailsRequest struct {
 	LastName    string `json:"lastName" validate:"required"`
 	PhoneNumber string `json:"phoneNumber"`
 	CountryCode string `json:"countryCode"`
+}
+
+type VerifyAccountRequest struct {
+	Key   string `json:"key" validate:"required"`
+	Email string `json:"email" validate:"required,email"`
 }
