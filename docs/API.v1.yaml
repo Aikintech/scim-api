@@ -37,6 +37,27 @@ paths:
             schema:
               $ref: '#/components/schemas/LoginRequest'
       description: Auth login
+  /auth/social:
+    post:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+      operationId: social-auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialAuthRequest'
+      description: Auth social authentication
+    parameters: []
   /auth/register:
     post:
       summary: ''
@@ -2016,6 +2037,34 @@ components:
         - email
         - password
         - passwordConfirmation
+    SocialAuthRequest:
+      title: SocialAuthRequest
+      x-stoplight:
+        id: zvouocf5u1t2p
+      type: object
+      properties:
+        token:
+          type: string
+          x-stoplight:
+            id: b58i2mzuzpeu1
+        channel:
+          type: string
+          x-stoplight:
+            id: 63644o4pyzxf0
+          enum:
+            - web
+            - mobile
+        provider:
+          type: string
+          x-stoplight:
+            id: gx48sdedd0ech
+          enum:
+            - apple
+            - google
+      required:
+        - token
+        - channel
+        - provider
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey
