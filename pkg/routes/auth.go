@@ -16,6 +16,7 @@ func MountAuthRoutes(app *fiber.App) {
 	// Routes
 	authController := controllers.NewAuthController()
 
+	// Public routes
 	auth.Post("/login", authController.Login)
 	auth.Post("/register", authController.Register)
 	auth.Post("/forgot-password", authController.ForgotPassword)
@@ -23,7 +24,9 @@ func MountAuthRoutes(app *fiber.App) {
 	auth.Post("/resend-email-verification", authController.ResendEmailVerification)
 	auth.Patch("/verify-account", authController.VerifyAccount)
 	auth.Post("/verify-code", authController.VerifyCode)
+	auth.Post("/social", authController.SocialAuth)
 
+	// Protected routes
 	auth.Get("/refresh-token", refreshJwtAuthWare, authController.RefreshToken)
 	auth.Get("/user", jwtAuthWare, authController.User)
 

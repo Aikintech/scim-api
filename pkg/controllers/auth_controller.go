@@ -10,6 +10,7 @@ import (
 	"github.com/aikintech/scim-api/pkg/database"
 	"github.com/aikintech/scim-api/pkg/facades"
 	"github.com/aikintech/scim-api/pkg/jobs"
+	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/ttacon/libphonenumber"
 
 	"github.com/aikintech/scim-api/pkg/constants"
@@ -74,13 +75,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 
 	// Generate token
 	reference := ulid.Make().String()
-	accessToken, err := models.GenerateUserToken(user, "access", reference)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: err.Error(),
-		})
-	}
-	refreshToken, err := models.GenerateUserToken(user, "refresh", reference)
+	accessToken, refreshToken, err := generateTokens(user, reference)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
@@ -141,7 +136,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	user.FirstName = request.FirstName
 	user.LastName = request.LastName
 	user.Password = password
-	user.Channels = datatypes.JSON([]byte(`["` + request.Channel + `"]`))
+	user.Channels = datatypes.JSON([]byte(`["web", "mobile"]`))
 	user.SignUpProvider = "local"
 	user.EmailVerifiedAt = nil
 	result = trx.Model(&models.User{}).Create(&user)
@@ -638,4 +633,110 @@ func (a *AuthController) UpdateUserDetails(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(models.UserToResource(user))
+}
+
+func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
+	// Parse request
+	request := definitions.SocialAuthRequest{}
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Validate request
+	if errs := validation.ValidateStruct(request); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(definitions.ValidationErrsResponse{
+			Errors: errs,
+		})
+	}
+
+	// Get user
+	if request.Provider == "google" {
+		userInfo, err := facades.Socialite().Driver("google").UserFromToken(request.Token)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+
+		// Check if user exists
+		trx := database.DB.Begin()
+		user := new(models.User)
+		if err := trx.Model(&models.User{}).Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				trx.Rollback()
+
+				return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+					Message: err.Error(),
+				})
+			}
+		}
+
+		if user.SignUpProvider == "local" {
+			trx.Rollback()
+
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: "An account with this email already exists with a different sign up provider",
+			})
+		}
+
+		// Update or create user
+		currentTime := time.Now()
+
+		if user.EmailVerifiedAt == nil {
+			user.EmailVerifiedAt = &currentTime
+		}
+
+		user.ExternalID = userInfo.ID
+		user.Email = userInfo.Email
+		user.FirstName = userInfo.FirstName
+		user.LastName = userInfo.LastName
+		user.SignUpProvider = "google"
+		user.Channels = datatypes.JSON([]byte(`["web", "mobile"]`))
+
+		if err := trx.Where("email = ?", userInfo.Email).Assign(user).FirstOrCreate(&user).Error; err != nil {
+			trx.Rollback()
+
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+
+		// Generate token
+		reference := nanoid.MustGenerate(constants.ALPHABETS, 32)
+		accessToken, refreshToken, err := generateTokens(*user, reference)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+
+		trx.Commit()
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"user": models.UserToResource(user),
+			"tokens": fiber.Map{
+				"access":  accessToken,
+				"refresh": refreshToken,
+			},
+		})
+	}
+
+	return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+		Message: fmt.Sprintf("The selected provider %s is currently not supported", strings.ToUpper(request.Provider)),
+	})
+}
+
+func generateTokens(user models.User, reference string) (accessToken, refreshToken string, err error) {
+	accessToken, err = models.GenerateUserToken(user, "access", reference)
+	if err != nil {
+		return "", "", err
+	}
+	refreshToken, err = models.GenerateUserToken(user, "refresh", reference)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }
