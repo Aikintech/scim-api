@@ -29,6 +29,7 @@ type PlaylistPodcastsRequest struct {
 type SocialAuthRequest struct {
 	Provider string `json:"provider" validate:"required,oneof=apple google"`
 	Token    string `json:"token" validate:"required"`
+	Channel  string `json:"channel" validate:"required,oneof=mobile web"`
 }
 
 type StorePrayerRequest struct {
