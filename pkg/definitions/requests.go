@@ -57,15 +57,6 @@ type VerifyEmailRequest struct {
 	Action string `json:"action" validate:"required,oneof=reset_password account_verification"`
 }
 
-type DonateRequest struct {
-	Amount         float32 `json:"amount" validate:"required,min=1"`
-	IdempotencyKey string  `json:"idempotencyKey" validate:"required,min=26,max=36"`
-	Type           string  `json:"type" validate:"required,oneof=tithe pledge offertory freewill other busing covenant_partner"`
-	Currency       string  `json:"currency" validate:"required,oneof=USD GHS EUR GBP"`
-	AccountNumber  string  `json:"accountNumber" validate:"required"`
-	Method         string  `json:"method" validate:"required,oneof=mobile_money card"`
-}
-
 type UpdateAvatarRequest struct {
 	AvatarKey string `json:"avatarKey" validate:"required,validfilekey"`
 	Action    string `json:"action" validate:"required,oneof=update remove"`
@@ -81,4 +72,13 @@ type UpdateUserDetailsRequest struct {
 type VerifyAccountRequest struct {
 	Key   string `json:"key" validate:"required"`
 	Email string `json:"email" validate:"required,email"`
+}
+
+type DonateRequest struct {
+	Amount         float32 `json:"amount" validate:"required,min=1"`
+	IdempotencyKey string  `json:"idempotencyKey" validate:"required,min=26,max=36"`
+	Type           string  `json:"type" validate:"required,oneof=tithe pledge offertory freewill other busing covenant_partner"`
+	Currency       string  `json:"currency" validate:"required,oneof=USD GHS EUR GBP"`
+	AccountNumber  string  `json:"accountNumber" validate:"required"`
+	Method         string  `json:"method" validate:"required,oneof=mobile_money card"`
 }

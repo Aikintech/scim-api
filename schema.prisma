@@ -237,6 +237,7 @@ model Transaction {
   type            TransactionTypeEnum      @default(FREEWILL)
   method          TransactionMethod        @default(MOBILE_MONEY)
   status          TransactionStatusEnum    @default(PENDING)
+  processed       Boolean                  @default(false)
   description     String?
   created_at      DateTime                 @default(now())
   updated_at      DateTime                 @updatedAt
@@ -244,7 +245,7 @@ model Transaction {
   // Add relations here
   User User @relation(fields: [user_id], references: [id])
 
-  @@index([user_id, type, provider])
+  @@index([user_id, type, provider, processed])
   @@map("transactions")
 }
 
