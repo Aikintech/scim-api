@@ -17,8 +17,9 @@ func LoadRoutes(app *fiber.App) {
 	app.Post("/j/seed-podcast", middlewares.CronJobsMiddleware(), controllers.NewMiscController().SeedPodcasts)
 
 	// Upload files
-	app.Post("/files/upload", fileController.UploadFile)
-	app.Get("/files/get-url", fileController.GetFileURL)
+	app.Post("/files", fileController.UploadFile)
+	app.Get("/files/:fileKey", fileController.GetFileURL)
+	app.Delete("/files/:fileKey", fileController.DeleteFile)
 
 	ClientRoutes(app)
 	BackOfficeRoutes(app)

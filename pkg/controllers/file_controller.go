@@ -75,7 +75,7 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 }
 
 func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
-	key := c.Query("key", "")
+	key := c.Params("fileKey", "")
 
 	// Validate request
 	if !validation.IsValidFileKey(key) {
@@ -95,5 +95,27 @@ func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
 	return c.JSON(definitions.Map{
 		"key": key,
 		"url": location,
+	})
+}
+
+func (fileCtrl *FileController) DeleteFile(c *fiber.Ctx) error {
+	key := c.Params("fileKey", "")
+
+	// Validate request
+	if !validation.IsValidFileKey(key) {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid file key",
+		})
+	}
+
+	// Delete file from s3
+	if err := utils.DeleteS3File(key); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(definitions.MessageResponse{
+		Message: "File deleted successfully",
 	})
 }
