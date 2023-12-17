@@ -21,7 +21,7 @@ func NewPostController() *PostController {
 
 func (pc *PostController) GetPosts(c *fiber.Ctx) error {
 	var total int64
-	isAnnouncement := c.Query("isAnnouncement") == "true"
+	postType := c.Query("postType", "all")
 	search := c.Query("search", "")
 
 	// Query posts
@@ -30,9 +30,15 @@ func (pc *PostController) GetPosts(c *fiber.Ctx) error {
 		Select("posts.*, COUNT(DISTINCT likes.id) AS likesCount, COUNT(DISTINCT comments.id) AS commentsCount").
 		Joins("LEFT JOIN likes ON likes.likeable_id = posts.id AND likes.likeable_type = 'posts'").
 		Joins("LEFT JOIN comments ON comments.commentable_id = posts.id AND comments.commentable_type = 'posts'").
-		Where("posts.is_announcement = ?", isAnnouncement).
 		Where("posts.title LIKE ?", "%"+search+"%").
 		Group("posts.id")
+
+	if postType == "announcement" {
+		query = query.Where("posts.is_announcement = ?", true)
+	}
+	if postType == "blog" {
+		query = query.Where("posts.is_announcement = ?", false)
+	}
 
 	if err := query.Count(&total).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -254,7 +260,7 @@ func (pc *PostController) BackofficeCreatePost(c *fiber.Ctx) error {
 		IsAnnouncement:  isAnnouncement,
 		Published:       request.Published,
 		Slug:            slug.Make(request.Title) + "-" + time.Now().Format("20060102150405"),
-		ExcerptImageURL: request.ExcerptImageURL,
+		ExcerptImageURL: request.ExcerptImage,
 		MinutesToRead:   request.MinutesToRead,
 	}
 
@@ -310,7 +316,7 @@ func (pc *PostController) BackofficeUpdatePost(c *fiber.Ctx) error {
 	post.Title = request.Title
 	post.Body = request.Body
 	post.Published = request.Published
-	post.ExcerptImageURL = request.ExcerptImageURL
+	post.ExcerptImageURL = request.ExcerptImage
 	post.MinutesToRead = request.MinutesToRead
 	post.Slug = slug.Make(request.Title) + "-" + time.Now().Format("20060102150405")
 
