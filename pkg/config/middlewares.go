@@ -1,9 +1,10 @@
 package config
 
 import (
+	"os"
+
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
-	"os"
 
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	// "github.com/gofiber/fiber/v2/middleware/limiter"
@@ -13,7 +14,6 @@ import (
 func LoadGlobalMiddlewares(app *fiber.App) {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: os.Getenv("ALLOWED_ORIGINS"),
-		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
 	// app.Use(limiter.New(limiter.Config{

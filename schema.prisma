@@ -198,7 +198,7 @@ model Post {
   published         Boolean  @default(false)
   excerpt_image_url String?
   is_announcement   Boolean  @default(false)
-  minutes_to_read   Decimal  @default(0) @db.Decimal(3, 2)
+  minutes_to_read   Int      @default(0) @db.SmallInt
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
 
