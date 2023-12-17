@@ -37,6 +37,8 @@ require (
 	cloud.google.com/go/compute v1.20.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/philhofer/fwd v1.1.2 // indirect
+	github.com/tinylib/msgp v1.1.8 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 )

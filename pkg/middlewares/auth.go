@@ -67,3 +67,6 @@ func CronJobsMiddleware() fiber.Handler {
 		},
 	})
 }
+
+// TODO: Implement
+func AdminMiddleware() {}
