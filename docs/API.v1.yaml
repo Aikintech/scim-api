@@ -663,9 +663,12 @@ paths:
       description: 'Client: get posts'
       parameters:
         - schema:
-            type: boolean
+            type: string
+            enum:
+              - announcement
+              - blog
           in: query
-          name: isAnnouncement
+          name: postType
           required: true
   '/posts/{postId}':
     get:
@@ -982,9 +985,13 @@ paths:
         - X-USER-TOKEN: []
       parameters:
         - schema:
-            type: boolean
+            type: string
+            enum:
+              - all
+              - announcement
+              - blog
           in: query
-          name: isAnnouncement
+          name: postType
           required: true
     post:
       summary: ''

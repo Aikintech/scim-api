@@ -40,11 +40,11 @@ type StorePrayerRequest struct {
 }
 
 type StorePostRequest struct {
-	Title           string  `json:"title" validate:"required,min=3"`
-	Body            string  `json:"body" validate:"required,min=3"`
-	Published       bool    `json:"published" validate:"required"`
-	ExcerptImageURL string  `json:"excerptImage" validate:"omitnil,validfilekey"`
-	MinutesToRead   float32 `json:"minutesToRead" validate:"required"`
+	Title         string  `json:"title" validate:"required,min=3"`
+	Body          string  `json:"body" validate:"required,min=3"`
+	Published     bool    `json:"published" validate:"boolean"`
+	ExcerptImage  string  `json:"excerptImage" validate:"omitnil,validfilekey"`
+	MinutesToRead float32 `json:"minutesToRead" validate:"required"`
 }
 
 type StoreCommentRequest struct {
