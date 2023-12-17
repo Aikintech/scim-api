@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ClientRoutes(app *fiber.App) {
+func MountClientRoutes(app *fiber.App) {
 	app.Get("/home", controllers.NewHomeController().ClientHome)
 
 	// Routers
@@ -14,4 +14,5 @@ func ClientRoutes(app *fiber.App) {
 	MountPlaylistRoutes(app)
 	MountPrayerRoutes(app)
 	MountPostRoutes(app)
+	MountTransactionRoutes(app)
 }

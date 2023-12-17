@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func BackOfficeRoutes(app *fiber.App) {
+func MountBackOfficeRoutes(app *fiber.App) {
 	backoffice := app.Group("/backoffice")
 	events := backoffice.Group("/events")
 	posts := backoffice.Group("/posts")

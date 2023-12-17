@@ -814,6 +814,90 @@ paths:
                 $ref: '#/components/schemas/HomeDataResponse'
       operationId: get-home-data
       description: 'Client: Get home data'
+  /transactions:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsResponse'
+      operationId: get-transactions
+      description: Get transactions
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - all
+              - today
+              - last_week
+              - last_month
+          in: query
+          name: filter
+          required: true
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
+    post:
+      summary: ''
+      operationId: transact
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+      description: Transact
+      security:
+        - X-USER-TOKEN: []
+      tags:
+        - client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactRequest'
+        description: ''
+  '/transactions/{transactionId}':
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+      operationId: get-transaction
+      description: Get transaction
+      security:
+        - X-USER-TOKEN: []
+      parameters: []
+    parameters:
+      - schema:
+          type: string
+        name: transactionId
+        in: path
+        required: true
   /files:
     post:
       summary: ''
@@ -2057,6 +2141,95 @@ components:
         - token
         - channel
         - provider
+    Transaction:
+      title: Transaction
+      x-stoplight:
+        id: g4t8s9n7hud6p
+      type: object
+      properties:
+        id:
+          type: string
+    TransactionsResponse:
+      title: TransactionsResponse
+      x-stoplight:
+        id: b475o308472xr
+      type: object
+      properties:
+        items:
+          type: array
+          x-stoplight:
+            id: tklh7k1043gan
+          items:
+            $ref: '#/components/schemas/Transaction'
+        limit:
+          type: integer
+          x-stoplight:
+            id: r7o5xl505pdmf
+        page:
+          type: integer
+          x-stoplight:
+            id: qq8coyia6816s
+        total:
+          type: integer
+          x-stoplight:
+            id: qb49l8yadya80
+      required:
+        - items
+        - limit
+        - page
+        - total
+    TransactRequest:
+      title: TransactRequest
+      x-stoplight:
+        id: fdetuxrcymcca
+      type: object
+      properties:
+        idempotencyKey:
+          type: string
+          x-stoplight:
+            id: 2qdfup86p1dn0
+        amount:
+          type: integer
+          x-stoplight:
+            id: cmav01bdegwvk
+        type:
+          type: string
+          x-stoplight:
+            id: zdbdcc6z6evae
+          enum:
+            - tithe
+            - pledge
+            - offertory
+            - freewill
+            - busing
+            - covenant_partner
+        currency:
+          type: string
+          x-stoplight:
+            id: txld7y7utqozc
+          enum:
+            - USD
+            - GHS
+            - EUR
+            - GBP
+        AccountNumber:
+          type: string
+          x-stoplight:
+            id: wgxsd8qm8vyrr
+        method:
+          type: string
+          x-stoplight:
+            id: 85co46fj603ay
+          enum:
+            - mobile_money
+            - card
+      required:
+        - idempotencyKey
+        - amount
+        - type
+        - currency
+        - AccountNumber
+        - method
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey

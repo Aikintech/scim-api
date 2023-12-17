@@ -74,7 +74,7 @@ type VerifyAccountRequest struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
-type DonateRequest struct {
+type TransactRequest struct {
 	Amount         float32 `json:"amount" validate:"required,min=1"`
 	IdempotencyKey string  `json:"idempotencyKey" validate:"required,min=26,max=36"`
 	Type           string  `json:"type" validate:"required,oneof=tithe pledge offertory freewill other busing covenant_partner"`
