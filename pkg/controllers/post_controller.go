@@ -27,6 +27,7 @@ func (pc *PostController) GetPosts(c *fiber.Ctx) error {
 	// Query posts
 	posts := make([]*models.Post, 0)
 	query := database.DB.Model(&models.Post{}).
+		Scopes(models.PaginationScope(c)).
 		Select("posts.*, COUNT(DISTINCT likes.id) AS likesCount, COUNT(DISTINCT comments.id) AS commentsCount").
 		Joins("LEFT JOIN likes ON likes.likeable_id = posts.id AND likes.likeable_type = 'posts'").
 		Joins("LEFT JOIN comments ON comments.commentable_id = posts.id AND comments.commentable_type = 'posts'").

@@ -686,6 +686,19 @@ paths:
           description: Not Found
       operationId: get-post
       description: 'Client: get post'
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
     parameters:
       - schema:
           type: string
@@ -993,6 +1006,18 @@ paths:
           in: query
           name: postType
           required: true
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
     post:
       summary: ''
       operationId: backoffice-create-post
