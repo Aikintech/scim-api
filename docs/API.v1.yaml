@@ -985,6 +985,19 @@ paths:
       description: 'Backoffice: Get events'
       security:
         - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: page
+        - schema:
+            type: integer
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
     post:
       summary: ''
       operationId: backoffice-create-event
@@ -1022,19 +1035,7 @@ paths:
       description: 'Backoffice: Get event'
       security:
         - X-USER-TOKEN: []
-      parameters:
-        - schema:
-            type: integer
-          in: query
-          name: page
-        - schema:
-            type: integer
-          in: query
-          name: limit
-        - schema:
-            type: string
-          in: query
-          name: search
+      parameters: []
     parameters:
       - schema:
           type: string
