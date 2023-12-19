@@ -831,8 +831,6 @@ paths:
   '/events/{eventId}':
     get:
       summary: ''
-      tags:
-        - backoffice
       responses:
         '200':
           description: OK
@@ -843,6 +841,8 @@ paths:
       operationId: get-event
       description: Get event
       parameters: []
+      tags:
+        - client
     parameters:
       - schema:
           type: string
