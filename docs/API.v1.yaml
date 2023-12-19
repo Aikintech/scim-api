@@ -666,7 +666,7 @@ paths:
             type: string
             enum:
               - announcement
-              - blog
+              - blog post
           in: query
           name: postType
           required: true
@@ -1086,7 +1086,7 @@ paths:
             enum:
               - all
               - announcement
-              - blog
+              - blog post
           in: query
           name: postType
           required: true

@@ -36,7 +36,7 @@ func (pc *PostController) GetPosts(c *fiber.Ctx) error {
 	if postType == "announcement" {
 		query = query.Where("posts.is_announcement = ?", true)
 	}
-	if postType == "blog" {
+	if postType == "blog post" {
 		query = query.Where("posts.is_announcement = ?", false)
 	}
 
