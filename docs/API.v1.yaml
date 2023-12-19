@@ -1022,6 +1022,19 @@ paths:
       description: 'Backoffice: Get event'
       security:
         - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: page
+        - schema:
+            type: integer
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
     parameters:
       - schema:
           type: string
