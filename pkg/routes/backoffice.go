@@ -21,7 +21,7 @@ func MountBackOfficeRoutes(app *fiber.App) {
 	// Events
 	events.Get("/", jwtAuthWare, eventController.BackofficeGetEvents)
 	events.Post("/", jwtAuthWare, eventController.BackofficeCreateEvent)
-	events.Get("/:eventId", jwtAuthWare, eventController.BackofficeGetEvent)
+	events.Get("/:eventId", jwtAuthWare, eventController.GetEvent)
 	events.Patch("/:eventId", jwtAuthWare, eventController.BackofficeUpdateEvent)
 	events.Delete("/:eventId", jwtAuthWare, eventController.BackofficeDeleteEvent)
 
