@@ -73,6 +73,7 @@ func (evtCtrl *EventController) BackofficeCreateEvent(c *fiber.Ctx) error {
 		Title:           request.Title,
 		Description:     request.Description,
 		Location:        request.Location,
+		Published:       request.Published,
 		StartDateTime:   startDateTime,
 		EndDateTime:     &endDateTime,
 		ExcerptImageURL: request.ExcerptImageURL,
@@ -135,6 +136,7 @@ func (evtCtrl *EventController) BackofficeUpdateEvent(c *fiber.Ctx) error {
 	event.Title = request.Title
 	event.Description = request.Description
 	event.Location = request.Location
+	event.Published = request.Published
 	event.StartDateTime = startDateTime
 	event.EndDateTime = &endDateTime
 	event.ExcerptImageURL = request.ExcerptImageURL

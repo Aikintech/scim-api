@@ -27,7 +27,8 @@ type EventResource struct {
 	ID              string     `json:"id"`
 	Title           string     `json:"title"`
 	Description     string     `json:"description"`
-	ExcerptImageURL *string    `json:"excerptImage"`
+	ExcerptImageURL string     `json:"excerptImage"`
+	ExcerptImageKey string     `json:"excerptImageKey"`
 	Location        string     `json:"location"`
 	StartDateTime   time.Time  `json:"startDateTime"`
 	EndDateTime     *time.Time `json:"endDateTime"`
@@ -45,14 +46,15 @@ func (e *Event) ToResource() EventResource {
 	// Generate avatarURL
 	excerptImage, err := utils.GenerateS3FileURL(e.ExcerptImageURL)
 	if err != nil {
-		fmt.Println("Error generating avatar url", err.Error())
+		fmt.Println("Error generating excerpt url", err.Error())
 	}
 
 	return EventResource{
 		ID:              e.ID,
 		Title:           e.Title,
 		Description:     e.Description,
-		ExcerptImageURL: &excerptImage,
+		ExcerptImageURL: excerptImage,
+		ExcerptImageKey: e.ExcerptImageURL,
 		Location:        e.Location,
 		StartDateTime:   e.StartDateTime,
 		EndDateTime:     e.EndDateTime,
