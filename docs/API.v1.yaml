@@ -800,6 +800,55 @@ paths:
         description: ''
       tags:
         - client
+  /events:
+    get:
+      summary: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsResponse'
+      operationId: get-events
+      description: Get events
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: page
+        - schema:
+            type: integer
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
+      tags:
+        - client
+    parameters: []
+  '/events/{eventId}':
+    get:
+      summary: ''
+      tags:
+        - backoffice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+      operationId: get-event
+      description: Get event
+      parameters: []
+    parameters:
+      - schema:
+          type: string
+        name: eventId
+        in: path
+        required: true
   /home:
     get:
       summary: ''
