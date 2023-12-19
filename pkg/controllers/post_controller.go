@@ -234,7 +234,6 @@ func (pc *PostController) DeletePostComment(c *fiber.Ctx) error {
 // Backoffice handlers
 func (pc *PostController) BackofficeCreatePost(c *fiber.Ctx) error {
 	user := c.Locals("user").(*models.User)
-	isAnnouncement := c.Query("isAnnouncement") == "true"
 
 	// Parse request
 	request := new(definitions.StorePostRequest)
@@ -257,7 +256,7 @@ func (pc *PostController) BackofficeCreatePost(c *fiber.Ctx) error {
 		UserID:          user.ID,
 		Title:           request.Title,
 		Body:            request.Body,
-		IsAnnouncement:  isAnnouncement,
+		IsAnnouncement:  request.IsAnnouncement,
 		Published:       request.Published,
 		Slug:            slug.Make(request.Title) + "-" + time.Now().Format("20060102150405"),
 		ExcerptImageURL: request.ExcerptImage,
@@ -318,6 +317,7 @@ func (pc *PostController) BackofficeUpdatePost(c *fiber.Ctx) error {
 	post.Published = request.Published
 	post.ExcerptImageURL = request.ExcerptImage
 	post.MinutesToRead = request.MinutesToRead
+	post.IsAnnouncement = request.IsAnnouncement
 	post.Slug = slug.Make(request.Title) + "-" + time.Now().Format("20060102150405")
 
 	if err := trx.Save(&post).Error; err != nil {
