@@ -1117,12 +1117,7 @@ paths:
       description: 'Backoffice: Create post'
       security:
         - X-USER-TOKEN: []
-      parameters:
-        - schema:
-            type: boolean
-          in: query
-          name: isAnnouncement
-          required: true
+      parameters: []
       requestBody:
         required: true
         content:
@@ -1165,6 +1160,7 @@ paths:
       security:
         - X-USER-TOKEN: []
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1978,11 +1974,16 @@ components:
           type: string
           x-stoplight:
             id: hyjedg14jniru
+        isAnnouncement:
+          type: boolean
+          x-stoplight:
+            id: f2rpl2seaubc6
       required:
         - title
         - body
         - published
         - minutesToRead
+        - isAnnouncement
     VerifyEmailRequest:
       type: object
       x-stoplight:
