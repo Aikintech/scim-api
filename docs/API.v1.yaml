@@ -1814,6 +1814,7 @@ components:
           body: Test body
           published: true
           excerptImage: ''
+          excerptImageKey: ''
           isAnnouncement: false
           minutesToRead: 1.5
           createdAt: '2023-12-13T08:52:43.533Z'
@@ -1841,6 +1842,10 @@ components:
           type: boolean
         excerptImage:
           type: string
+        excerptImageKey:
+          type: string
+          x-stoplight:
+            id: ox8a8hxeu6lb2
         isAnnouncement:
           type: boolean
         minutesToRead:
@@ -1860,6 +1865,7 @@ components:
         - body
         - published
         - excerptImage
+        - excerptImageKey
         - isAnnouncement
         - minutesToRead
         - createdAt
