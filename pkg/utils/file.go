@@ -11,13 +11,13 @@ import (
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func getS3Client() (*s3.Client, error) {
-	cfg, err := awsconfig.LoadDefaultConfig(context.TODO())
+	cfg, err := awsConfig.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		return nil, err
 	}
@@ -122,3 +122,7 @@ func DeleteS3File(key string) error {
 
 	return nil
 }
+
+func UploadFileToYouTube() {}
+
+func UploadFileToTikTok() {}
