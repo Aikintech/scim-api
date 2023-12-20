@@ -728,6 +728,17 @@ func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
 	})
 }
 
+func (a *AuthController) Logout(c *fiber.Ctx) error {
+	// Get token
+
+	// Blacklist token
+
+	return c.JSON(definitions.MessageResponse{
+
+		Message: "Logout successful",
+	})
+}
+
 func generateTokens(user models.User, reference string) (accessToken, refreshToken string, err error) {
 	accessToken, err = models.GenerateUserToken(user, "access", reference)
 	if err != nil {

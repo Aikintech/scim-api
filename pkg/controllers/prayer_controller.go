@@ -94,13 +94,26 @@ func (pryCtrl *PrayerController) RequestPrayer(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(models.PrayerToResource(&prayer))
 }
 
+func (pryCtrl *PrayerController) UpdatePrayer(c *fiber.Ctx) error {
+	return c.JSON("")
+}
+
 // Backoffice handlers
 func (pryCtrl *PrayerController) BackOfficeGetPrayers(c *fiber.Ctx) error {
+	var total int64
 	search := c.Query("search", "")
+
+	// Get total
+	query := database.DB.Model(&models.PrayerRequest{}).Where("title LIKE ?", "%"+search+"%")
+	if err := query.Count(&total).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
 
 	// Get prayers
 	prayers := make([]*models.PrayerRequest, 0)
-	result := database.DB.Scopes(models.PaginationScope(c)).Model(&models.PrayerRequest{}).Preload("User").Where("title LIKE ?", "%"+search+"%").Find(&prayers)
+	result := query.Scopes(models.PaginationScope(c)).Preload("User").Find(&prayers)
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -109,10 +122,10 @@ func (pryCtrl *PrayerController) BackOfficeGetPrayers(c *fiber.Ctx) error {
 		}
 	}
 
-	prayerCollection := models.PrayersToResourceCollection(prayers)
-
-	return c.JSON(definitions.DataResponse[[]models.PrayerRequestResource]{
-		Code: fiber.StatusOK,
-		Data: prayerCollection,
+	return c.JSON(definitions.Map{
+		"limit": c.QueryInt("limit", 10),
+		"page":  c.QueryInt("page", 1),
+		"total": total,
+		"items": models.PrayersToResourceCollection(prayers),
 	})
 }

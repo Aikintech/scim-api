@@ -17,6 +17,7 @@ const (
 	SUPPORT_EMAIL                    = "support@scimapp.org"
 	USER_VERIFICATION_CODE_CACHE_KEY = "user_verification_code_" // + user.ID
 	USER_CODE_ACTION_CACHE_KEY       = "user_code_action_"       // + user.ID
+	YOUTUBE_CHANNEL_ID               = ""
 )
 
 var (
