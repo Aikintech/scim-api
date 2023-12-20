@@ -26,6 +26,7 @@ func MountAuthRoutes(app *fiber.App) {
 	auth.Patch("/verify-account", authController.VerifyAccount)
 	auth.Post("/verify-code", authController.VerifyCode)
 	auth.Post("/social", authController.SocialAuth)
+	auth.Post("/logout", authController.Logout)
 
 	// Protected routes
 	auth.Get("/refresh-token", refreshJwtAuthWare, authController.RefreshToken)

@@ -1245,20 +1245,84 @@ paths:
       description: 'Backoffice: delete post'
       security:
         - X-USER-TOKEN: []
+  /backoffice/prayer-requests:
+    get:
+      summary: ''
+      tags:
+        - backoffice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrayersResponse'
+      operationId: backoffice-get-prayers
+      description: 'Backoffice: Get prayer requests'
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
+    parameters: []
+  '/backoffice/prayer-requests/{prayerId}':
+    get:
+      summary: ''
+      tags:
+        - backoffice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prayer'
+      operationId: backoffice-get-prayer
+      description: 'Backoffice: Get prayer request'
+      security:
+        - X-USER-TOKEN: []
+      parameters: []
+    parameters:
+      - schema:
+          type: string
+        name: prayerId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      operationId: backoffice-update-prayer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prayer'
+      description: Backoffice update prayer request
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrayerRequest'
+      tags:
+        - backoffice
 components:
   schemas:
     AuthUser:
       type: object
-      x-examples:
-        Example 1:
-          id: 01HGEMHYJMT832QCWAJMCE67FK
-          firstName: Nana
-          lastName: Aikinson
-          email: nanaaikinson24@example.com
-          emailVerified: true
-          avatar: null
-          channels:
-            - web
+      x-examples: {}
       properties:
         id:
           type: string
@@ -1286,6 +1350,14 @@ components:
               - web
               - mobile
               - backoffice
+        permissions:
+          type: array
+          x-stoplight:
+            id: m4ny04pa14clj
+          items:
+            x-stoplight:
+              id: 8icgpq5ha2gl0
+            type: string
       required:
         - id
         - firstName
@@ -1295,6 +1367,7 @@ components:
         - avatar
         - avatarKey
         - channels
+        - permissions
     Podcast:
       type: object
       x-examples:
@@ -1390,22 +1463,7 @@ components:
         - podcasts
     Prayer:
       type: object
-      x-examples:
-        Example 1:
-          id: 01HH45VD7HQJWGG5ZEQNDY1YN4
-          title: This is a test 4
-          description: This is a test description
-          completedAt: null
-          createdAt: '2023-12-08T07:39:09.937651Z'
-          user:
-            id: 01HH1KGM9S1H086GV1EGPFP16X
-            firstName: Nana
-            lastName: Aikinson
-            email: nanaaikinson24@example.com
-            emailVerified: true
-            avatar: 'https://scimapp-test-uploads.s3.eu-west-1.amazonaws.com/AVATAR/c5wlQgTksTLGkMLhA55gMCOenWPqo4.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAW3W3GZGQ66DHX5JB%2F20231207%2Feu-west-1%2Fs3%2Faws4_request&X-Amz-Date=20231207T222154Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=f9140b24726dc7c625df3638a667ab143ecb98b522e0bc41ddfc76b27fbbfd31'
-            channels:
-              - web
+      x-examples: {}
       properties:
         id:
           type: string
@@ -1413,6 +1471,10 @@ components:
           type: string
         description:
           type: string
+        phoneNumber:
+          type: string
+          x-stoplight:
+            id: ce1dysgi7to05
         completedAt:
           type: string
           nullable: true
@@ -1426,16 +1488,18 @@ components:
             - fulfilled
             - pending
             - rejected
+            - closed
         user:
           $ref: '#/components/schemas/AuthUser'
       required:
         - id
         - title
         - description
+        - phoneNumber
         - completedAt
         - createdAt
-        - user
         - status
+        - user
     Event:
       type: object
       x-examples: {}
@@ -1634,20 +1698,30 @@ components:
       items:
         $ref: '#/components/schemas/Playlist'
     PrayersResponse:
-      type: array
-      x-stoplight:
-        id: y4qcmdcl1n787
-      x-examples:
-        Example 1:
-          code: 200
-          data:
-            - id: 01HGRFM7M1F03D6014034KEF2P
-              title: This is a test
-              description: This is a test description
-              completedAt: null
-              createdAt: '2023-12-03T18:39:07.393849Z'
-      items:
-        $ref: '#/components/schemas/Prayer'
+      type: object
+      x-examples: {}
+      properties:
+        limit:
+          type: integer
+          x-stoplight:
+            id: ufvohk2yj0hsx
+        page:
+          type: integer
+          x-stoplight:
+            id: ufvohk2yj0hsx
+        total:
+          type: integer
+          x-stoplight:
+            id: ufvohk2yj0hsx
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prayer'
+      required:
+        - limit
+        - page
+        - total
+        - items
     CommentsResponse:
       type: array
       x-stoplight:
@@ -1703,10 +1777,7 @@ components:
         - description
     PrayerRequest:
       type: object
-      x-examples:
-        Example 1:
-          title: This is a test
-          description: This is a test description
+      x-examples: {}
       properties:
         title:
           type: string
@@ -1720,6 +1791,15 @@ components:
           type: string
           x-stoplight:
             id: orgxyeb8y3gb1
+        status:
+          type: string
+          x-stoplight:
+            id: lzbytsmh7v0ds
+          enum:
+            - fulfilled
+            - pending
+            - rejected
+            - closed
       required:
         - title
         - description
