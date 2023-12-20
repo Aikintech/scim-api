@@ -1,9 +1,11 @@
 package models
 
 import (
+	"strings"
 	"time"
 
-	"github.com/oklog/ulid/v2"
+	"github.com/aikintech/scim-api/pkg/constants"
+	nanoid "github.com/matoous/go-nanoid/v2"
 	"gorm.io/gorm"
 )
 
@@ -32,7 +34,7 @@ type PrayerRequestResource struct {
 }
 
 func (p *PrayerRequest) BeforeCreate(tx *gorm.DB) error {
-	p.ID = ulid.Make().String()
+	p.ID = nanoid.MustGenerate(constants.ALPHABETS, 30)
 
 	return nil
 }
@@ -40,8 +42,8 @@ func (p *PrayerRequest) BeforeCreate(tx *gorm.DB) error {
 func PrayerToResource(p *PrayerRequest) PrayerRequestResource {
 	return PrayerRequestResource{
 		ID:          p.ID,
-		Title:       p.Title,
-		Body:        p.Body,
+		Title:       strings.TrimSpace(p.Title),
+		Body:        strings.TrimSpace(p.Body),
 		PhoneNumber: p.PhoneNumber,
 		Status:      p.Status,
 		CompletedAt: p.CompletedAt,
