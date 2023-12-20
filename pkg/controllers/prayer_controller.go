@@ -73,8 +73,8 @@ func (pryCtrl *PrayerController) RequestPrayer(c *fiber.Ctx) error {
 
 	// Create prayer request
 	prayer := models.PrayerRequest{
-		Title:       request.Title,
-		Body:        request.Description,
+		Title:       strings.TrimSpace(request.Title),
+		Body:        strings.TrimSpace(request.Description),
 		UserID:      user.ID,
 		PhoneNumber: libphonenumber.Format(num, libphonenumber.E164),
 		CompletedAt: nil,
