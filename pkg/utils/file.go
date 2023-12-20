@@ -110,8 +110,14 @@ func DeleteS3File(key string) error {
 		Bucket: aws.String(os.Getenv("AWS_BUCKET")),
 		Key:    aws.String(key),
 	})
+
 	if err != nil {
 		return err
+	}
+
+	// Delete from redis
+	if err := config.RedisStore.Delete(key); err != nil {
+		fmt.Printf("An error occurred while deleting %s. Error: %s", key, err.Error())
 	}
 
 	return nil
