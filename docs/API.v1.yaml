@@ -2302,6 +2302,67 @@ components:
       properties:
         id:
           type: string
+        provider:
+          type: string
+          x-stoplight:
+            id: e3gelmgwr9yyt
+        currency:
+          type: string
+          x-stoplight:
+            id: 6ewfky0ndjqsc
+        amount:
+          type: number
+          x-stoplight:
+            id: qxvjia8zzjif5
+        type:
+          type: string
+          x-stoplight:
+            id: 0f5gzeqimh8sy
+          enum:
+            - tithe
+            - pledge
+            - offertory
+            - freewill
+            - busing
+            - covenant_partner
+            - other
+        method:
+          type: string
+          x-stoplight:
+            id: y9bgb4hn1twf3
+          enum:
+            - card
+            - bank
+            - mobile_money
+        status:
+          type: string
+          x-stoplight:
+            id: uvsaaa25jki7k
+          enum:
+            - pending
+            - success
+            - failed
+        description:
+          type: string
+          x-stoplight:
+            id: 1dflwdat94ahl
+        createdAt:
+          type: string
+          x-stoplight:
+            id: tme5bdxe93exs
+        user:
+          $ref: '#/components/schemas/AuthUser'
+      required:
+        - id
+        - provider
+        - currency
+        - amount
+        - type
+        - method
+        - status
+        - description
+        - createdAt
+        - user
     TransactionsResponse:
       title: TransactionsResponse
       x-stoplight:
