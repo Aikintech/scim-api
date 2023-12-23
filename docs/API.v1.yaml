@@ -1318,6 +1318,59 @@ paths:
               $ref: '#/components/schemas/PrayerRequest'
       tags:
         - backoffice
+  /backoffice/transactions:
+    get:
+      summary: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsResponse'
+      operationId: backoffice-get-transactions
+      description: Get transactions
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
+      tags:
+        - backoffice
+    parameters: []
+  '/backoffice/transactions/{transactionId}':
+    get:
+      summary: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+      operationId: backoffice-get-transaction
+      description: Get transaction
+      security:
+        - X-USER-TOKEN: []
+      parameters: []
+      tags:
+        - backoffice
+    parameters:
+      - schema:
+          type: string
+        name: transactionId
+        in: path
+        required: true
 components:
   schemas:
     AuthUser:
