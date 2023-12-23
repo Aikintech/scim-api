@@ -89,3 +89,54 @@ func (t *TransactionController) Transact(c *fiber.Ctx) error {
 	}
 	return c.SendString("Transact")
 }
+
+// Backoffice handlers
+func (t *TransactionController) BackofficeGetTransactions(c *fiber.Ctx) error {
+	var total int64
+
+	// Find transactions
+	query := database.DB.Model(&models.Transaction{})
+	transactions := make([]*models.Transaction, 0)
+
+	// Total
+	if err := query.Count(&total).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	if err := query.Scopes(models.PaginationScope(c)).Preload("User").Find(&transactions).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(definitions.Map{
+		"limit": c.QueryInt("limit", 10),
+		"page":  c.QueryInt("page", 1),
+		"total": total,
+		"items": models.TransactionsToResourceCollection(transactions),
+	})
+}
+
+func (t *TransactionController) BackofficeGetTransaction(c *fiber.Ctx) error {
+	transactionId := c.Params("transactionId", "")
+
+	// Find transaction
+	transaction := new(models.Transaction)
+	if err := database.DB.Model(&models.Transaction{}).
+		Preload("User").
+		Where("id = ?", transactionId).
+		First(&transaction).Error; err != nil {
+		status := fiber.StatusNotFound
+
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			status = fiber.StatusBadRequest
+		}
+		return c.Status(status).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(models.TransactionToResource(transaction))
+}
