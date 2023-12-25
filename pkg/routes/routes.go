@@ -21,6 +21,6 @@ func LoadRoutes(app *fiber.App) {
 	app.Get("/files/:fileKey", fileController.GetFileURL)
 	app.Delete("/files/:fileKey", fileController.DeleteFile)
 
-	ClientRoutes(app)
-	BackOfficeRoutes(app)
+	MountClientRoutes(app)
+	MountBackOfficeRoutes(app)
 }

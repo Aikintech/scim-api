@@ -11,13 +11,13 @@ import (
 	"github.com/aikintech/scim-api/pkg/config"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func getS3Client() (*s3.Client, error) {
-	cfg, err := awsconfig.LoadDefaultConfig(context.TODO())
+	cfg, err := awsConfig.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		return nil, err
 	}
@@ -110,9 +110,19 @@ func DeleteS3File(key string) error {
 		Bucket: aws.String(os.Getenv("AWS_BUCKET")),
 		Key:    aws.String(key),
 	})
+
 	if err != nil {
 		return err
 	}
 
+	// Delete from redis
+	if err := config.RedisStore.Delete(key); err != nil {
+		fmt.Printf("An error occurred while deleting %s. Error: %s", key, err.Error())
+	}
+
 	return nil
 }
+
+func UploadFileToYouTube() {}
+
+func UploadFileToTikTok() {}

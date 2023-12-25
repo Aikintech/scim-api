@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/aikintech/scim-api/pkg/database"
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/models"
+	"github.com/aikintech/scim-api/pkg/utils"
 	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gosimple/slug"
@@ -36,7 +38,7 @@ func (pc *PostController) GetPosts(c *fiber.Ctx) error {
 	if postType == "announcement" {
 		query = query.Where("posts.is_announcement = ?", true)
 	}
-	if postType == "blog" {
+	if postType == "blog post" {
 		query = query.Where("posts.is_announcement = ?", false)
 	}
 
@@ -46,7 +48,7 @@ func (pc *PostController) GetPosts(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := query.Preload("User").Find(&posts).Error; err != nil {
+	if err := query.Scopes(models.PaginationScope(c)).Preload("User").Find(&posts).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})
@@ -234,7 +236,6 @@ func (pc *PostController) DeletePostComment(c *fiber.Ctx) error {
 // Backoffice handlers
 func (pc *PostController) BackofficeCreatePost(c *fiber.Ctx) error {
 	user := c.Locals("user").(*models.User)
-	isAnnouncement := c.Query("isAnnouncement") == "true"
 
 	// Parse request
 	request := new(definitions.StorePostRequest)
@@ -257,7 +258,7 @@ func (pc *PostController) BackofficeCreatePost(c *fiber.Ctx) error {
 		UserID:          user.ID,
 		Title:           request.Title,
 		Body:            request.Body,
-		IsAnnouncement:  isAnnouncement,
+		IsAnnouncement:  request.IsAnnouncement,
 		Published:       request.Published,
 		Slug:            slug.Make(request.Title) + "-" + time.Now().Format("20060102150405"),
 		ExcerptImageURL: request.ExcerptImage,
@@ -318,6 +319,7 @@ func (pc *PostController) BackofficeUpdatePost(c *fiber.Ctx) error {
 	post.Published = request.Published
 	post.ExcerptImageURL = request.ExcerptImage
 	post.MinutesToRead = request.MinutesToRead
+	post.IsAnnouncement = request.IsAnnouncement
 	post.Slug = slug.Make(request.Title) + "-" + time.Now().Format("20060102150405")
 
 	if err := trx.Save(&post).Error; err != nil {
@@ -345,20 +347,32 @@ func (pc *PostController) BackofficeUpdatePost(c *fiber.Ctx) error {
 func (pc *PostController) BackofficeDeletePost(c *fiber.Ctx) error {
 	postId := c.Params("postId")
 
-	// Delete post
+	// Fetch post
 	trx := database.DB.Begin()
-	if err := trx.Delete(&models.Post{}, "id = ?", postId).Error; err != nil {
-		status := fiber.StatusBadRequest
+	post := new(models.Post)
 
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			status = fiber.StatusNotFound
-		}
-
-		trx.Rollback()
-
-		return c.Status(status).JSON(definitions.MessageResponse{
+	if err := trx.Model(&models.Post{}).Where("id = ?", postId).Find(&post).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})
+	}
+
+	// Delete post
+	if err := trx.Delete(&models.Post{}, "id = ?", postId).Error; err != nil {
+		trx.Rollback()
+
+		return c.Status(fiber.StatusBadGateway).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	// Delete file from storage
+	if len(post.ExcerptImageURL) > 0 {
+		go func() {
+			if err := utils.DeleteS3File(post.ExcerptImageURL); err != nil {
+				fmt.Println(err.Error())
+			}
+		}()
 	}
 
 	trx.Commit()

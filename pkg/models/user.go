@@ -45,6 +45,7 @@ type AuthUserResource struct {
 	Avatar        string         `json:"avatar"`
 	AvatarKey     string         `json:"avatarKey"`
 	Channels      datatypes.JSON `json:"channels"`
+	Permissions   []string       `json:"Permissions"`
 }
 
 func (u *User) BeforeCreate(*gorm.DB) error {
@@ -69,6 +70,7 @@ func UserToResource(u *User) AuthUserResource {
 		Avatar:        avatar,
 		AvatarKey:     u.Avatar,
 		Channels:      u.Channels,
+		// TODO: Add permissions to resource
 	}
 }
 

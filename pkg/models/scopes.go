@@ -1,8 +1,6 @@
 package models
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -18,8 +16,8 @@ type Pagination struct {
 
 func PaginationScope(c *fiber.Ctx) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		page, _ := strconv.Atoi(c.Query("page", "1"))
-		limit, _ := strconv.Atoi(c.Query("limit", "10"))
+		page := c.QueryInt("page", 1)
+		limit := c.QueryInt("limit", 10)
 		offset := (page - 1) * limit
 
 		return db.Offset(offset).Limit(limit)

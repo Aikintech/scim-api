@@ -666,7 +666,7 @@ paths:
             type: string
             enum:
               - announcement
-              - blog
+              - blog post
           in: query
           name: postType
           required: true
@@ -686,6 +686,19 @@ paths:
           description: Not Found
       operationId: get-post
       description: 'Client: get post'
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
     parameters:
       - schema:
           type: string
@@ -787,6 +800,55 @@ paths:
         description: ''
       tags:
         - client
+  /events:
+    get:
+      summary: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsResponse'
+      operationId: get-events
+      description: Get events
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: page
+        - schema:
+            type: integer
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
+      tags:
+        - client
+    parameters: []
+  '/events/{eventId}':
+    get:
+      summary: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+      operationId: get-event
+      description: Get event
+      parameters: []
+      tags:
+        - client
+    parameters:
+      - schema:
+          type: string
+        name: eventId
+        in: path
+        required: true
   /home:
     get:
       summary: ''
@@ -801,6 +863,90 @@ paths:
                 $ref: '#/components/schemas/HomeDataResponse'
       operationId: get-home-data
       description: 'Client: Get home data'
+  /transactions:
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsResponse'
+      operationId: get-transactions
+      description: Get transactions
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - all
+              - today
+              - last_week
+              - last_month
+          in: query
+          name: filter
+          required: true
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
+    post:
+      summary: ''
+      operationId: transact
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+      description: Transact
+      security:
+        - X-USER-TOKEN: []
+      tags:
+        - client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactRequest'
+        description: ''
+  '/transactions/{transactionId}':
+    get:
+      summary: ''
+      tags:
+        - client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+      operationId: get-transaction
+      description: Get transaction
+      security:
+        - X-USER-TOKEN: []
+      parameters: []
+    parameters:
+      - schema:
+          type: string
+        name: transactionId
+        in: path
+        required: true
   /files:
     post:
       summary: ''
@@ -888,6 +1034,19 @@ paths:
       description: 'Backoffice: Get events'
       security:
         - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: page
+        - schema:
+            type: integer
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
     post:
       summary: ''
       operationId: backoffice-create-event
@@ -925,6 +1084,7 @@ paths:
       description: 'Backoffice: Get event'
       security:
         - X-USER-TOKEN: []
+      parameters: []
     parameters:
       - schema:
           type: string
@@ -989,10 +1149,22 @@ paths:
             enum:
               - all
               - announcement
-              - blog
+              - blog post
           in: query
           name: postType
           required: true
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
     post:
       summary: ''
       operationId: backoffice-create-post
@@ -1008,12 +1180,7 @@ paths:
       description: 'Backoffice: Create post'
       security:
         - X-USER-TOKEN: []
-      parameters:
-        - schema:
-            type: boolean
-          in: query
-          name: isAnnouncement
-          required: true
+      parameters: []
       requestBody:
         required: true
         content:
@@ -1056,6 +1223,7 @@ paths:
       security:
         - X-USER-TOKEN: []
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1077,20 +1245,137 @@ paths:
       description: 'Backoffice: delete post'
       security:
         - X-USER-TOKEN: []
+  /backoffice/prayer-requests:
+    get:
+      summary: ''
+      tags:
+        - backoffice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrayersResponse'
+      operationId: backoffice-get-prayers
+      description: 'Backoffice: Get prayer requests'
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
+    parameters: []
+  '/backoffice/prayer-requests/{prayerId}':
+    get:
+      summary: ''
+      tags:
+        - backoffice
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prayer'
+      operationId: backoffice-get-prayer
+      description: 'Backoffice: Get prayer request'
+      security:
+        - X-USER-TOKEN: []
+      parameters: []
+    parameters:
+      - schema:
+          type: string
+        name: prayerId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      operationId: backoffice-update-prayer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prayer'
+      description: Backoffice update prayer request
+      security:
+        - X-USER-TOKEN: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrayerRequest'
+      tags:
+        - backoffice
+  /backoffice/transactions:
+    get:
+      summary: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsResponse'
+      operationId: backoffice-get-transactions
+      description: Get transactions
+      security:
+        - X-USER-TOKEN: []
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: page
+        - schema:
+            type: number
+          in: query
+          name: limit
+        - schema:
+            type: string
+          in: query
+          name: search
+      tags:
+        - backoffice
+    parameters: []
+  '/backoffice/transactions/{transactionId}':
+    get:
+      summary: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+      operationId: backoffice-get-transaction
+      description: Get transaction
+      security:
+        - X-USER-TOKEN: []
+      parameters: []
+      tags:
+        - backoffice
+    parameters:
+      - schema:
+          type: string
+        name: transactionId
+        in: path
+        required: true
 components:
   schemas:
     AuthUser:
       type: object
-      x-examples:
-        Example 1:
-          id: 01HGEMHYJMT832QCWAJMCE67FK
-          firstName: Nana
-          lastName: Aikinson
-          email: nanaaikinson24@example.com
-          emailVerified: true
-          avatar: null
-          channels:
-            - web
+      x-examples: {}
       properties:
         id:
           type: string
@@ -1118,6 +1403,14 @@ components:
               - web
               - mobile
               - backoffice
+        permissions:
+          type: array
+          x-stoplight:
+            id: m4ny04pa14clj
+          items:
+            x-stoplight:
+              id: 8icgpq5ha2gl0
+            type: string
       required:
         - id
         - firstName
@@ -1127,6 +1420,7 @@ components:
         - avatar
         - avatarKey
         - channels
+        - permissions
     Podcast:
       type: object
       x-examples:
@@ -1222,22 +1516,7 @@ components:
         - podcasts
     Prayer:
       type: object
-      x-examples:
-        Example 1:
-          id: 01HH45VD7HQJWGG5ZEQNDY1YN4
-          title: This is a test 4
-          description: This is a test description
-          completedAt: null
-          createdAt: '2023-12-08T07:39:09.937651Z'
-          user:
-            id: 01HH1KGM9S1H086GV1EGPFP16X
-            firstName: Nana
-            lastName: Aikinson
-            email: nanaaikinson24@example.com
-            emailVerified: true
-            avatar: 'https://scimapp-test-uploads.s3.eu-west-1.amazonaws.com/AVATAR/c5wlQgTksTLGkMLhA55gMCOenWPqo4.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAW3W3GZGQ66DHX5JB%2F20231207%2Feu-west-1%2Fs3%2Faws4_request&X-Amz-Date=20231207T222154Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=f9140b24726dc7c625df3638a667ab143ecb98b522e0bc41ddfc76b27fbbfd31'
-            channels:
-              - web
+      x-examples: {}
       properties:
         id:
           type: string
@@ -1245,6 +1524,10 @@ components:
           type: string
         description:
           type: string
+        phoneNumber:
+          type: string
+          x-stoplight:
+            id: ce1dysgi7to05
         completedAt:
           type: string
           nullable: true
@@ -1258,16 +1541,18 @@ components:
             - fulfilled
             - pending
             - rejected
+            - closed
         user:
           $ref: '#/components/schemas/AuthUser'
       required:
         - id
         - title
         - description
+        - phoneNumber
         - completedAt
         - createdAt
-        - user
         - status
+        - user
     Event:
       type: object
       x-examples: {}
@@ -1280,6 +1565,10 @@ components:
           type: string
         excerptImage:
           type: string
+        excerptImageKey:
+          type: string
+          x-stoplight:
+            id: z40x1i8k5d5q4
         location:
           type: string
         startDateTime:
@@ -1295,6 +1584,7 @@ components:
         - title
         - description
         - excerptImage
+        - excerptImageKey
         - location
         - startDateTime
         - endDateTime
@@ -1461,20 +1751,30 @@ components:
       items:
         $ref: '#/components/schemas/Playlist'
     PrayersResponse:
-      type: array
-      x-stoplight:
-        id: y4qcmdcl1n787
-      x-examples:
-        Example 1:
-          code: 200
-          data:
-            - id: 01HGRFM7M1F03D6014034KEF2P
-              title: This is a test
-              description: This is a test description
-              completedAt: null
-              createdAt: '2023-12-03T18:39:07.393849Z'
-      items:
-        $ref: '#/components/schemas/Prayer'
+      type: object
+      x-examples: {}
+      properties:
+        limit:
+          type: integer
+          x-stoplight:
+            id: ufvohk2yj0hsx
+        page:
+          type: integer
+          x-stoplight:
+            id: ufvohk2yj0hsx
+        total:
+          type: integer
+          x-stoplight:
+            id: ufvohk2yj0hsx
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prayer'
+      required:
+        - limit
+        - page
+        - total
+        - items
     CommentsResponse:
       type: array
       x-stoplight:
@@ -1530,10 +1830,7 @@ components:
         - description
     PrayerRequest:
       type: object
-      x-examples:
-        Example 1:
-          title: This is a test
-          description: This is a test description
+      x-examples: {}
       properties:
         title:
           type: string
@@ -1547,6 +1844,15 @@ components:
           type: string
           x-stoplight:
             id: orgxyeb8y3gb1
+        status:
+          type: string
+          x-stoplight:
+            id: lzbytsmh7v0ds
+          enum:
+            - fulfilled
+            - pending
+            - rejected
+            - closed
       required:
         - title
         - description
@@ -1668,14 +1974,7 @@ components:
       title: ''
     EventRequest:
       type: object
-      x-examples:
-        Example 1:
-          title: Test event 4
-          description: Test description
-          location: test location 2
-          startDateTime: '2023-12-21T21:00:00.000Z'
-          endDateTime: '2024-01-01T02:00:00.000Z'
-          excerptImage: AVATAR/w6lG4ZUMcJ3DGMMXI27RW3VhZUT3BF.jpeg
+      x-examples: {}
       properties:
         title:
           type: string
@@ -1683,6 +1982,10 @@ components:
           type: string
         location:
           type: string
+        published:
+          type: boolean
+          x-stoplight:
+            id: on2oxt69hgfkk
         startDateTime:
           type: string
         endDateTime:
@@ -1693,6 +1996,7 @@ components:
         - title
         - description
         - location
+        - published
         - startDateTime
         - endDateTime
     Post:
@@ -1705,6 +2009,7 @@ components:
           body: Test body
           published: true
           excerptImage: ''
+          excerptImageKey: ''
           isAnnouncement: false
           minutesToRead: 1.5
           createdAt: '2023-12-13T08:52:43.533Z'
@@ -1732,6 +2037,10 @@ components:
           type: boolean
         excerptImage:
           type: string
+        excerptImageKey:
+          type: string
+          x-stoplight:
+            id: ox8a8hxeu6lb2
         isAnnouncement:
           type: boolean
         minutesToRead:
@@ -1751,6 +2060,7 @@ components:
         - body
         - published
         - excerptImage
+        - excerptImageKey
         - isAnnouncement
         - minutesToRead
         - createdAt
@@ -1863,11 +2173,16 @@ components:
           type: string
           x-stoplight:
             id: hyjedg14jniru
+        isAnnouncement:
+          type: boolean
+          x-stoplight:
+            id: f2rpl2seaubc6
       required:
         - title
         - body
         - published
         - minutesToRead
+        - isAnnouncement
     VerifyEmailRequest:
       type: object
       x-stoplight:
@@ -2032,6 +2347,156 @@ components:
         - token
         - channel
         - provider
+    Transaction:
+      title: Transaction
+      x-stoplight:
+        id: g4t8s9n7hud6p
+      type: object
+      properties:
+        id:
+          type: string
+        provider:
+          type: string
+          x-stoplight:
+            id: e3gelmgwr9yyt
+        currency:
+          type: string
+          x-stoplight:
+            id: 6ewfky0ndjqsc
+        amount:
+          type: number
+          x-stoplight:
+            id: qxvjia8zzjif5
+        type:
+          type: string
+          x-stoplight:
+            id: 0f5gzeqimh8sy
+          enum:
+            - tithe
+            - pledge
+            - offertory
+            - freewill
+            - busing
+            - covenant_partner
+            - other
+        method:
+          type: string
+          x-stoplight:
+            id: y9bgb4hn1twf3
+          enum:
+            - card
+            - bank
+            - mobile_money
+        status:
+          type: string
+          x-stoplight:
+            id: uvsaaa25jki7k
+          enum:
+            - pending
+            - success
+            - failed
+        description:
+          type: string
+          x-stoplight:
+            id: 1dflwdat94ahl
+        createdAt:
+          type: string
+          x-stoplight:
+            id: tme5bdxe93exs
+        user:
+          $ref: '#/components/schemas/AuthUser'
+      required:
+        - id
+        - provider
+        - currency
+        - amount
+        - type
+        - method
+        - status
+        - description
+        - createdAt
+        - user
+    TransactionsResponse:
+      title: TransactionsResponse
+      x-stoplight:
+        id: b475o308472xr
+      type: object
+      properties:
+        items:
+          type: array
+          x-stoplight:
+            id: tklh7k1043gan
+          items:
+            $ref: '#/components/schemas/Transaction'
+        limit:
+          type: integer
+          x-stoplight:
+            id: r7o5xl505pdmf
+        page:
+          type: integer
+          x-stoplight:
+            id: qq8coyia6816s
+        total:
+          type: integer
+          x-stoplight:
+            id: qb49l8yadya80
+      required:
+        - items
+        - limit
+        - page
+        - total
+    TransactRequest:
+      title: TransactRequest
+      x-stoplight:
+        id: fdetuxrcymcca
+      type: object
+      properties:
+        idempotencyKey:
+          type: string
+          x-stoplight:
+            id: 2qdfup86p1dn0
+        amount:
+          type: integer
+          x-stoplight:
+            id: cmav01bdegwvk
+        type:
+          type: string
+          x-stoplight:
+            id: zdbdcc6z6evae
+          enum:
+            - tithe
+            - pledge
+            - offertory
+            - freewill
+            - busing
+            - covenant_partner
+        currency:
+          type: string
+          x-stoplight:
+            id: txld7y7utqozc
+          enum:
+            - USD
+            - GHS
+            - EUR
+            - GBP
+        AccountNumber:
+          type: string
+          x-stoplight:
+            id: wgxsd8qm8vyrr
+        method:
+          type: string
+          x-stoplight:
+            id: 85co46fj603ay
+          enum:
+            - mobile_money
+            - card
+      required:
+        - idempotencyKey
+        - amount
+        - type
+        - currency
+        - AccountNumber
+        - method
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey

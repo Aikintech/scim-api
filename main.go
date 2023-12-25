@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/aikintech/scim-api/pkg/database"
+	"github.com/aikintech/scim-api/pkg/middlewares"
 
 	"github.com/aikintech/scim-api/pkg/routes"
 	"github.com/aikintech/scim-api/pkg/utils"
@@ -24,17 +25,17 @@ func init() {
 	// Load database
 	database.ConnectDB()
 	database.MigrateDB()
+	database.RunDatabaseSeeder(false)
 }
 
 func main() {
 	// Instantiate a new fiber app
 	app := fiber.New(fiber.Config{
-		Prefork:   false,
 		BodyLimit: 64 * 1024 * 1024, // 64MB
 	})
 
 	// Middlewares
-	config.LoadGlobalMiddlewares(app)
+	middlewares.LoadGlobalMiddlewares(app)
 
 	// Routes
 	routes.LoadRoutes(app)

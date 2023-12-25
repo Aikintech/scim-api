@@ -17,6 +17,7 @@ type StoreEventRequest struct {
 	Title           string `json:"title" validate:"required,min=3"`
 	Description     string `json:"description" validate:"required,min=3"`
 	Location        string `json:"location" validate:"required"`
+	Published       bool   `json:"published" validate:"boolean"`
 	StartDateTime   string `json:"startDateTime" validate:"required,dateformat=2006-01-02T15:04:05.000Z"`
 	EndDateTime     string `json:"endDateTime" validate:"required,dateformat=2006-01-02T15:04:05.000Z"`
 	ExcerptImageURL string `json:"excerptImage" validate:"omitnil,validfilekey"`
@@ -40,11 +41,12 @@ type StorePrayerRequest struct {
 }
 
 type StorePostRequest struct {
-	Title         string  `json:"title" validate:"required,min=3"`
-	Body          string  `json:"body" validate:"required,min=3"`
-	Published     bool    `json:"published" validate:"boolean"`
-	ExcerptImage  string  `json:"excerptImage" validate:"omitnil,validfilekey"`
-	MinutesToRead float32 `json:"minutesToRead" validate:"required"`
+	Title          string  `json:"title" validate:"required,min=3"`
+	Body           string  `json:"body" validate:"required,min=3"`
+	Published      bool    `json:"published" validate:"boolean"`
+	ExcerptImage   string  `json:"excerptImage" validate:"omitnil,validfilekey"`
+	MinutesToRead  float32 `json:"minutesToRead" validate:"required"`
+	IsAnnouncement bool    `json:"isAnnouncement" validate:"boolean"`
 }
 
 type StoreCommentRequest struct {
@@ -74,7 +76,7 @@ type VerifyAccountRequest struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
-type DonateRequest struct {
+type TransactRequest struct {
 	Amount         float32 `json:"amount" validate:"required,min=1"`
 	IdempotencyKey string  `json:"idempotencyKey" validate:"required,min=26,max=36"`
 	Type           string  `json:"type" validate:"required,oneof=tithe pledge offertory freewill other busing covenant_partner"`

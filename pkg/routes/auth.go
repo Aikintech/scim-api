@@ -4,6 +4,7 @@ import (
 	"github.com/aikintech/scim-api/pkg/controllers"
 	"github.com/aikintech/scim-api/pkg/middlewares"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
 func MountAuthRoutes(app *fiber.App) {
@@ -17,7 +18,7 @@ func MountAuthRoutes(app *fiber.App) {
 	authController := controllers.NewAuthController()
 
 	// Public routes
-	auth.Post("/login", authController.Login)
+	auth.Post("/login", limiter.New(limiter.Config{Max: 60}), authController.Login)
 	auth.Post("/register", authController.Register)
 	auth.Post("/forgot-password", authController.ForgotPassword)
 	auth.Patch("/reset-password", authController.ResetPassword)
@@ -25,6 +26,7 @@ func MountAuthRoutes(app *fiber.App) {
 	auth.Patch("/verify-account", authController.VerifyAccount)
 	auth.Post("/verify-code", authController.VerifyCode)
 	auth.Post("/social", authController.SocialAuth)
+	auth.Post("/logout", authController.Logout)
 
 	// Protected routes
 	auth.Get("/refresh-token", refreshJwtAuthWare, authController.RefreshToken)

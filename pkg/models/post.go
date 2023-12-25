@@ -1,9 +1,11 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/aikintech/scim-api/pkg/constants"
+	"github.com/aikintech/scim-api/pkg/utils"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"gorm.io/gorm"
 )
@@ -31,7 +33,8 @@ type PostResource struct {
 	Slug            string           `json:"slug"`
 	Body            string           `json:"body"`
 	Published       bool             `json:"published"`
-	ExcerptImageURL string           `json:"excerptImage"`
+	ExcerptImage    string           `json:"excerptImage"`
+	ExcerptImageKey string           `json:"excerptImageKey"`
 	IsAnnouncement  bool             `json:"isAnnouncement"`
 	MinutesToRead   float32          `json:"minutesToRead"`
 	CreatedAt       time.Time        `json:"createdAt"`
@@ -51,13 +54,19 @@ func (p *Post) GetPolymorphicType() string {
 }
 
 func PostToResource(p *Post) PostResource {
+	excerpt, err := utils.GenerateS3FileURL(p.ExcerptImageURL)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	return PostResource{
 		ID:              p.ID,
 		Title:           p.Title,
 		Slug:            p.Slug,
 		Body:            p.Body,
 		Published:       p.Published,
-		ExcerptImageURL: p.ExcerptImageURL,
+		ExcerptImage:    excerpt,
+		ExcerptImageKey: p.ExcerptImageURL,
 		IsAnnouncement:  p.IsAnnouncement,
 		MinutesToRead:   p.MinutesToRead,
 		CreatedAt:       p.CreatedAt,
