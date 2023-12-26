@@ -1404,13 +1404,11 @@ components:
               - mobile
               - backoffice
         permissions:
-          type: array
           x-stoplight:
             id: m4ny04pa14clj
+          type: array
           items:
-            x-stoplight:
-              id: 8icgpq5ha2gl0
-            type: string
+            $ref: '#/components/schemas/Permission'
       required:
         - id
         - firstName
@@ -1543,7 +1541,7 @@ components:
             - rejected
             - closed
         user:
-          $ref: '#/components/schemas/AuthUser'
+          $ref: '#/components/schemas/UserRel'
       required:
         - id
         - title
@@ -1614,7 +1612,7 @@ components:
         createdAt:
           type: string
         user:
-          $ref: '#/components/schemas/AuthUser'
+          $ref: '#/components/schemas/UserRel'
       required:
         - id
         - body
@@ -2048,7 +2046,7 @@ components:
         createdAt:
           type: string
         user:
-          $ref: '#/components/schemas/AuthUser'
+          $ref: '#/components/schemas/UserRel'
         likesCount:
           type: integer
         commentsCount:
@@ -2404,7 +2402,7 @@ components:
           x-stoplight:
             id: tme5bdxe93exs
         user:
-          $ref: '#/components/schemas/AuthUser'
+          $ref: '#/components/schemas/UserRel'
       required:
         - id
         - provider
@@ -2497,6 +2495,52 @@ components:
         - currency
         - AccountNumber
         - method
+    UserRel:
+      title: UserRel
+      x-stoplight:
+        id: 119vawpz0g896
+      type: object
+      properties:
+        id:
+          type: string
+          x-stoplight:
+            id: yw5xe1ehzhqte
+        firstName:
+          type: string
+          x-stoplight:
+            id: sp8wdbteduk5d
+        lastName:
+          type: string
+          x-stoplight:
+            id: sp8wdbteduk5d
+        email:
+          type: string
+          x-stoplight:
+            id: sp8wdbteduk5d
+        avatar:
+          type: string
+          x-stoplight:
+            id: sp8wdbteduk5d
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - avatar
+    Permission:
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: string
+        displayName:
+          type: string
+        module:
+          type: string
+      required:
+        - id
+        - displayName
+        - module
   securitySchemes:
     X-USER-TOKEN:
       type: apiKey

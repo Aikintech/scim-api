@@ -22,8 +22,22 @@ type Permission struct {
 	Users []*User `gorm:"many2many:permission_user"`
 }
 
+type PermissionResource struct {
+	ID          string `json:"id"`
+	DisplayName string `json:"displayName"`
+	Module      string `json:"module"`
+}
+
 func (p *Permission) BeforeCreate(trx *gorm.DB) error {
 	p.ID = nanoid.MustGenerate(constants.ALPHABETS, 30)
 
 	return nil
+}
+
+func PermissionToResource(p Permission) PermissionResource {
+	return PermissionResource{
+		ID:          p.ID,
+		DisplayName: p.DisplayName,
+		Module:      p.Module,
+	}
 }
