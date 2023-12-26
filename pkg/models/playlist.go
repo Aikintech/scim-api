@@ -9,14 +9,16 @@ import (
 )
 
 type Playlist struct {
-	ID          string     `gorm:"primaryKey;size:40"`
-	UserID      string     `gorm:"not null;index"`
-	Title       string     `gorm:"size:191;not null;index"`
-	Description string     `gorm:"size:191"`
-	CreatedAt   time.Time  `gorm:"not null"`
-	UpdatedAt   time.Time  `gorm:"not null"`
-	Podcasts    []*Podcast `gorm:"many2many:podcast_playlist"`
-	User        *User
+	ID          string    `gorm:"primaryKey;size:40"`
+	UserID      string    `gorm:"not null;index"`
+	Title       string    `gorm:"size:191;not null;index"`
+	Description string    `gorm:"size:191"`
+	CreatedAt   time.Time `gorm:"not null"`
+	UpdatedAt   time.Time `gorm:"not null"`
+
+	// Relations
+	Podcasts []*Podcast `gorm:"many2many:podcast_playlist"`
+	User     *User
 }
 
 type PlaylistResource struct {

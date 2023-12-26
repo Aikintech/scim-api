@@ -21,10 +21,10 @@ type Comment struct {
 }
 
 type CommentResource struct {
-	ID        string           `json:"id"`
-	Body      string           `json:"body"`
-	CreatedAt time.Time        `json:"createdAt"`
-	User      AuthUserResource `json:"user"`
+	ID        string    `json:"id"`
+	Body      string    `json:"body"`
+	CreatedAt time.Time `json:"createdAt"`
+	User      UserRel   `json:"user"`
 }
 
 func (c *Comment) BeforeCreate(tx *gorm.DB) error {
@@ -38,7 +38,7 @@ func CommentToResource(c *Comment) CommentResource {
 		ID:        c.ID,
 		Body:      c.Body,
 		CreatedAt: c.CreatedAt,
-		User:      UserToResource(c.User),
+		User:      ToUserRelResource(c.User),
 	}
 }
 
