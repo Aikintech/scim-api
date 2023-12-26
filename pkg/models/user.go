@@ -15,25 +15,29 @@ import (
 
 // User model
 type User struct {
-	ID                string `gorm:"primaryKey;size:40"`
-	ExternalID        string `gorm:"size:40"`
-	FirstName         string `gorm:"not null"`
-	LastName          string `gorm:"not null"`
-	Email             string `gorm:"not null;index"`
-	Password          string
-	EmailVerifiedAt   *time.Time
-	SignUpProvider    string `gorm:"not null"`
-	Avatar            string
-	PhoneNumber       string
-	Channels          datatypes.JSON
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID              string `gorm:"primaryKey;size:40"`
+	ExternalID      string `gorm:"size:40"`
+	FirstName       string `gorm:"not null"`
+	LastName        string `gorm:"not null"`
+	Email           string `gorm:"not null;index"`
+	Password        string
+	EmailVerifiedAt *time.Time
+	SignUpProvider  string `gorm:"not null"`
+	Avatar          string
+	PhoneNumber     string `gorm:"size:40"`
+	Channels        datatypes.JSON
+	CreatedAt       time.Time `gorm:"autoCreateTime;not null"`
+	UpdatedAt       time.Time `gorm:"autoUpdateTime;not null"`
+
+	// Relations
 	Playlists         []*Playlist
 	PrayerRequests    []*PrayerRequest
 	UserTokens        []*UserToken
 	VerificationCodes []*VerificationCode
 	Posts             []*Post
 	Comments          []*Comment
+	Roles             []*Role       `gorm:"many2many:role_user"`
+	Permissions       []*Permission `gorm:"many2many:permission_user"`
 }
 
 type AuthUserResource struct {
