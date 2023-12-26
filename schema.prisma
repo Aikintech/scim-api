@@ -271,7 +271,7 @@ model Role {
   id           String   @id @db.VarChar(40)
   name         String   @unique @db.VarChar(40)
   display_name String?  @db.VarChar(40)
-  discription  String?
+  description  String?
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
