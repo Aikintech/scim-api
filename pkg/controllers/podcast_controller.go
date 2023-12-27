@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/aikintech/scim-api/pkg/database"
@@ -11,60 +12,71 @@ import (
 	"gorm.io/gorm"
 )
 
-type PodcastController struct{}
+type PodcastController struct {
+	query *gorm.DB
+}
 
 func NewPodcastController() *PodcastController {
-	return &PodcastController{}
+	query := database.DB.Model(&models.Podcast{}).
+		Select("podcasts.*, COUNT(DISTINCT likes.id) AS likes_count").
+		Joins("LEFT JOIN likes ON likes.likeable_id = podcasts.id AND likes.likeable_type = 'podcasts'").
+		Group("podcasts.id")
+
+	return &PodcastController{
+		query: query,
+	}
 }
 
 // ClientListPodcast - List podcasts (paginated)
-func (podCtrl *PodcastController) ListPodcasts(c *fiber.Ctx) error {
-	// Validate query params
+func (ctrl *PodcastController) ListPodcasts(c *fiber.Ctx) error {
+	var total int64
+	all := c.Path() == "/podcasts/all"
 	sort := c.Query("sort", "newest")
 	orderBy := "published_at desc"
 	search := strings.Trim(c.Query("search", ""), " ")
+	page := c.QueryInt("page", 1)
+	limit := c.QueryInt("limit", 10)
+
+	if all {
+		limit = 999_999_999
+	}
 
 	if sort != "newest" {
 		orderBy = "published_at asc"
 	}
 
-	// Fetch podcasts
-	podcasts := make([]models.PodcastResource, 0)
-	results := database.DB.Scopes(models.PaginationScope(c)).Model(&models.Podcast{}).Where("title LIKE ?", "%"+search+"%").Order(orderBy).Find(&podcasts)
+	offset := (page - 1) * limit
 
-	if results.Error != nil {
+	// Fetch podcasts
+	podcasts := make([]*models.PodcastResource, 0)
+	query := ctrl.query.Where("podcasts.title LIKE ?", "%"+search+"%")
+
+	if err := query.Count(&total).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: results.Error.Error(),
+			Message: err.Error(),
 		})
 	}
 
-	// Return podcasts
-	return c.Status(fiber.StatusOK).JSON(podcasts)
-}
-
-func (podCtrl *PodcastController) ListAllPodcasts(c *fiber.Ctx) error {
-	sort := c.Query("sort", "newest")
-	orderBy := "published_at desc"
-
-	if sort != "newest" {
-		orderBy = "published_at asc"
-	}
-	// Fetch podcasts
-	podcasts := make([]models.PodcastResource, 0)
-	results := database.DB.Model(&models.Podcast{}).Order(orderBy).Find(&podcasts)
-
-	if results.Error != nil {
+	if err := query.
+		Offset(offset).
+		Limit(limit).
+		Order(orderBy).
+		Find(&podcasts).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: results.Error.Error(),
+			Message: err.Error(),
 		})
 	}
 
-	// Return podcasts
-	return c.Status(fiber.StatusOK).JSON(podcasts)
+	return c.JSON(definitions.Map{
+		"limit": limit,
+		"page":  page,
+		"total": total,
+		"items": podcasts,
+	})
 }
 
 // ShowPodcast - Get a podcast
-func (podCtrl *PodcastController) ShowPodcast(c *fiber.Ctx) error {
+func (ctrl *PodcastController) ShowPodcast(c *fiber.Ctx) error {
 	podcastId := c.Params("podcastId", "")
 
 	if len(podcastId) == 0 {
@@ -75,7 +87,9 @@ func (podCtrl *PodcastController) ShowPodcast(c *fiber.Ctx) error {
 
 	// Fetch podcast
 	podcast := models.PodcastResource{}
-	result := database.DB.Model(&models.Podcast{}).Where("id = ?", podcastId).First(&podcast)
+	result := ctrl.query.Where("podcasts.id = ?", podcastId).First(&podcast)
+
+	fmt.Println(podcast)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
