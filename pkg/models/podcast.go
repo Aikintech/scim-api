@@ -25,10 +25,11 @@ type Podcast struct {
 	UpdatedAt   time.Time  `gorm:"not null"`
 
 	// Relationship
-	Playlists  []*Playlist `gorm:"many2many:podcast_playlist"`
-	Comments   []*Comment  `gorm:"polymorphic:Commentable"`
-	Likes      []*Like     `gorm:"polymorphic:Likeable"`
-	LikesCount *int
+	Playlists   []*Playlist `gorm:"many2many:podcast_playlist"`
+	Comments    []*Comment  `gorm:"polymorphic:Commentable"`
+	Likes       []*Like     `gorm:"polymorphic:Likeable"`
+	LikesCount  *int
+	LikedByUser *bool
 }
 
 type PodcastResource struct {
