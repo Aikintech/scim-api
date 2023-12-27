@@ -2,10 +2,9 @@ package database
 
 import (
 	"fmt"
+
 	"github.com/aikintech/scim-api/pkg/models"
 	"github.com/samber/lo"
-
-	"log"
 )
 
 func SeedRoles() {
@@ -13,7 +12,7 @@ func SeedRoles() {
 	trx := DB.Begin()
 	permissions := make([]*models.Permission, 0)
 	if err := trx.Model(&models.Permission{}).Find(&permissions).Error; err != nil {
-		log.Fatalf(err.Error())
+		fmt.Println(err.Error())
 	}
 
 	// Upsert role
@@ -24,7 +23,7 @@ func SeedRoles() {
 		Where("name = ?", "super-admin").
 		FirstOrCreate(&role).Error; err != nil {
 		trx.Rollback()
-		log.Fatalf(err.Error())
+		fmt.Println(err.Error())
 	}
 
 	mappedPermissions := lo.Map(permissions, func(item *models.Permission, index int) string {
@@ -34,8 +33,6 @@ func SeedRoles() {
 		return item.ID
 	})
 
-	fmt.Println(mappedRolePermissions)
-
 	// Assign permissions
 	_, differences := lo.Difference(mappedRolePermissions, mappedPermissions)
 	permissionRole := lo.Map(differences, func(item string, index int) models.PermissionRole {
@@ -44,7 +41,7 @@ func SeedRoles() {
 
 	if err := trx.Model(&models.PermissionRole{}).CreateInBatches(permissionRole, 100).Error; err != nil {
 		trx.Rollback()
-		log.Fatalf(err.Error())
+		fmt.Println(err.Error())
 	}
 
 	trx.Commit()

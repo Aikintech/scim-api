@@ -1421,17 +1421,7 @@ components:
         - permissions
     Podcast:
       type: object
-      x-examples:
-        Example 1:
-          id: 01HGDRCWFG6A5ASHQHWZHN4R70
-          author: Evangelist Elijah Ben
-          title: SUNDAY ANOINTING SERVICE-THE SPIRIT OF UNDERSTANDING PART 2
-          description: Message by Evang. Elijah-Ben Kusi Agyapong during Sunday Anointing Service
-          duration: '01:33:21'
-          imageUrl: 'https://s3.amazonaws.com/podcasts-image-uploads/rev-elijah-ben-scim-6bbd0a95d-large.png'
-          audioUrl: 'https://awscdn.podcasts.com/audio-qCgqW7G68X5kJPLaWfZeGp47Z.mp3'
-          published: true
-          publishedAt: '2023-11-27T07:44:51Z'
+      x-examples: {}
       properties:
         id:
           type: string
@@ -1451,6 +1441,10 @@ components:
           type: boolean
         publishedAt:
           type: string
+        likesCount:
+          type: number
+          x-stoplight:
+            id: mr8vf0hg801jl
       required:
         - id
         - author
@@ -1693,12 +1687,19 @@ components:
       required:
         - message
     GetPodcastsResponse:
-      title: GetPodcastsResponse
-      x-stoplight:
-        id: ep2dcbt7zbrt9
-      type: array
-      items:
-        $ref: '#/components/schemas/Podcast'
+      type: object
+      x-examples: {}
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Podcast'
+        limit:
+          type: integer
+        page:
+          type: integer
+        total:
+          type: integer
     LoginResponse:
       type: object
       x-examples:
