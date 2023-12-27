@@ -738,7 +738,6 @@ func (a *AuthController) Logout(c *fiber.Ctx) error {
 	// Blacklist token
 
 	return c.JSON(definitions.MessageResponse{
-
 		Message: "Logout successful",
 	})
 }

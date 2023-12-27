@@ -15,6 +15,7 @@ func LoadRoutes(app *fiber.App) {
 	// Jobs
 	app.Post("/j/backup", middlewares.CronJobsMiddleware(), controllers.NewMiscController().BackupDatabase)
 	app.Post("/j/seed-podcast", middlewares.CronJobsMiddleware(), controllers.NewMiscController().SeedPodcasts)
+	app.Post("/j/seed-roles-permissions", middlewares.CronJobsMiddleware(), controllers.NewMiscController().SeedRolesAndPermissions)
 
 	// Upload files
 	app.Post("/files", fileController.UploadFile)
