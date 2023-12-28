@@ -28,7 +28,8 @@ type Transaction struct {
 }
 
 type TransactionResource struct {
-	ID          string    `json:"id"`
+	ID string `json:"id"`
+	// IdempotencyKey string    `json:"idempotencyKey"`
 	Provider    string    `json:"provider"`
 	Currency    string    `json:"currency"`
 	Amount      float64   `json:"amount"`
@@ -48,7 +49,8 @@ func (t *Transaction) BeforeCreate(db *gorm.DB) (err error) {
 
 func TransactionToResource(t *Transaction) TransactionResource {
 	return TransactionResource{
-		ID:          t.ID,
+		ID: t.ID,
+		// IdempotencyKey: t.IdempotencyKey,
 		Provider:    t.Provider,
 		Currency:    t.Currency,
 		Amount:      float64(t.Amount / 100),

@@ -82,5 +82,6 @@ type TransactRequest struct {
 	Type           string  `json:"type" validate:"required,oneof=tithe pledge offertory freewill other busing covenant_partner"`
 	Currency       string  `json:"currency" validate:"required,oneof=USD GHS EUR GBP"`
 	AccountNumber  string  `json:"accountNumber" validate:"-"`
-	Method         string  `json:"method" validate:"required,oneof=mobile_money card"`
+	Channel        string  `json:"channel" validate:"required,oneof=mobile_money card"`
+	Description    string  `json:"description" validate:"-"`
 }

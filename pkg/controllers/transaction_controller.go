@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/aikintech/scim-api/pkg/constants"
 	"github.com/aikintech/scim-api/pkg/database"
@@ -73,6 +74,8 @@ func (t *TransactionController) GetTransaction(c *fiber.Ctx) error {
 }
 
 func (t *TransactionController) Transact(c *fiber.Ctx) error {
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
+
 	// Parse request
 	request := new(definitions.TransactRequest)
 	if err := c.BodyParser(request); err != nil {
@@ -88,7 +91,34 @@ func (t *TransactionController) Transact(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.SendString("Transact")
+	provider := "stripe"
+	if request.Currency == "GHS" && (request.Channel == "mobile_money" || request.Channel == "card") {
+		provider = "paystack"
+	}
+
+	// Persist transaction
+	transaction := models.Transaction{
+		UserID:         user.ID,
+		Provider:       provider,
+		IdempotencyKey: request.IdempotencyKey,
+		Currency:       request.Currency,
+		Amount:         int64(request.Amount) * 100,
+		Type:           request.Type,
+		Channel:        request.Channel,
+		Description:    strings.TrimSpace(request.Description),
+	}
+
+	if err := database.DB.Model(&models.Transaction{}).Create(&transaction).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(models.TransactionToResource(&transaction))
+}
+
+func (t *TransactionController) UpdateTransaction(c *fiber.Ctx) error {
+	return nil
 }
 
 // Backoffice handlers
