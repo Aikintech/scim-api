@@ -8,7 +8,7 @@ const (
 	USER_CONTEXT_KEY                        = "user"
 	PODCASTS_CACHE_KEY                      = "podcasts"
 	DATE_TIME_FORMAT                        = "2006-01-02T15:04:05.000Z"
-	ALPHABETS                               = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	ALPHABETS                               = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	MAILJET_VERIFY_MAIL_TEMPLATE_ID         = 5423172
 	MAILJET_WELCOME_MAIL_TEMPLATE_ID        = 5423196
 	MAILJET_RESET_PASSWORD_MAIL_TEMPLATE_ID = 5423195

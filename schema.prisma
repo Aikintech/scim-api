@@ -34,6 +34,9 @@ model User {
   Tokens            Token[]
   Transactions      Transaction[]
 
+  roles       RoleUser[]
+  permissions PermissionUser[]
+
   @@index([email])
   @@map("users")
 }
@@ -55,7 +58,7 @@ model Podcast {
   updated_at   DateTime  @updatedAt
 
   // Add relations here
-  PodcastPlalist PodcastPlalist[]
+  playlists PodcastPlalist[]
 
   @@index([title])
   @@map("podcasts")
@@ -70,21 +73,21 @@ model Playlist {
   updated_at  DateTime @updatedAt
 
   // Add relations here
-  User           User             @relation(fields: [user_id], references: [id])
-  PodcastPlalist PodcastPlalist[]
+  User     User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  podcasts PodcastPlalist[]
 
   @@index([title, user_id])
   @@map("playlists")
 }
 
 model PodcastPlalist {
-  id          String   @id @db.VarChar(40)
-  playlist    Playlist @relation(fields: [playlist_id], references: [id])
-  playlist_id String   @db.VarChar(40)
-  podcast_id  String   @db.VarChar(40)
-  podcast     Podcast  @relation(fields: [podcast_id], references: [id])
+  playlist_id String @db.VarChar(40)
+  podcast_id  String @db.VarChar(40)
 
-  @@index([playlist_id, podcast_id])
+  playlist Playlist @relation(fields: [playlist_id], references: [id], onDelete: Cascade)
+  podcast  Podcast  @relation(fields: [podcast_id], references: [id], onDelete: Cascade)
+
+  @@id([playlist_id, podcast_id])
   @@map("podcast_playlist")
 }
 
@@ -98,9 +101,9 @@ model PrayerRequest {
   completed_at DateTime?
   created_at   DateTime  @default(now())
   updated_at   DateTime  @updatedAt
-  User         User      @relation(fields: [user_id], references: [id])
 
   // Add relations here
+  User User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, phone_number, status])
   @@map("prayer_requests")
@@ -117,7 +120,7 @@ model UserDevice {
   updated_at  DateTime @updatedAt
 
   // Add relations here
-  User User @relation(fields: [user_id], references: [id])
+  User User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
   @@map("user_devices")
@@ -132,7 +135,7 @@ model VerificationCode {
   updated_at DateTime  @updatedAt
 
   // Add relations here
-  User User @relation(fields: [user_id], references: [id])
+  User User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, code, expires_at])
   @@map("verification_codes")
@@ -149,7 +152,7 @@ model Comment {
   updated_at       DateTime @updatedAt
 
   // Add relations here
-  User User @relation(fields: [user_id], references: [id])
+  User User @relation(fields: [user_id], references: [id], onDelete: Cascade)
   // Comment  Comment?  @relation("CommentToComment", fields: [parent_id], references: [id])
   // Comments Comment[] @relation("CommentToComment")
 
@@ -183,7 +186,7 @@ model Like {
   updated_at    DateTime @updatedAt
 
   // Add relations here
-  User User @relation(fields: [user_id], references: [id])
+  User User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, likeable_id, likeable_type])
   @@map("likes")
@@ -203,7 +206,7 @@ model Post {
   updated_at        DateTime @updatedAt
 
   // Add relations here
-  User User @relation(fields: [user_id], references: [id])
+  User User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, title, slug])
   @@map("posts")
@@ -220,7 +223,7 @@ model Token {
   updated_at  DateTime  @updatedAt
 
   // Add relations here
-  User User @relation(fields: [user_id], references: [id])
+  User User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, reference, whitelisted])
   @@map("tokens")
@@ -262,6 +265,69 @@ model Testimony {
   updated_at      DateTime @updatedAt
 
   @@map("testimonies")
+}
+
+model Role {
+  id           String   @id @db.VarChar(40)
+  name         String   @unique @db.VarChar(40)
+  display_name String?  @db.VarChar(40)
+  description  String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  // Relations
+  permissions PermissionRole[]
+  users       RoleUser[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id           String   @id @db.VarChar(40)
+  name         String   @unique @db.VarChar(40)
+  display_name String?  @db.VarChar(40)
+  module       String?  @db.VarChar(40)
+  description  String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  // Relations
+  roles PermissionRole[]
+  users PermissionUser[]
+
+  @@map("permissions")
+}
+
+model PermissionRole {
+  permission_id String     @db.VarChar(40)
+  role_id       String     @db.VarChar(40)
+  permission    Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+  role          Role?      @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([permission_id, role_id])
+  @@map("permission_role")
+}
+
+model RoleUser {
+  role_id String @db.VarChar(40)
+  user_id String @db.VarChar(40)
+
+  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, user_id])
+  @@map("role_user")
+}
+
+model PermissionUser {
+  permission_id String @db.VarChar(40)
+  user_id       String @db.VarChar(40)
+
+  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([permission_id, user_id])
+  @@map("permission_user")
 }
 
 // Enums

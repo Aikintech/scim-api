@@ -9,23 +9,27 @@ import (
 )
 
 type Podcast struct {
-	ID          string      `gorm:"primaryKey;size:40"`
-	GUID        string      `gorm:"size:191;not null"`
-	Author      string      `gorm:"size:191;not null"`
-	Title       string      `gorm:"not null;index"`
-	SubTitle    string      `gorm:"not null"`
-	Summary     string      `gorm:"not null"`
-	Description string      `gorm:"type:TEXT"`
-	Duration    string      `gorm:"size:191;not null"`
-	ImageURL    string      `gorm:"not null"`
-	AudioURL    string      `gorm:"type:TEXT;not null"`
-	Published   bool        `gorm:"not null;default:true"`
-	PublishedAt *time.Time  `gorm:"not null"`
-	CreatedAt   time.Time   `gorm:"not null"`
-	UpdatedAt   time.Time   `gorm:"not null"`
+	ID          string     `gorm:"primaryKey;size:40"`
+	GUID        string     `gorm:"size:191;not null"`
+	Author      string     `gorm:"size:191;not null"`
+	Title       string     `gorm:"not null;index"`
+	SubTitle    string     `gorm:"not null"`
+	Summary     string     `gorm:"not null"`
+	Description string     `gorm:"type:TEXT"`
+	Duration    string     `gorm:"size:191;not null"`
+	ImageURL    string     `gorm:"not null"`
+	AudioURL    string     `gorm:"type:TEXT;not null"`
+	Published   bool       `gorm:"not null;default:true"`
+	PublishedAt *time.Time `gorm:"not null"`
+	CreatedAt   time.Time  `gorm:"not null"`
+	UpdatedAt   time.Time  `gorm:"not null"`
+
+	// Relationship
 	Playlists   []*Playlist `gorm:"many2many:podcast_playlist"`
 	Comments    []*Comment  `gorm:"polymorphic:Commentable"`
 	Likes       []*Like     `gorm:"polymorphic:Likeable"`
+	LikesCount  *int
+	LikedByUser *bool
 }
 
 type PodcastResource struct {
@@ -39,6 +43,7 @@ type PodcastResource struct {
 	AudioURL    string    `json:"audioUrl"`
 	Published   bool      `json:"published"`
 	PublishedAt time.Time `json:"publishedAt"`
+	LikesCount  *int      `json:"likesCount"`
 }
 
 func (p *Podcast) BeforeCreate(tx *gorm.DB) error {
@@ -60,6 +65,11 @@ func (p *Podcast) GetPolymorphicType() string {
 }
 
 func PodcastToResource(p *Podcast) PodcastResource {
+	likes := 0
+	if p.LikesCount != nil {
+		likes = *p.LikesCount
+	}
+
 	return PodcastResource{
 		ID:     p.ID,
 		Author: p.Author,
@@ -71,6 +81,7 @@ func PodcastToResource(p *Podcast) PodcastResource {
 		AudioURL:    p.AudioURL,
 		Published:   p.Published,
 		PublishedAt: *p.PublishedAt,
+		LikesCount:  &likes,
 	}
 }
 

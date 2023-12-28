@@ -7,6 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.26.1
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.15.7
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.47.5
+	github.com/deckarep/golang-set/v2 v2.5.0
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/gofiber/contrib/fiberzerolog v0.2.3
 	github.com/gofiber/contrib/jwt v1.0.8

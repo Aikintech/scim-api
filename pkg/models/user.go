@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/aikintech/scim-api/pkg/utils"
+	mapSet "github.com/deckarep/golang-set/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/oklog/ulid/v2"
 
@@ -15,37 +16,49 @@ import (
 
 // User model
 type User struct {
-	ID                string `gorm:"primaryKey;size:40"`
-	ExternalID        string `gorm:"size:40"`
-	FirstName         string `gorm:"not null"`
-	LastName          string `gorm:"not null"`
-	Email             string `gorm:"not null;index"`
-	Password          string
-	EmailVerifiedAt   *time.Time
-	SignUpProvider    string `gorm:"not null"`
-	Avatar            string
-	PhoneNumber       string
-	Channels          datatypes.JSON
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID              string `gorm:"primaryKey;size:40"`
+	ExternalID      string `gorm:"size:40"`
+	FirstName       string `gorm:"not null"`
+	LastName        string `gorm:"not null"`
+	Email           string `gorm:"not null;index"`
+	Password        string
+	EmailVerifiedAt *time.Time
+	SignUpProvider  string `gorm:"not null"`
+	Avatar          string
+	PhoneNumber     string `gorm:"size:40"`
+	Channels        datatypes.JSON
+	CreatedAt       time.Time `gorm:"autoCreateTime;not null"`
+	UpdatedAt       time.Time `gorm:"autoUpdateTime;not null"`
+
+	// Relations
 	Playlists         []*Playlist
 	PrayerRequests    []*PrayerRequest
 	UserTokens        []*UserToken
 	VerificationCodes []*VerificationCode
 	Posts             []*Post
 	Comments          []*Comment
+	Roles             []*Role       `gorm:"many2many:role_user"`
+	Permissions       []*Permission `gorm:"many2many:permission_user"`
 }
 
 type AuthUserResource struct {
-	ID            string         `json:"id"`
-	FirstName     string         `json:"firstName"`
-	LastName      string         `json:"lastName"`
-	Email         string         `json:"email"`
-	EmailVerified bool           `json:"emailVerified"`
-	Avatar        string         `json:"avatar"`
-	AvatarKey     string         `json:"avatarKey"`
-	Channels      datatypes.JSON `json:"channels"`
-	Permissions   []string       `json:"Permissions"`
+	ID            string               `json:"id"`
+	FirstName     string               `json:"firstName"`
+	LastName      string               `json:"lastName"`
+	Email         string               `json:"email"`
+	EmailVerified bool                 `json:"emailVerified"`
+	Avatar        string               `json:"avatar"`
+	AvatarKey     string               `json:"avatarKey"`
+	Channels      datatypes.JSON       `json:"channels"`
+	Permissions   []PermissionResource `json:"permissions"`
+}
+
+type UserRel struct {
+	ID        string `json:"id"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+	Avatar    string `json:"avatar"`
 }
 
 func (u *User) BeforeCreate(*gorm.DB) error {
@@ -54,11 +67,24 @@ func (u *User) BeforeCreate(*gorm.DB) error {
 	return nil
 }
 
-func UserToResource(u *User) AuthUserResource {
+func ToAuthUserResource(u *User) AuthUserResource {
 	// Generate avatarURL
 	avatar, err := utils.GenerateS3FileURL(u.Avatar)
 	if err != nil {
 		fmt.Println("Error generating avatar url", err.Error())
+	}
+
+	// Get user permissions
+	permissions := mapSet.NewSet[PermissionResource]()
+	if len(u.Roles) > 0 {
+		for _, p := range u.Roles[0].Permissions {
+			permissions.Add(PermissionToResource(*p))
+		}
+	}
+	if len(u.Permissions) > 0 {
+		for _, p := range u.Permissions {
+			permissions.Add(PermissionToResource(*p))
+		}
 	}
 
 	return AuthUserResource{
@@ -70,15 +96,31 @@ func UserToResource(u *User) AuthUserResource {
 		Avatar:        avatar,
 		AvatarKey:     u.Avatar,
 		Channels:      u.Channels,
-		// TODO: Add permissions to resource
+		Permissions:   permissions.ToSlice(),
 	}
 }
 
-func UsersToResourceCollection(users []*User) []AuthUserResource {
-	var resources []AuthUserResource
+func ToUserRelResource(u *User) UserRel {
+	// Generate avatarURL
+	avatar, err := utils.GenerateS3FileURL(u.Avatar)
+	if err != nil {
+		fmt.Println("Error generating avatar url", err.Error())
+	}
+
+	return UserRel{
+		ID:        u.ID,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+		Avatar:    avatar,
+	}
+}
+
+func UsersToResourceCollection(users []*User) []UserRel {
+	var resources []UserRel
 
 	for _, user := range users {
-		resources = append(resources, UserToResource(user))
+		resources = append(resources, ToUserRelResource(user))
 	}
 
 	return resources

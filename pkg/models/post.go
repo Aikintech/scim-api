@@ -28,19 +28,19 @@ type Post struct {
 }
 
 type PostResource struct {
-	ID              string           `json:"id"`
-	Title           string           `json:"title"`
-	Slug            string           `json:"slug"`
-	Body            string           `json:"body"`
-	Published       bool             `json:"published"`
-	ExcerptImage    string           `json:"excerptImage"`
-	ExcerptImageKey string           `json:"excerptImageKey"`
-	IsAnnouncement  bool             `json:"isAnnouncement"`
-	MinutesToRead   float32          `json:"minutesToRead"`
-	CreatedAt       time.Time        `json:"createdAt"`
-	User            AuthUserResource `json:"user"`
-	LikesCount      int              `json:"likesCount"`
-	CommentsCount   int              `json:"commentsCount"`
+	ID              string    `json:"id"`
+	Title           string    `json:"title"`
+	Slug            string    `json:"slug"`
+	Body            string    `json:"body"`
+	Published       bool      `json:"published"`
+	ExcerptImage    string    `json:"excerptImage"`
+	ExcerptImageKey string    `json:"excerptImageKey"`
+	IsAnnouncement  bool      `json:"isAnnouncement"`
+	MinutesToRead   float32   `json:"minutesToRead"`
+	CreatedAt       time.Time `json:"createdAt"`
+	User            UserRel   `json:"user"`
+	LikesCount      int       `json:"likesCount"`
+	CommentsCount   int       `json:"commentsCount"`
 }
 
 func (p *Post) BeforeCreate(tx *gorm.DB) error {
@@ -70,7 +70,7 @@ func PostToResource(p *Post) PostResource {
 		IsAnnouncement:  p.IsAnnouncement,
 		MinutesToRead:   p.MinutesToRead,
 		CreatedAt:       p.CreatedAt,
-		User:            UserToResource(p.User),
+		User:            ToUserRelResource(p.User),
 	}
 }
 

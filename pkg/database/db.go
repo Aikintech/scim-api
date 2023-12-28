@@ -52,19 +52,6 @@ func ConnectDB() {
 }
 
 func MigrateDB() {
-	// err := DB.AutoMigrate(
-	// 	&models.User{}, &models.Podcast{},
-	// 	&models.Post{}, &models.Playlist{},
-	// 	&models.PrayerRequest{}, &models.Like{},
-	// 	&models.Comment{}, &models.Event{},
-	// 	&models.UserToken{}, &models.VerificationCode{},
-	// 	&models.UserDevice{},
-	// )
-
-	// if err != nil {
-	// 	return
-	// }
-
 	// Prisma migration go run github.com/steebchen/prisma-client-go migrate deploy
 	if os.Getenv("APP_ENV") == "production" {
 		cmd := exec.Command("go", "run", "github.com/steebchen/prisma-client-go", "migrate", "deploy")

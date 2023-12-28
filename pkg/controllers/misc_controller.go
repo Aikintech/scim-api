@@ -26,3 +26,9 @@ func (miscCtrl *MiscController) SeedPodcasts(c *fiber.Ctx) error {
 
 	return c.SendString("Podcasts seeding initiated")
 }
+
+func (ctrl *MiscController) SeedRolesAndPermissions(c *fiber.Ctx) error {
+	go jobs.SeedRolesAndPermissions()
+
+	return c.SendString("Roles and permissions seeder initiated...")
+}

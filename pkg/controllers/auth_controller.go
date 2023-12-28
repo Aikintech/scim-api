@@ -51,7 +51,11 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 
 	// Fetch User
 	user := models.User{}
-	result := database.DB.Where("email = ?", request.Email).First(&user)
+	result := database.DB.
+		//Preload("Permissions").
+		Preload("Roles.Permissions").
+		Where("email = ?", request.Email).
+		First(&user)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: "Invalid credentials provided",
@@ -83,7 +87,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"user": models.UserToResource(&user),
+		"user": models.ToAuthUserResource(&user),
 		"tokens": fiber.Map{
 			"access":  accessToken,
 			"refresh": refreshToken,
@@ -372,7 +376,7 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 func (a *AuthController) User(c *fiber.Ctx) error {
 	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
 
-	return c.JSON(models.UserToResource(user))
+	return c.JSON(models.ToAuthUserResource(user))
 }
 
 func (a *AuthController) VerifyAccount(c *fiber.Ctx) error {
@@ -632,7 +636,7 @@ func (a *AuthController) UpdateUserDetails(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(models.UserToResource(user))
+	return c.JSON(models.ToAuthUserResource(user))
 }
 
 func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
@@ -715,7 +719,7 @@ func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
 		trx.Commit()
 
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"user": models.UserToResource(user),
+			"user": models.ToAuthUserResource(user),
 			"tokens": fiber.Map{
 				"access":  accessToken,
 				"refresh": refreshToken,
@@ -734,7 +738,6 @@ func (a *AuthController) Logout(c *fiber.Ctx) error {
 	// Blacklist token
 
 	return c.JSON(definitions.MessageResponse{
-
 		Message: "Logout successful",
 	})
 }

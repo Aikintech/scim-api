@@ -28,16 +28,16 @@ type Transaction struct {
 }
 
 type TransactionResource struct {
-	ID          string           `json:"id"`
-	Provider    string           `json:"provider"`
-	Currency    string           `json:"currency"`
-	Amount      float64          `json:"amount"`
-	Type        string           `json:"type"`
-	Method      string           `json:"method"`
-	Status      string           `json:"status"`
-	Description string           `json:"description"`
-	CreatedAt   time.Time        `json:"createdAt"`
-	User        AuthUserResource `json:"user"`
+	ID          string    `json:"id"`
+	Provider    string    `json:"provider"`
+	Currency    string    `json:"currency"`
+	Amount      float64   `json:"amount"`
+	Type        string    `json:"type"`
+	Method      string    `json:"method"`
+	Status      string    `json:"status"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
+	User        UserRel   `json:"user"`
 }
 
 func (t *Transaction) BeforeCreate(db *gorm.DB) (err error) {
@@ -57,7 +57,7 @@ func TransactionToResource(t *Transaction) TransactionResource {
 		Status:      t.Status,
 		Description: t.Description,
 		CreatedAt:   t.CreatedAt,
-		User:        UserToResource(t.User),
+		User:        ToUserRelResource(t.User),
 	}
 }
 

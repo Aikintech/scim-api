@@ -25,7 +25,6 @@ func init() {
 	// Load database
 	database.ConnectDB()
 	database.MigrateDB()
-	database.RunDatabaseSeeder(false)
 }
 
 func main() {
