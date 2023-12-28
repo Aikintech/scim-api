@@ -87,6 +87,7 @@ func (t *TransactionController) Transact(c *fiber.Ctx) error {
 			Errors: errs,
 		})
 	}
+
 	return c.SendString("Transact")
 }
 
