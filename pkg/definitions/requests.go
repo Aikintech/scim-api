@@ -81,6 +81,6 @@ type TransactRequest struct {
 	IdempotencyKey string  `json:"idempotencyKey" validate:"required,min=26,max=36"`
 	Type           string  `json:"type" validate:"required,oneof=tithe pledge offertory freewill other busing covenant_partner"`
 	Currency       string  `json:"currency" validate:"required,oneof=USD GHS EUR GBP"`
-	AccountNumber  string  `json:"accountNumber" validate:"required"`
+	AccountNumber  string  `json:"accountNumber" validate:"-"`
 	Method         string  `json:"method" validate:"required,oneof=mobile_money card"`
 }

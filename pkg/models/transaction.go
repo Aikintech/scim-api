@@ -17,7 +17,7 @@ type Transaction struct {
 	Currency       string `gorm:"size:3;not null"`
 	Amount         int64  `gorm:"not null"`
 	Type           string `gorm:"size:40;not null"`
-	Method         string `gorm:"size:40;not null"`
+	Channel        string `gorm:"size:40;not null"`
 	Status         string `gorm:"size:40;not null;default:'pending'"`
 	Processed      bool
 	Description    string    `gorm:"size:255"`
@@ -33,7 +33,7 @@ type TransactionResource struct {
 	Currency    string    `json:"currency"`
 	Amount      float64   `json:"amount"`
 	Type        string    `json:"type"`
-	Method      string    `json:"method"`
+	Channel     string    `json:"channel"`
 	Status      string    `json:"status"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"createdAt"`
@@ -53,7 +53,7 @@ func TransactionToResource(t *Transaction) TransactionResource {
 		Currency:    t.Currency,
 		Amount:      float64(t.Amount / 100),
 		Type:        t.Type,
-		Method:      t.Method,
+		Channel:     t.Channel,
 		Status:      t.Status,
 		Description: t.Description,
 		CreatedAt:   t.CreatedAt,
