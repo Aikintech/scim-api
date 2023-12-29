@@ -126,6 +126,8 @@ func (t *TransactionController) PaystackWebhook(c *fiber.Ctx) error {
 	// Parse request
 	request := definitions.PaystackWebhookPaymentRequest{}
 	if err := c.BodyParser(&request); err != nil {
+		fmt.Println(err.Error())
+
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
