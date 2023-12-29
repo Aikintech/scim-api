@@ -238,7 +238,7 @@ model Transaction {
   currency        CurrencyEnum             @default(GHS)
   amount          BigInt                   @default(0)
   type            TransactionTypeEnum      @default(FREEWILL)
-  method          TransactionMethod        @default(MOBILE_MONEY)
+  channel         TransactionChannel       @default(MOBILE_MONEY)
   status          TransactionStatusEnum    @default(PENDING)
   processed       Boolean                  @default(false)
   description     String?
@@ -348,12 +348,13 @@ enum TransactionProviderEnum {
 }
 
 enum TransactionStatusEnum {
-  PENDING @map("pending")
-  SUCCESS @map("success")
-  FAILED  @map("failed")
+  PENDING  @map("pending")
+  SUCCESS  @map("success")
+  FAILED   @map("failed")
+  CANCELED @map("canceled")
 }
 
-enum TransactionMethod {
+enum TransactionChannel {
   CARD         @map("card")
   BANK         @map("bank")
   MOBILE_MONEY @map("mobile_money")

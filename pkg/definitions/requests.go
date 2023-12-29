@@ -1,5 +1,7 @@
 package definitions
 
+import "time"
+
 type ResetPasswordRequest struct {
 	Key                  string `json:"key" validate:"required"`
 	Email                string `json:"email" validate:"required,email"`
@@ -81,6 +83,36 @@ type TransactRequest struct {
 	IdempotencyKey string  `json:"idempotencyKey" validate:"required,min=26,max=36"`
 	Type           string  `json:"type" validate:"required,oneof=tithe pledge offertory freewill other busing covenant_partner"`
 	Currency       string  `json:"currency" validate:"required,oneof=USD GHS EUR GBP"`
-	AccountNumber  string  `json:"accountNumber" validate:"required"`
-	Method         string  `json:"method" validate:"required,oneof=mobile_money card"`
+	AccountNumber  string  `json:"accountNumber" validate:"-"`
+	Channel        string  `json:"channel" validate:"required,oneof=mobile_money card"`
+	Description    string  `json:"description" validate:"-"`
+}
+
+type PaystackWebhookPaymentRequest struct {
+	Event string `json:"event"`
+	Data  struct {
+		ID            int           `json:"id"`
+		Domain        string        `json:"domain"`
+		Amount        int           `json:"amount"`
+		Currency      string        `json:"currency"`
+		DueDate       interface{}   `json:"due_date"`
+		HasInvoice    bool          `json:"has_invoice"`
+		InvoiceNumber interface{}   `json:"invoice_number"`
+		Description   string        `json:"description"`
+		PdfURL        interface{}   `json:"pdf_url"`
+		LineItems     []interface{} `json:"line_items"`
+		Tax           []interface{} `json:"tax"`
+		RequestCode   string        `json:"request_code"`
+		Status        string        `json:"status"`
+		Paid          bool          `json:"paid"`
+		PaidAt        time.Time     `json:"paid_at"`
+		Metadata      interface{}   `json:"metadata"`
+		Notifications []struct {
+			SentAt  time.Time `json:"sent_at"`
+			Channel string    `json:"channel"`
+		} `json:"notifications"`
+		OfflineReference string    `json:"offline_reference"`
+		Customer         int       `json:"customer"`
+		CreatedAt        time.Time `json:"created_at"`
+	} `json:"data"`
 }
