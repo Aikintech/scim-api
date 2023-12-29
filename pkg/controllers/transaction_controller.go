@@ -125,16 +125,6 @@ func (t *TransactionController) UpdateTransaction(c *fiber.Ctx) error {
 func (t *TransactionController) PaystackWebhook(c *fiber.Ctx) error {
 	fmt.Println(string(c.BodyRaw()))
 
-	// Parse request
-	request := definitions.PaystackWebhookPaymentRequest{}
-	if err := c.BodyParser(&request); err != nil {
-		fmt.Println(err.Error())
-
-		return c.SendStatus(fiber.StatusBadRequest)
-	}
-
-	fmt.Println(request)
-
 	return c.SendStatus(fiber.StatusOK)
 }
 
