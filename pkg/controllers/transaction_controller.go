@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/aikintech/scim-api/pkg/constants"
@@ -119,6 +120,18 @@ func (t *TransactionController) Transact(c *fiber.Ctx) error {
 
 func (t *TransactionController) UpdateTransaction(c *fiber.Ctx) error {
 	return nil
+}
+
+func (t *TransactionController) PaystackWebhook(c *fiber.Ctx) error {
+	// Parse request
+	request := definitions.PaystackWebhookPaymentRequest{}
+	if err := c.BodyParser(&request); err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	fmt.Println(request)
+
+	return c.SendStatus(fiber.StatusOK)
 }
 
 // Backoffice handlers
