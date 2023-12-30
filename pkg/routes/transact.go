@@ -15,4 +15,7 @@ func MountTransactionRoutes(app *fiber.App) {
 	route.Get("/", jwtAuthWare, transactionController.GetTransactions)
 	route.Post("/", jwtAuthWare, transactionController.Transact)
 	route.Get("/:transactionId", jwtAuthWare, transactionController.GetTransaction)
+
+	// Webhooks
+	route.Post("/webhooks/paystack", transactionController.PaystackWebhook)
 }
