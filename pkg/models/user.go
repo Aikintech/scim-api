@@ -62,6 +62,7 @@ type BackofficeUser struct {
 	Avatar        string         `json:"avatar"`
 	Channels      datatypes.JSON `json:"channels"`
 	Role          string         `json:"role"`
+	CreatedAt     time.Time      `json:"createdAt"`
 }
 
 type BackofficeUserFull struct {
@@ -73,6 +74,7 @@ type BackofficeUserFull struct {
 	Avatar        string         `json:"avatar"`
 	Channels      datatypes.JSON `json:"channels"`
 	Role          *RoleResource  `json:"role"`
+	CreatedAt     time.Time      `json:"createdAt"`
 }
 
 type UserRel struct {
@@ -160,6 +162,7 @@ func ToBackofficeUserResource(u *User) *BackofficeUser {
 		Avatar:        avatar,
 		Channels:      u.Channels,
 		Role:          role.DisplayName,
+		CreatedAt:     u.CreatedAt,
 	}
 }
 
@@ -181,6 +184,7 @@ func ToBackofficeUserFullResource(u *User) *BackofficeUserFull {
 		Avatar:        avatar,
 		Channels:      u.Channels,
 		Role:          RoleToResource(role),
+		CreatedAt:     u.CreatedAt,
 	}
 }
 
