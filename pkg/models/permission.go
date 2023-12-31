@@ -34,10 +34,20 @@ func (p *Permission) BeforeCreate(trx *gorm.DB) error {
 	return nil
 }
 
-func PermissionToResource(p Permission) PermissionResource {
-	return PermissionResource{
+func PermissionToResource(p *Permission) *PermissionResource {
+	return &PermissionResource{
 		ID:          p.ID,
 		DisplayName: p.DisplayName,
 		Module:      p.Module,
 	}
+}
+
+func PermissionsToResourceCollection(permissions []*Permission) []*PermissionResource {
+	collection := make([]*PermissionResource, 0)
+
+	for _, p := range permissions {
+		collection = append(collection, PermissionToResource(p))
+	}
+
+	return collection
 }
