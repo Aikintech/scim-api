@@ -42,15 +42,37 @@ type User struct {
 }
 
 type AuthUserResource struct {
-	ID            string               `json:"id"`
-	FirstName     string               `json:"firstName"`
-	LastName      string               `json:"lastName"`
-	Email         string               `json:"email"`
-	EmailVerified bool                 `json:"emailVerified"`
-	Avatar        string               `json:"avatar"`
-	AvatarKey     string               `json:"avatarKey"`
-	Channels      datatypes.JSON       `json:"channels"`
-	Permissions   []PermissionResource `json:"permissions"`
+	ID            string                `json:"id"`
+	FirstName     string                `json:"firstName"`
+	LastName      string                `json:"lastName"`
+	Email         string                `json:"email"`
+	EmailVerified bool                  `json:"emailVerified"`
+	Avatar        string                `json:"avatar"`
+	AvatarKey     string                `json:"avatarKey"`
+	Channels      datatypes.JSON        `json:"channels"`
+	Permissions   []*PermissionResource `json:"permissions"`
+}
+
+type BackofficeUser struct {
+	ID            string         `json:"id"`
+	FirstName     string         `json:"firstName"`
+	LastName      string         `json:"lastName"`
+	Email         string         `json:"email"`
+	EmailVerified bool           `json:"emailVerified"`
+	Avatar        string         `json:"avatar"`
+	Channels      datatypes.JSON `json:"channels"`
+	Role          string         `json:"role"`
+}
+
+type BackofficeUserFull struct {
+	ID            string         `json:"id"`
+	FirstName     string         `json:"firstName"`
+	LastName      string         `json:"lastName"`
+	Email         string         `json:"email"`
+	EmailVerified bool           `json:"emailVerified"`
+	Avatar        string         `json:"avatar"`
+	Channels      datatypes.JSON `json:"channels"`
+	Role          *RoleResource  `json:"role"`
 }
 
 type UserRel struct {
@@ -75,15 +97,15 @@ func ToAuthUserResource(u *User) AuthUserResource {
 	}
 
 	// Get user permissions
-	permissions := mapSet.NewSet[PermissionResource]()
+	permissions := mapSet.NewSet[*PermissionResource]()
 	if len(u.Roles) > 0 {
 		for _, p := range u.Roles[0].Permissions {
-			permissions.Add(PermissionToResource(*p))
+			permissions.Add(PermissionToResource(p))
 		}
 	}
 	if len(u.Permissions) > 0 {
 		for _, p := range u.Permissions {
-			permissions.Add(PermissionToResource(*p))
+			permissions.Add(PermissionToResource(p))
 		}
 	}
 
@@ -116,11 +138,57 @@ func ToUserRelResource(u *User) UserRel {
 	}
 }
 
-func UsersToResourceCollection(users []*User) []AuthUserResource {
-	var resources []AuthUserResource
+func ToBackofficeUserResource(u *User) *BackofficeUser {
+	var role *Role
 
-	for _, user := range users {
-		resources = append(resources, ToAuthUserResource(user))
+	// Generate avatarURL
+	avatar, err := utils.GenerateS3FileURL(u.Avatar)
+	if err != nil {
+		fmt.Println("Error generating avatar url", err.Error())
+	}
+
+	if len(u.Roles) > 0 {
+		role = u.Roles[0]
+	}
+
+	return &BackofficeUser{
+		ID:            u.ID,
+		FirstName:     u.FirstName,
+		LastName:      u.LastName,
+		Email:         u.Email,
+		EmailVerified: u.EmailVerifiedAt != nil,
+		Avatar:        avatar,
+		Channels:      u.Channels,
+		Role:          role.DisplayName,
+	}
+}
+
+func ToBackofficeUserFullResource(u *User) *BackofficeUserFull {
+	// Generate avatarURL
+	avatar, err := utils.GenerateS3FileURL(u.Avatar)
+	if err != nil {
+		fmt.Println("Error generating avatar url", err.Error())
+	}
+
+	role := u.Roles[0]
+
+	return &BackofficeUserFull{
+		ID:            u.ID,
+		FirstName:     u.FirstName,
+		LastName:      u.LastName,
+		Email:         u.Email,
+		EmailVerified: u.EmailVerifiedAt != nil,
+		Avatar:        avatar,
+		Channels:      u.Channels,
+		Role:          RoleToResource(role),
+	}
+}
+
+func UsersToBackofficeUserResourceCollection(users []*User) []*BackofficeUser {
+	var resources []*BackofficeUser
+
+	for _, u := range users {
+		resources = append(resources, ToBackofficeUserResource(u))
 	}
 
 	return resources

@@ -21,8 +21,40 @@ type Role struct {
 	Users       []*User       `gorm:"many2many:role_user"`
 }
 
+type RoleResource struct {
+	ID          string                `json:"id"`
+	Name        string                `json:"name"`
+	DisplayName string                `json:"displayName"`
+	Description string                `json:"description"`
+	CreatedAt   time.Time             `json:"createdAt"`
+	Permissions []*PermissionResource `json:"permissions"`
+}
+
 func (r *Role) BeforeCreate(trx *gorm.DB) error {
 	r.ID = nanoid.MustGenerate(constants.ALPHABETS, 30)
 
 	return nil
+}
+
+func RoleToResource(r *Role) *RoleResource {
+	permissions := PermissionsToResourceCollection(r.Permissions)
+
+	return &RoleResource{
+		ID:          r.ID,
+		Name:        r.Name,
+		DisplayName: r.DisplayName,
+		Description: r.Description,
+		CreatedAt:   r.CreatedAt,
+		Permissions: permissions,
+	}
+}
+
+func RolesToResourceCollection(roles []*Role) []*RoleResource {
+	collection := make([]*RoleResource, 0)
+
+	for _, r := range roles {
+		collection = append(collection, RoleToResource(r))
+	}
+
+	return collection
 }

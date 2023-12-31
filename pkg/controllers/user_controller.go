@@ -33,7 +33,7 @@ func (u *UserController) BackofficeGetUsers(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := query.Scopes(models.PaginationScope(c)).Find(&users).Error; err != nil {
+	if err := query.Scopes(models.PaginationScope(c)).Preload("Roles").Find(&users).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})
@@ -43,6 +43,6 @@ func (u *UserController) BackofficeGetUsers(c *fiber.Ctx) error {
 		"limit": c.QueryInt("limit", 10),
 		"page":  c.QueryInt("page", 1),
 		"total": total,
-		"items": models.UsersToResourceCollection(users),
+		"items": models.UsersToBackofficeUserResourceCollection(users),
 	})
 }

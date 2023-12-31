@@ -129,6 +129,14 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 		})
 	}
 
+	// Check for role
+	role := new(models.Role)
+	if err := trx.Where("name = ?", constants.REGULAR_USER_ROLE).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
 	// Create user
 	password, err := utils.MakePasswordHash(request.Password)
 	if err != nil {
@@ -143,11 +151,13 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 	user.Channels = datatypes.JSON([]byte(`["web", "mobile"]`))
 	user.SignUpProvider = "local"
 	user.EmailVerifiedAt = nil
-	result = trx.Model(&models.User{}).Create(&user)
+	user.Roles = []*models.Role{role}
 
-	if result.Error != nil {
+	if err := trx.Model(&models.User{}).Create(&user).Error; err != nil {
+		trx.Rollback()
+
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: result.Error.Error(),
+			Message: err.Error(),
 		})
 	}
 
@@ -655,6 +665,14 @@ func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
 		})
 	}
 
+	trx := database.DB.Begin()
+	role := new(models.Role)
+	if err := trx.Where("name = ?", constants.REGULAR_USER_ROLE).Error; err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
 	// Get user
 	if request.Provider == "google" {
 		userInfo, err := facades.Socialite().Driver("google").UserFromToken(request.Token)
@@ -665,7 +683,6 @@ func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
 		}
 
 		// Check if user exists
-		trx := database.DB.Begin()
 		user := new(models.User)
 		if err := trx.Model(&models.User{}).Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -698,6 +715,7 @@ func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
 		user.LastName = userInfo.LastName
 		user.SignUpProvider = "google"
 		user.Channels = datatypes.JSON([]byte(`["web", "mobile"]`))
+		user.Roles = []*models.Role{role}
 
 		if err := trx.Where("email = ?", userInfo.Email).Assign(user).FirstOrCreate(&user).Error; err != nil {
 			trx.Rollback()
