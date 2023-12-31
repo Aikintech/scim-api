@@ -116,11 +116,11 @@ func ToUserRelResource(u *User) UserRel {
 	}
 }
 
-func UsersToResourceCollection(users []*User) []UserRel {
-	var resources []UserRel
+func UsersToResourceCollection(users []*User) []AuthUserResource {
+	var resources []AuthUserResource
 
 	for _, user := range users {
-		resources = append(resources, ToUserRelResource(user))
+		resources = append(resources, ToAuthUserResource(user))
 	}
 
 	return resources
