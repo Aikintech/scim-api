@@ -35,7 +35,7 @@ func NewAuthController() *AuthController {
 
 func (a *AuthController) Login(c *fiber.Ctx) error {
 	// Parse request
-	request := validation.LoginSchema{}
+	request := definitions.LoginRequest{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
@@ -97,7 +97,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 
 func (a *AuthController) Register(c *fiber.Ctx) error {
 	// Parse request
-	request := validation.RegisterSchema{}
+	request := definitions.RegisterRequest{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 
@@ -201,7 +201,7 @@ func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 
 func (a *AuthController) ResendEmailVerification(c *fiber.Ctx) error {
 	// Parse request
-	request := validation.EmailVerificationSchema{}
+	request := definitions.EmailVerificationRequest{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 
@@ -254,7 +254,7 @@ func (a *AuthController) ResendEmailVerification(c *fiber.Ctx) error {
 
 func (a *AuthController) ForgotPassword(c *fiber.Ctx) error {
 	// Parse request
-	request := validation.EmailVerificationSchema{}
+	request := definitions.EmailVerificationRequest{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
@@ -320,7 +320,7 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 
 	// Get the user
 	user := models.User{}
-	result := database.DB.Model(&models.User{}).Where("email ? =", request.Email).First(&user)
+	result := database.DB.Model(&models.User{}).Where("email = ?", request.Email).First(&user)
 	if result.Error != nil {
 		message := "No account is associated with the email provided"
 
