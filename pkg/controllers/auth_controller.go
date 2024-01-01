@@ -666,12 +666,12 @@ func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
 	}
 
 	trx := database.DB.Begin()
-	role := new(models.Role)
-	if err := trx.Where("name = ?", constants.REGULAR_USER_ROLE).Error; err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: err.Error(),
-		})
-	}
+	// role := new(models.Role)
+	// if err := trx.Where("name = ?", constants.REGULAR_USER_ROLE).Error; err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+	// 		Message: err.Error(),
+	// 	})
+	// }
 
 	// Get user
 	if request.Provider == "google" {
@@ -715,7 +715,7 @@ func (a *AuthController) SocialAuth(c *fiber.Ctx) error {
 		user.LastName = userInfo.LastName
 		user.SignUpProvider = "google"
 		user.Channels = datatypes.JSON([]byte(`["web", "mobile"]`))
-		user.Roles = []*models.Role{role}
+		// user.Roles = []*models.Role{role}
 
 		if err := trx.Where("email = ?", userInfo.Email).Assign(user).FirstOrCreate(&user).Error; err != nil {
 			trx.Rollback()
