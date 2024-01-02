@@ -18,6 +18,8 @@ const (
 	USER_VERIFICATION_CODE_CACHE_KEY = "user_verification_code_" // + user.ID
 	USER_CODE_ACTION_CACHE_KEY       = "user_code_action_"       // + user.ID
 	YOUTUBE_CHANNEL_ID               = ""
+	REGULAR_USER_ROLE                = "regular-user"
+	SUPER_ADMIN_USER_ROLE            = "super-admin"
 )
 
 var (

@@ -27,7 +27,7 @@ require (
 	github.com/rs/zerolog v1.31.0
 	github.com/samber/lo v1.39.0
 	github.com/shopspring/decimal v1.3.1
-	github.com/steebchen/prisma-client-go v0.31.0
+	github.com/steebchen/prisma-client-go v0.31.5
 	github.com/ttacon/libphonenumber v1.2.1
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/postgres v1.5.4

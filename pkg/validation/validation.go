@@ -74,8 +74,8 @@ func getValidationMessage(err v.FieldError) string {
 
 			return fmt.Sprintf("The %s field must be one of the following: %s.", fieldName, joined)
 		}
-	case "isValidPassword":
-		return fmt.Sprintf("The %s field must contain at least one uppercase, one lowercase, one number and one special case character.", fieldName)
+	case "validpassword":
+		return fmt.Sprintf("The %s field must contain at least one uppercase, one lowercase, one number and one special case character (%s)", fieldName, "@#$%^&+=!")
 	case "mimes":
 		{
 			split := strings.Split(err.Param(), " ")

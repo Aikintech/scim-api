@@ -38,7 +38,7 @@ type TransactionResource struct {
 	Status      string    `json:"status"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"createdAt"`
-	User        UserRel   `json:"user"`
+	User        *UserRel  `json:"user"`
 }
 
 func (t *Transaction) BeforeCreate(db *gorm.DB) (err error) {

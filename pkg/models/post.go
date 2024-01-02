@@ -38,7 +38,7 @@ type PostResource struct {
 	IsAnnouncement  bool      `json:"isAnnouncement"`
 	MinutesToRead   float32   `json:"minutesToRead"`
 	CreatedAt       time.Time `json:"createdAt"`
-	User            UserRel   `json:"user"`
+	User            *UserRel  `json:"user"`
 	LikesCount      int       `json:"likesCount"`
 	CommentsCount   int       `json:"commentsCount"`
 }

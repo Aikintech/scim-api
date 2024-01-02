@@ -2,11 +2,29 @@ package definitions
 
 import "time"
 
+type LoginRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+	Channel  string `json:"channel" validate:"required,oneof=web mobile"`
+}
+
+type RegisterRequest struct {
+	FirstName string `json:"firstName" validate:"required,min=3,max=40"`
+	LastName  string `json:"lastName" validate:"required,min=3,max=40"`
+	Email     string `json:"email" validate:"required,email"`
+	Password  string `json:"password" validate:"required,min=8,max=30,validpassword"`
+	Channel   string `json:"channel" validate:"required,oneof=web mobile"`
+}
+
 type ResetPasswordRequest struct {
 	Key                  string `json:"key" validate:"required"`
 	Email                string `json:"email" validate:"required,email"`
-	Password             string `json:"password" validate:"required,validpassword"`
+	Password             string `json:"password" validate:"required,min=8,max=30,validpassword"`
 	PasswordConfirmation string `json:"passwordConfirmation" validate:"required,eqfield=Password"`
+}
+
+type EmailVerificationRequest struct {
+	Email string `json:"email" validate:"required,email"`
 }
 
 type StorePlaylistRequest struct {

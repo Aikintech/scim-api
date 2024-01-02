@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/aikintech/scim-api/pkg/database"
@@ -18,6 +17,9 @@ import (
 func init() {
 	// Load environment variables
 	config.LoadEnv()
+
+	// Initialize logger
+	config.InitializeLogger()
 
 	// Initialize redis
 	config.InitializeRedis()
@@ -42,12 +44,12 @@ func main() {
 	// Dump routes to a file
 	if os.Getenv("APP_ENV") == "local" {
 		if err := utils.DumpRoutesToFile(app); err != nil {
-			fmt.Println("Error:", err.Error())
+			config.Logger.Error().Msgf("Loading .env variables: %s", err.Error())
 		}
 	}
 
 	// Start the app
 	if err := app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
-		log.Fatal(err.Error())
+		config.Logger.Fatal().Msgf("Starting fiber application: %s", err.Error())
 	}
 }
