@@ -36,6 +36,7 @@ model User {
 
   roles       RoleUser[]
   permissions PermissionUser[]
+  events      UserEvent[]
 
   @@index([email])
   @@map("users")
@@ -173,6 +174,7 @@ model Event {
   updated_at        DateTime @updatedAt
 
   // Add relations here
+  users UserEvent[]
 
   @@map("events")
 }
@@ -328,6 +330,17 @@ model PermissionUser {
 
   @@id([permission_id, user_id])
   @@map("permission_user")
+}
+
+model UserEvent {
+  user_id  String @db.VarChar(40)
+  event_id String @db.VarChar(40)
+
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, event_id])
+  @@map("user_event")
 }
 
 // Enums

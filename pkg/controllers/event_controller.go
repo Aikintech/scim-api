@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/aikintech/scim-api/pkg/utils"
 	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type EventController struct{}
@@ -24,17 +26,17 @@ func (evtCtrl *EventController) GetEvents(c *fiber.Ctx) error {
 	search := c.Query("search", "")
 
 	// Query events
-	events := make([]models.Event, 0)
+	events := make([]*models.Event, 0)
 	query := database.DB.Model(&models.Event{}).
 		Where("title LIKE ?", "%"+search+"%").
-		Where("start_date_time >= ?", time.Now())
+		Where("start_date_time >= DATE(?)", time.Now())
 
 	if err := query.Count(&total).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})
 	}
-	if err := query.Scopes(models.PaginationScope(c)).Find(&events).Error; err != nil {
+	if err := query.Scopes(models.PaginationScope(c)).Preload("Users").Find(&events).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})
@@ -53,7 +55,7 @@ func (evtCtrl *EventController) GetEvent(c *fiber.Ctx) error {
 
 	// Fetch event
 	event := new(models.Event)
-	if err := database.DB.Model(&models.Event{}).Where("id = ?", eventId).Find(&event).Error; err != nil {
+	if err := database.DB.Model(&models.Event{}).Preload("Users").Where("id = ?", eventId).Find(&event).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})
@@ -62,13 +64,82 @@ func (evtCtrl *EventController) GetEvent(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(event.ToResource())
 }
 
+func (evtCtrl *EventController) MyCalendarEvents(c *fiber.Ctx) error {
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
+	events := make([]*models.Event, 0)
+
+	if err := database.DB.
+		Model(&models.Event{}).
+		Select("events.*").
+		Joins("JOIN user_event ON events.id = user_event.event_id").
+		Joins("JOIN users ON users.id = user_event.user_id").
+		Where("users.id = ?", user.ID).
+		Group("events.id").Find(&events).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+				Message: err.Error(),
+			})
+		}
+	}
+
+	return c.JSON(models.EventsToResourceCollection(events))
+}
+
+func (evtCtrl *EventController) SyncEventToCalendar(c *fiber.Ctx) error {
+	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
+	eventId := c.Params("eventId")
+	trx := database.DB.Begin()
+	action := "added"
+
+	// Find event
+	event := new(models.Event)
+	if err := trx.Model(&models.Event{}).Where("id = ?", eventId).First(&event).Error; err != nil {
+		status := fiber.StatusNotFound
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			status = fiber.StatusBadRequest
+		}
+		return c.Status(status).JSON(definitions.MessageResponse{Message: err.Error()})
+	}
+
+	// Find user event
+	userEvent := new(models.UserEvent)
+	if err := trx.Model(&models.UserEvent{}).Where("user_id = ? AND event_id = ?", user.ID, eventId).First(&userEvent).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{Message: err.Error()})
+		}
+	}
+
+	// Delete or create user_event
+	if userEvent.UserID != "" && userEvent.EventID != "" {
+		if err := trx.Where("user_id = ? AND event_id = ?", user.ID, eventId).Delete(&userEvent).Error; err != nil {
+			trx.Rollback()
+
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{Message: err.Error()})
+		}
+
+		action = "removed"
+	} else {
+		if err := trx.Model(&models.UserEvent{}).Create(models.UserEvent{UserID: user.ID, EventID: eventId}).Error; err != nil {
+			trx.Rollback()
+
+			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{Message: err.Error()})
+		}
+	}
+
+	trx.Commit()
+
+	return c.JSON(definitions.MessageResponse{
+		Message: fmt.Sprintf("Event %s to calendar successfully", action),
+	})
+}
+
 /*** Backoffice handlers ***/
 func (evtCtrl *EventController) BackofficeGetEvents(c *fiber.Ctx) error {
 	var total int64
 	search := c.Query("search", "")
 
 	// Query events
-	events := make([]models.Event, 0)
+	events := make([]*models.Event, 0)
 	query := database.DB.Model(&models.Event{}).Where("title LIKE ?", "%"+search+"%")
 	if err := query.Count(&total).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{

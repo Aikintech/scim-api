@@ -30,7 +30,7 @@ type PrayerRequestResource struct {
 	Status      string     `json:"status"`
 	CompletedAt *time.Time `json:"completedAt"`
 	CreatedAt   time.Time  `json:"createdAt"`
-	User        UserRel    `json:"user"`
+	User        *UserRel   `json:"user"`
 }
 
 func (p *PrayerRequest) BeforeCreate(tx *gorm.DB) error {
