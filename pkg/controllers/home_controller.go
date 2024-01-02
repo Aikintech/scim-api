@@ -25,7 +25,7 @@ func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	latestPosts := []models.Post{}
 	latestAnnouncements := []models.Post{}
 
-	result := database.DB.Model(&models.Event{}).Where("start_date_time >= ?", time.Now()).Limit(limit).Find(&upcomingEvents)
+	result := database.DB.Model(&models.Event{}).Where("start_date_time >= DATE(?)", time.Now()).Limit(limit).Find(&upcomingEvents)
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{

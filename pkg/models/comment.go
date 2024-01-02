@@ -24,7 +24,7 @@ type CommentResource struct {
 	ID        string    `json:"id"`
 	Body      string    `json:"body"`
 	CreatedAt time.Time `json:"createdAt"`
-	User      UserRel   `json:"user"`
+	User      *UserRel  `json:"user"`
 }
 
 func (c *Comment) BeforeCreate(tx *gorm.DB) error {

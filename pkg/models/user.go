@@ -47,6 +47,7 @@ type AuthUserResource struct {
 	LastName      string                `json:"lastName"`
 	Email         string                `json:"email"`
 	EmailVerified bool                  `json:"emailVerified"`
+	IsSocial      bool                  `json:"social"`
 	Avatar        string                `json:"avatar"`
 	AvatarKey     string                `json:"avatarKey"`
 	Channels      datatypes.JSON        `json:"channels"`
@@ -59,6 +60,7 @@ type BackofficeUser struct {
 	LastName      string         `json:"lastName"`
 	Email         string         `json:"email"`
 	EmailVerified bool           `json:"emailVerified"`
+	IsSocial      bool           `json:"social"`
 	Avatar        string         `json:"avatar"`
 	Channels      datatypes.JSON `json:"channels"`
 	Role          string         `json:"role"`
@@ -71,6 +73,7 @@ type BackofficeUserFull struct {
 	LastName      string         `json:"lastName"`
 	Email         string         `json:"email"`
 	EmailVerified bool           `json:"emailVerified"`
+	IsSocial      bool           `json:"social"`
 	Avatar        string         `json:"avatar"`
 	Channels      datatypes.JSON `json:"channels"`
 	Role          *RoleResource  `json:"role"`
@@ -117,6 +120,7 @@ func ToAuthUserResource(u *User) AuthUserResource {
 		LastName:      u.LastName,
 		Email:         u.Email,
 		EmailVerified: u.EmailVerifiedAt != nil,
+		IsSocial:      u.SignUpProvider != "local",
 		Avatar:        avatar,
 		AvatarKey:     u.Avatar,
 		Channels:      u.Channels,
@@ -124,14 +128,14 @@ func ToAuthUserResource(u *User) AuthUserResource {
 	}
 }
 
-func ToUserRelResource(u *User) UserRel {
+func ToUserRelResource(u *User) *UserRel {
 	// Generate avatarURL
 	avatar, err := utils.GenerateS3FileURL(u.Avatar)
 	if err != nil {
 		fmt.Println("Error generating avatar url", err.Error())
 	}
 
-	return UserRel{
+	return &UserRel{
 		ID:        u.ID,
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
@@ -159,6 +163,7 @@ func ToBackofficeUserResource(u *User) *BackofficeUser {
 		LastName:      u.LastName,
 		Email:         u.Email,
 		EmailVerified: u.EmailVerifiedAt != nil,
+		IsSocial:      u.SignUpProvider != "local",
 		Avatar:        avatar,
 		Channels:      u.Channels,
 		Role:          role.DisplayName,
@@ -181,6 +186,7 @@ func ToBackofficeUserFullResource(u *User) *BackofficeUserFull {
 		LastName:      u.LastName,
 		Email:         u.Email,
 		EmailVerified: u.EmailVerifiedAt != nil,
+		IsSocial:      u.SignUpProvider != "local",
 		Avatar:        avatar,
 		Channels:      u.Channels,
 		Role:          RoleToResource(role),
