@@ -19,13 +19,16 @@ func NewHomeController() *HomeController {
 }
 
 func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
-	limit := 5
+	limit := 4
 	upcomingEvents := []models.EventResource{}
 	latestPodcasts := []models.PodcastResource{}
 	latestPosts := []models.Post{}
 	latestAnnouncements := []models.Post{}
 
-	result := database.DB.Model(&models.Event{}).Where("start_date_time >= DATE(?)", time.Now()).Limit(limit).Find(&upcomingEvents)
+	result := database.DB.Model(&models.Event{}).
+		Where("start_date_time >= DATE(?)", time.Now()).
+		Limit(limit).
+		Find(&upcomingEvents)
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -35,7 +38,14 @@ func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	}
 
 	// Latest podcasts (5)
-	result = database.DB.Model(&models.Podcast{}).Order("published_at desc").Limit(limit).Find(&latestPodcasts)
+	result = database.DB.Model(&models.Podcast{}).
+		Select("podcasts.*, COUNT(DISTINCT likes.id) AS likes_count").
+		Joins("LEFT JOIN likes ON likes.likeable_id = podcasts.id AND likes.likeable_type = 'podcasts'").
+		Group("podcasts.id").
+		Order("published_at desc").
+		Limit(limit).
+		Find(&latestPodcasts)
+
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -45,7 +55,12 @@ func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	}
 
 	// Latest blogPosts (5)
-	result = database.DB.Model(&models.Post{}).Preload("User").Where("published = ?", true).Where("is_announcement = ?", false).Order("created_at desc").Limit(limit).Find(&latestPosts)
+	result = database.DB.Model(&models.Post{}).Preload("User").
+		Where("published = ?", true).
+		Where("is_announcement = ?", false).
+		Order("created_at desc").
+		Limit(limit).
+		Find(&latestPosts)
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -55,7 +70,12 @@ func (homeCtrl *HomeController) ClientHome(c *fiber.Ctx) error {
 	}
 
 	// Latest announcements (5)
-	result = database.DB.Model(&models.Post{}).Preload("User").Where("published = ?", true).Where("is_announcement = ?", true).Order("created_at desc").Limit(limit).Find(&latestAnnouncements)
+	result = database.DB.Model(&models.Post{}).Preload("User").
+		Where("published = ?", true).
+		Where("is_announcement = ?", true).
+		Order("created_at desc").
+		Limit(limit).
+		Find(&latestAnnouncements)
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{

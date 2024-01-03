@@ -72,8 +72,7 @@ func (evtCtrl *EventController) MyCalendarEvents(c *fiber.Ctx) error {
 		Model(&models.Event{}).
 		Select("events.*").
 		Joins("JOIN user_event ON events.id = user_event.event_id").
-		Joins("JOIN users ON users.id = user_event.user_id").
-		Where("users.id = ?", user.ID).
+		Where("user_event.user_id = ?", user.ID).
 		Group("events.id").Find(&events).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
