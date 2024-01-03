@@ -28,8 +28,8 @@ type Podcast struct {
 	Playlists   []*Playlist `gorm:"many2many:podcast_playlist"`
 	Comments    []*Comment  `gorm:"polymorphic:Commentable"`
 	Likes       []*Like     `gorm:"polymorphic:Likeable"`
-	LikesCount  *int
-	LikedByUser *bool
+	LikesCount  *int        `gorm:"-"`
+	LikedByUser *bool       `gorm:"-"`
 }
 
 type PodcastResource struct {
