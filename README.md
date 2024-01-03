@@ -1,6 +1,14 @@
 # SCIM APIs
 
-#### External service integrations
+### Notifications
+
+- Emails
+  - New user
+  - Email verification
+  - Prayer request (admin)
+  - Event reminder
+
+### External service integrations
 
 ##### Cron job execution
 
