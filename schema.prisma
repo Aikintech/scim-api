@@ -261,6 +261,8 @@ model Testimony {
   yt_url          String? // youtube video url
   tk_url          String? // tiktok video url
   title           String
+  file_url        String?
+  thumbnail_url   String?
   body            String
   published       Boolean  @default(false)
   created_at      DateTime @default(now())

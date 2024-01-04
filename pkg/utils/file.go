@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+// TODO: Refactor this to constructor pattern
 func getS3Client() (*s3.Client, error) {
 	cfg, err := awsConfig.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -70,6 +71,7 @@ func GenerateS3FileURL(key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	if len(result) > 0 {
 		return string(result), nil
 	}

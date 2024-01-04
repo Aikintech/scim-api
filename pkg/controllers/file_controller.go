@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/aikintech/scim-api/pkg/constants"
@@ -10,7 +11,6 @@ import (
 	"github.com/aikintech/scim-api/pkg/definitions"
 	"github.com/aikintech/scim-api/pkg/utils"
 	"github.com/gofiber/fiber/v2"
-	"github.com/samber/lo"
 )
 
 type FileController struct {
@@ -21,6 +21,25 @@ func NewFileController() *FileController {
 }
 
 func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
+	path := c.Path()
+	uploadType := c.FormValue("uploadType")
+	hasAvatarPrefix := strings.HasPrefix(strings.ToLower(uploadType), "avatar")
+	hasBackofficePrefix := strings.HasPrefix(path, "/backoffice")
+
+	// Validate upload type
+	if !slices.Contains(constants.UPLOAD_TYPES, uploadType) {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid upload type",
+		})
+	}
+
+	// Only backoffice can upload EXCERPT and TESTIMONY files
+	if !hasBackofficePrefix && !hasAvatarPrefix {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid upload type",
+		})
+	}
+
 	// Get file from request
 	requestFile, err := c.FormFile("file")
 	if err != nil {
@@ -29,17 +48,9 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validate upload type
-	uploadType := c.FormValue("uploadType")
-	if !lo.Contains(constants.UPLOAD_TYPES, uploadType) {
-		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: "Invalid upload type",
-		})
-	}
-
 	// Validate mime type
 	mime := utils.GetMimeExtension(requestFile.Header["Content-Type"][0])
-	if !lo.Contains(constants.ALLOWED_MIME_TYPES, mime) {
+	if !slices.Contains(constants.ALLOWED_MIME_TYPES, mime) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: "Invalid file type",
 		})
@@ -99,10 +110,20 @@ func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
 }
 
 func (fileCtrl *FileController) DeleteFile(c *fiber.Ctx) error {
-	key := c.Params("fileKey", "")
+	path := c.Path()
+	key := strings.TrimSpace(c.Params("fileKey", ""))
+	hasAvatarPrefix := strings.HasPrefix(strings.ToLower(key), "avatar")
+	hasBackofficePrefix := strings.HasPrefix(path, "/backoffice")
 
 	// Validate request
 	if !validation.IsValidFileKey(key) {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: "Invalid file key",
+		})
+	}
+
+	// Only backoffice can delete TESTIMONY and EXCERPT files
+	if !hasBackofficePrefix && !hasAvatarPrefix {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: "Invalid file key",
 		})
