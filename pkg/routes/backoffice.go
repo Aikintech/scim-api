@@ -13,6 +13,8 @@ func MountBackOfficeRoutes(app *fiber.App) {
 	prayers := backoffice.Group("/prayer-requests")
 	transactions := backoffice.Group("/transactions")
 	users := backoffice.Group("/users")
+
+	// TODO change middleware to rbacAuthMiddleware
 	jwtAuthWare := middlewares.JWTMiddleware("access")
 
 	// Controller initializations
@@ -21,6 +23,7 @@ func MountBackOfficeRoutes(app *fiber.App) {
 	postController := controllers.NewPostController()
 	transactionController := controllers.NewTransactionController()
 	userController := controllers.NewUserController()
+	fileController := controllers.NewFileController()
 
 	// Events
 	events.Get("/", jwtAuthWare, eventController.BackofficeGetEvents)
@@ -45,4 +48,8 @@ func MountBackOfficeRoutes(app *fiber.App) {
 
 	// Users
 	users.Get("/", jwtAuthWare, userController.BackofficeGetUsers)
+
+	// Files
+	backoffice.Post("/files", fileController.UploadFile)
+	backoffice.Delete("/files/:fileKey", jwtAuthWare, fileController.DeleteFile)
 }

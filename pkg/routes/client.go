@@ -16,4 +16,5 @@ func MountClientRoutes(app *fiber.App) {
 	MountPostRoutes(app)
 	MountTransactionRoutes(app)
 	MountEventRoutes(app)
+	MountTestimonyRoutes(app)
 }
