@@ -13,12 +13,12 @@ import (
 	"github.com/gookit/color"
 )
 
-type AES struct {
+type aesCrypto struct {
 	key []byte
 }
 
 // NewAES returns a new AES hasher.
-func Crypt() *AES {
+func Crypt() *aesCrypto {
 	key := os.Getenv("APP_KEY")
 
 	// check key length before using it
@@ -27,13 +27,13 @@ func Crypt() *AES {
 		return nil
 	}
 	keyBytes := []byte(key)
-	return &AES{
+	return &aesCrypto{
 		key: keyBytes,
 	}
 }
 
 // EncryptString encrypts the given string, and returns the iv and ciphertext as base64 encoded strings.
-func (b *AES) EncryptString(value string) (string, error) {
+func (b *aesCrypto) EncryptString(value string) (string, error) {
 	block, err := aes.NewCipher(b.key)
 	if err != nil {
 		return "", err
@@ -67,7 +67,7 @@ func (b *AES) EncryptString(value string) (string, error) {
 }
 
 // DecryptString decrypts the given iv and ciphertext, and returns the plaintext.
-func (b *AES) DecryptString(payload string) (string, error) {
+func (b *aesCrypto) DecryptString(payload string) (string, error) {
 	decodePayload, err := base64.StdEncoding.DecodeString(payload)
 	if err != nil {
 		return "", err
