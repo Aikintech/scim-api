@@ -23,20 +23,30 @@ type Testimony struct {
 	Published          bool      `gorm:"not null;default:false"`
 	CreatedAt          time.Time `gorm:"autoCreateTime;not null"`
 	UpdatedAt          time.Time `gorm:"autoUpdateTime;not null"`
+
+	// Relations
+	Comments      []*Comment `gorm:"polymorphic:Commentable"`
+	Likes         []*Like    `gorm:"polymorphic:Likeable"`
+	CommentsCount *int       `gorm:"-"`
+	LikesCount    *int       `gorm:"-"`
+	LikedByUser   *bool      `gorm:"-"`
 }
 
 type TestimonyResource struct {
-	ID           string    `json:"id"`
-	YouTubeURL   *string   `json:"youtubeUrl,omitempty"`
-	TikTokURL    *string   `json:"tiktokUrl,omitempty"`
-	Title        string    `json:"title"`
-	FileURL      string    `json:"fileUrl"`
-	FileKey      string    `json:"fileKey"`
-	ThumbnailURL *string   `json:"thumbnailUrl,omitempty"`
-	ThumbnailKey *string   `json:"thumbnailKey,omitempty"`
-	Body         string    `json:"body"`
-	Published    bool      `json:"published"`
-	CreatedAt    time.Time `json:"createAt"`
+	ID            string    `json:"id"`
+	YouTubeURL    *string   `json:"youtubeUrl,omitempty"`
+	TikTokURL     *string   `json:"tiktokUrl,omitempty"`
+	Title         string    `json:"title"`
+	FileURL       string    `json:"fileUrl"`
+	FileKey       string    `json:"fileKey"`
+	ThumbnailURL  *string   `json:"thumbnailUrl,omitempty"`
+	ThumbnailKey  *string   `json:"thumbnailKey,omitempty"`
+	Body          string    `json:"body"`
+	Published     bool      `json:"published"`
+	CreatedAt     time.Time `json:"createAt"`
+	CommentsCount *int      `json:"commentsCount"`
+	LikesCount    *int      `json:"likesCount"`
+	LikedByUser   *bool     `json:"likedByUser,omitempty"`
 }
 
 func (t *Testimony) BeforeCreate(tx *gorm.DB) error {
@@ -53,15 +63,17 @@ func TestimonyToResource(t *Testimony) *TestimonyResource {
 	}
 
 	return &TestimonyResource{
-		ID:         t.ID,
-		YouTubeURL: t.YouTubeURL,
-		TikTokURL:  t.TikTokURL,
-		Title:      t.Title,
-		FileURL:    fileURL,
-		FileKey:    t.FileURL,
-		Body:       t.Body,
-		Published:  t.Published,
-		CreatedAt:  t.CreatedAt,
+		ID:            t.ID,
+		YouTubeURL:    t.YouTubeURL,
+		TikTokURL:     t.TikTokURL,
+		Title:         t.Title,
+		FileURL:       fileURL,
+		FileKey:       t.FileURL,
+		Body:          t.Body,
+		Published:     t.Published,
+		CreatedAt:     t.CreatedAt,
+		LikesCount:    t.LikesCount,
+		CommentsCount: t.CommentsCount,
 	}
 }
 

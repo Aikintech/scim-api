@@ -86,7 +86,7 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 }
 
 func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
-	key := c.Params("fileKey", "")
+	key := strings.TrimSpace(c.Query("key", ""))
 
 	// Validate request
 	if !validation.IsValidFileKey(key) {
@@ -111,7 +111,7 @@ func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
 
 func (fileCtrl *FileController) DeleteFile(c *fiber.Ctx) error {
 	path := c.Path()
-	key := strings.TrimSpace(c.Params("fileKey", ""))
+	key := strings.TrimSpace(c.Query("key", ""))
 	hasAvatarPrefix := strings.HasPrefix(strings.ToLower(key), "avatar")
 	hasBackofficePrefix := strings.HasPrefix(path, "/backoffice")
 
