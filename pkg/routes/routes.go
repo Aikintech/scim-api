@@ -19,8 +19,8 @@ func LoadRoutes(app *fiber.App) {
 
 	// Upload files
 	app.Post("/files", fileController.UploadFile)
-	app.Get("/files/:fileKey", fileController.GetFileURL)
-	app.Delete("/files/:fileKey", fileController.DeleteFile)
+	app.Get("/files", fileController.GetFileURL)
+	app.Delete("/files", fileController.DeleteFile)
 
 	MountClientRoutes(app)
 	MountBackOfficeRoutes(app)

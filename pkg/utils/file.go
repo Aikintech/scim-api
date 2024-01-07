@@ -30,15 +30,10 @@ func getS3Client() (*s3.Client, error) {
 	return client, nil
 }
 
-func UploadFileS3(file *multipart.FileHeader, key string) (definitions.Map, error) {
+func UploadFileS3(file multipart.File, key string) (definitions.S3UploadResult, error) {
 	client, err := getS3Client()
 	if err != nil {
-		return nil, err
-	}
-
-	f, err := file.Open()
-	if err != nil {
-		return nil, err
+		return definitions.S3UploadResult{}, err
 	}
 
 	uploader := manager.NewUploader(client)
@@ -46,20 +41,20 @@ func UploadFileS3(file *multipart.FileHeader, key string) (definitions.Map, erro
 	result, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(os.Getenv("AWS_BUCKET")),
 		Key:    aws.String(key),
-		Body:   f,
-		ACL:    "public-read",
+		Body:   file,
+		// ACL:    "public-read",
 	})
 	if err != nil {
-		return nil, err
+		return definitions.S3UploadResult{}, err
 	}
 
 	// Generate file URL
 	location, err := GenerateS3FileURL(key)
 	if err != nil {
-		return nil, err
+		return definitions.S3UploadResult{}, err
 	}
 
-	return definitions.Map{"key": result.Key, "url": location}, err
+	return definitions.S3UploadResult{Key: *result.Key, URL: location}, err
 }
 
 func GenerateS3FileURL(key string) (string, error) {
@@ -124,7 +119,3 @@ func DeleteS3File(key string) error {
 
 	return nil
 }
-
-func UploadFileToYouTube() {}
-
-func UploadFileToTikTok() {}

@@ -44,7 +44,7 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 	requestFile, err := c.FormFile("file")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: "File upload failed",
+			Message: "File upload failed or file not present",
 		})
 	}
 
@@ -52,7 +52,7 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 	mime := utils.GetMimeExtension(requestFile.Header["Content-Type"][0])
 	if !slices.Contains(constants.ALLOWED_MIME_TYPES, mime) {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-			Message: "Invalid file type",
+			Message: "Invalid file provided. Expected: jpg, jpeg, png",
 		})
 	}
 
@@ -71,11 +71,18 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 		})
 	}
 
+	file, err := requestFile.Open()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
+			Message: err.Error(),
+		})
+	}
+
 	// Generate unique filename
-	filename := fmt.Sprintf("%s/%s.%s", strings.ToUpper(uploadType), utils.GenerateRandomString(30), mime)
+	filename := strings.ToLower(fmt.Sprintf("%s/%s.%s", strings.ToLower(uploadType), utils.GenerateRandomString(30), mime))
 
 	// Upload to s3
-	result, err := utils.UploadFileS3(requestFile, filename)
+	result, err := utils.UploadFileS3(file, filename)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
@@ -86,7 +93,7 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 }
 
 func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
-	key := c.Params("fileKey", "")
+	key := strings.TrimSpace(c.Query("key", ""))
 
 	// Validate request
 	if !validation.IsValidFileKey(key) {
@@ -111,7 +118,7 @@ func (fileCtrl *FileController) GetFileURL(c *fiber.Ctx) error {
 
 func (fileCtrl *FileController) DeleteFile(c *fiber.Ctx) error {
 	path := c.Path()
-	key := strings.TrimSpace(c.Params("fileKey", ""))
+	key := strings.TrimSpace(c.Query("key", ""))
 	hasAvatarPrefix := strings.HasPrefix(strings.ToLower(key), "avatar")
 	hasBackofficePrefix := strings.HasPrefix(path, "/backoffice")
 

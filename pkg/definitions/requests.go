@@ -106,6 +106,12 @@ type TransactRequest struct {
 	Description    string  `json:"description" validate:"-"`
 }
 
+type TestimonyRequest struct {
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	Published   bool   `json:"published" validate:"boolean"`
+}
+
 type PaystackWebhookPaymentRequest struct {
 	Event string `json:"event"`
 	Data  struct {

@@ -11,11 +11,11 @@ import (
 )
 
 type Testimony struct {
-	ID                 string  `gorm:"primaryKey;size:40"`
-	YouTubeReferenceID *string `gorm:"size:40;column:yt_reference_id"`
-	TikTokReferenceID  *string `gorm:"size:40;column:tk_reference_id"`
-	YouTubeURL         *string
-	TikTokURL          *string
+	ID                 string    `gorm:"primaryKey;size:40"`
+	YouTubeReferenceID *string   `gorm:"size:40;column:yt_reference_id"`
+	TikTokReferenceID  *string   `gorm:"size:40;column:tk_reference_id"`
+	YouTubeURL         *string   `gorm:"column:yt_url"`
+	TikTokURL          *string   `gorm:"column:tk_url"`
 	Title              string    `gorm:"size:191;not null"`
 	FileURL            string    `gorm:"size:191;not null"`
 	ThumbnailURL       string    `gorm:"size:191"`
@@ -23,20 +23,30 @@ type Testimony struct {
 	Published          bool      `gorm:"not null;default:false"`
 	CreatedAt          time.Time `gorm:"autoCreateTime;not null"`
 	UpdatedAt          time.Time `gorm:"autoUpdateTime;not null"`
+
+	// Relations
+	Comments      []*Comment `gorm:"polymorphic:Commentable"`
+	Likes         []*Like    `gorm:"polymorphic:Likeable"`
+	CommentsCount *int       `gorm:"-"`
+	LikesCount    *int       `gorm:"-"`
+	LikedByUser   *bool      `gorm:"-"`
 }
 
 type TestimonyResource struct {
-	ID           string    `json:"id"`
-	YouTubeURL   *string   `json:"youtubeUrl,omitempty"`
-	TikTokURL    *string   `json:"tiktokUrl,omitempty"`
-	Title        string    `json:"title"`
-	FileURL      string    `json:"fileUrl"`
-	FileKey      string    `json:"fileKey"`
-	ThumbnailURL *string   `json:"thumbnailUrl,omitempty"`
-	ThumbnailKey *string   `json:"thumbnailKey,omitempty"`
-	Body         string    `json:"body"`
-	Published    bool      `json:"published"`
-	CreatedAt    time.Time `json:"createAt"`
+	ID            string    `json:"id"`
+	YouTubeURL    *string   `json:"youtubeUrl,omitempty"`
+	TikTokURL     *string   `json:"tiktokUrl,omitempty"`
+	Title         string    `json:"title"`
+	FileURL       string    `json:"fileUrl"`
+	FileKey       string    `json:"fileKey"`
+	ThumbnailURL  *string   `json:"thumbnailUrl,omitempty"`
+	ThumbnailKey  *string   `json:"thumbnailKey,omitempty"`
+	Body          string    `json:"description"`
+	Published     bool      `json:"published"`
+	CreatedAt     time.Time `json:"createAt"`
+	CommentsCount *int      `json:"commentsCount"`
+	LikesCount    *int      `json:"likesCount"`
+	LikedByUser   *bool     `json:"likedByUser,omitempty"`
 }
 
 func (t *Testimony) BeforeCreate(tx *gorm.DB) error {
@@ -52,16 +62,28 @@ func TestimonyToResource(t *Testimony) *TestimonyResource {
 		fmt.Println("Error generating avatar url", err.Error())
 	}
 
+	commentsCount := 0
+	if t.CommentsCount != nil {
+		commentsCount = *t.CommentsCount
+	}
+
+	likesCount := 0
+	if t.LikesCount != nil {
+		likesCount = *t.LikesCount
+	}
+
 	return &TestimonyResource{
-		ID:         t.ID,
-		YouTubeURL: t.YouTubeURL,
-		TikTokURL:  t.TikTokURL,
-		Title:      t.Title,
-		FileURL:    fileURL,
-		FileKey:    t.FileURL,
-		Body:       t.Body,
-		Published:  t.Published,
-		CreatedAt:  t.CreatedAt,
+		ID:            t.ID,
+		YouTubeURL:    t.YouTubeURL,
+		TikTokURL:     t.TikTokURL,
+		Title:         t.Title,
+		FileURL:       fileURL,
+		FileKey:       t.FileURL,
+		Body:          t.Body,
+		Published:     t.Published,
+		CreatedAt:     t.CreatedAt,
+		LikesCount:    &likesCount,
+		CommentsCount: &commentsCount,
 	}
 }
 
