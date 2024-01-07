@@ -72,7 +72,7 @@ func (fileCtrl *FileController) UploadFile(c *fiber.Ctx) error {
 	}
 
 	// Generate unique filename
-	filename := fmt.Sprintf("%s/%s.%s", strings.ToUpper(uploadType), utils.GenerateRandomString(30), mime)
+	filename := strings.ToLower(fmt.Sprintf("%s/%s.%s", strings.ToLower(uploadType), utils.GenerateRandomString(30), mime))
 
 	// Upload to s3
 	result, err := utils.UploadFileS3(requestFile, filename)

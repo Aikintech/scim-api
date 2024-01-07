@@ -2,14 +2,20 @@ package facades
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/feature/cloudfront/sign"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
@@ -37,7 +43,7 @@ func NewS3() (*awsS3, error) {
 	})
 
 	return &awsS3{
-		ctx:      context.Background(),
+		ctx:      context.TODO(),
 		instance: client,
 		bucket:   bucket,
 		url:      &url,
@@ -309,4 +315,41 @@ func validPath(path string) string {
 	}
 
 	return realPath
+}
+
+func CloudfrontSignURL(key string) (string, error) {
+	expiration := time.Hour * 24 * 7 // 1 week
+	privateKey, err := os.ReadFile("pk-APKAW3W3GZGQSDOCLYU6.pem")
+	if err != nil {
+		return "", err
+	}
+
+	// Parse the private key
+	privKey, err := parseECPrivateKey(privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	signer := sign.NewURLSigner(Env().GetString("CLOUDFRONT_KEY_ID"), privKey)
+
+	signedURL, err := signer.Sign(Env().GetString("CLOUDFRONT_URL"), time.Now().Add(expiration))
+	if err != nil {
+		return "", err
+	}
+
+	return signedURL, nil
+}
+
+func parseECPrivateKey(privKeyBytes []byte) (*rsa.PrivateKey, error) {
+	block, _ := pem.Decode(privKeyBytes)
+	if block == nil {
+		return nil, errors.New("failed to parse PEM block containing the private key")
+	}
+
+	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return priv, nil
 }

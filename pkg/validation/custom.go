@@ -69,8 +69,8 @@ func isPasswordValid(password string) bool {
 
 func IsValidFileKey(key string) bool {
 	return lo.SomeBy(constants.UPLOAD_TYPES, func(item string) bool {
-		uploadType := strings.ToUpper(item)
+		uploadType := strings.ToLower(item)
 
-		return strings.Contains(key, uploadType) // Key contains upload type
+		return strings.Contains(strings.ToLower(key), uploadType) // Key contains upload type
 	})
 }

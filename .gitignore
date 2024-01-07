@@ -11,3 +11,6 @@ tmp/
 /routes.json
 /routes.txt
 db/
+
+# pem files
+*.pem

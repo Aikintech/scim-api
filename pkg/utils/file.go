@@ -47,7 +47,7 @@ func UploadFileS3(file *multipart.FileHeader, key string) (definitions.Map, erro
 		Bucket: aws.String(os.Getenv("AWS_BUCKET")),
 		Key:    aws.String(key),
 		Body:   f,
-		ACL:    "public-read",
+		// ACL:    "public-read",
 	})
 	if err != nil {
 		return nil, err
