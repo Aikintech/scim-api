@@ -20,10 +20,11 @@ const (
 	YOUTUBE_CHANNEL_ID               = ""
 	REGULAR_USER_ROLE                = "regular-user"
 	SUPER_ADMIN_USER_ROLE            = "super-admin"
+	NOTIFICATION_EVENT               = "notification"
 )
 
 var (
-	UPLOAD_TYPES       = []string{"testimony", "excerpt", "avatar"}
+	UPLOAD_TYPES       = []string{"testimony", "excerpt", "avatar", "testimonies", "excerpts", "avatars"}
 	ALLOWED_MIME_TYPES = []string{"png", "jpeg", "jpg", "mov", "mp4"}
 
 	DB_HOST     = os.Getenv("DB_HOST")

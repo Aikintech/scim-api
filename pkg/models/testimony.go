@@ -11,11 +11,11 @@ import (
 )
 
 type Testimony struct {
-	ID                 string  `gorm:"primaryKey;size:40"`
-	YouTubeReferenceID *string `gorm:"size:40;column:yt_reference_id"`
-	TikTokReferenceID  *string `gorm:"size:40;column:tk_reference_id"`
-	YouTubeURL         *string
-	TikTokURL          *string
+	ID                 string    `gorm:"primaryKey;size:40"`
+	YouTubeReferenceID *string   `gorm:"size:40;column:yt_reference_id"`
+	TikTokReferenceID  *string   `gorm:"size:40;column:tk_reference_id"`
+	YouTubeURL         *string   `gorm:"column:yt_url"`
+	TikTokURL          *string   `gorm:"column:tk_url"`
 	Title              string    `gorm:"size:191;not null"`
 	FileURL            string    `gorm:"size:191;not null"`
 	ThumbnailURL       string    `gorm:"size:191"`

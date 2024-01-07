@@ -20,6 +20,6 @@ func newPusher() *pusher {
 	return &pusher{client: &client}
 }
 
-func Pusher() *pusher {
-	return newPusher()
+func Pusher() *pusherGo.Client {
+	return newPusher().client
 }

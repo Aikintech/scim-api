@@ -22,6 +22,11 @@ type PaginationResult struct {
 	Items      []interface{} `json:"items"`
 }
 
+type S3UploadResult struct {
+	Key string `json:"key"`
+	URL string `json:"url"`
+}
+
 // Paystack transaction successful webhook request
 type PaystackTransactionSuccessful struct {
 	Event string `json:"event"`
