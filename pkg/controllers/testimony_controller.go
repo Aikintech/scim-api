@@ -32,8 +32,8 @@ type uploadAndCreateType struct {
 func NewTestimonyController() *TestimonyController {
 	q := database.DB.Model(&models.Testimony{}).
 		Select("testimonies.*, COUNT(DISTINCT likes.id) AS likes_count, COUNT(DISTINCT comments.id) AS comments_count").
-		Joins("JOIN likes ON likes.likeable_id = testimonies.id AND likes.likeable_type = 'testimonies'").
-		Joins("JOIN comments ON comments.commentable_id = testimonies.id AND comments.commentable_type = 'testimonies'").
+		Joins("LEFT JOIN likes ON likes.likeable_id = testimonies.id AND likes.likeable_type = 'testimonies'").
+		Joins("LEFT JOIN comments ON comments.commentable_id = testimonies.id AND comments.commentable_type = 'testimonies'").
 		Group("testimonies.id")
 
 	return &TestimonyController{

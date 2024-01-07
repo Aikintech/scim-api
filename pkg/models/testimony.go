@@ -41,7 +41,7 @@ type TestimonyResource struct {
 	FileKey       string    `json:"fileKey"`
 	ThumbnailURL  *string   `json:"thumbnailUrl,omitempty"`
 	ThumbnailKey  *string   `json:"thumbnailKey,omitempty"`
-	Body          string    `json:"body"`
+	Body          string    `json:"description"`
 	Published     bool      `json:"published"`
 	CreatedAt     time.Time `json:"createAt"`
 	CommentsCount *int      `json:"commentsCount"`
@@ -62,6 +62,16 @@ func TestimonyToResource(t *Testimony) *TestimonyResource {
 		fmt.Println("Error generating avatar url", err.Error())
 	}
 
+	commentsCount := 0
+	if t.CommentsCount != nil {
+		commentsCount = *t.CommentsCount
+	}
+
+	likesCount := 0
+	if t.LikesCount != nil {
+		likesCount = *t.LikesCount
+	}
+
 	return &TestimonyResource{
 		ID:            t.ID,
 		YouTubeURL:    t.YouTubeURL,
@@ -72,8 +82,8 @@ func TestimonyToResource(t *Testimony) *TestimonyResource {
 		Body:          t.Body,
 		Published:     t.Published,
 		CreatedAt:     t.CreatedAt,
-		LikesCount:    t.LikesCount,
-		CommentsCount: t.CommentsCount,
+		LikesCount:    &likesCount,
+		CommentsCount: &commentsCount,
 	}
 }
 
