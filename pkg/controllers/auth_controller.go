@@ -313,7 +313,6 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 	request := definitions.ResetPasswordRequest{}
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-
 			Message: err.Error(),
 		})
 	}
@@ -337,7 +336,6 @@ func (a *AuthController) ResetPassword(c *fiber.Ctx) error {
 	// Check user's sign up provider
 	if user.SignUpProvider != "local" {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
-
 			Message: "The sign up provider for this account does not support password reset",
 		})
 	}

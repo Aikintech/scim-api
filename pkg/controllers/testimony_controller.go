@@ -15,11 +15,9 @@ import (
 	"github.com/aikintech/scim-api/pkg/utils"
 	"github.com/aikintech/scim-api/pkg/validation"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 type TestimonyController struct {
-	query *gorm.DB
 }
 
 type uploadAndCreateType struct {
@@ -30,25 +28,12 @@ type uploadAndCreateType struct {
 }
 
 func NewTestimonyController() *TestimonyController {
-	q := database.DB.Model(&models.Testimony{}).
-		Select("testimonies.*, COUNT(DISTINCT likes.id) AS likes_count, COUNT(DISTINCT comments.id) AS comments_count").
-		Joins("LEFT JOIN likes ON likes.likeable_id = testimonies.id AND likes.likeable_type = 'testimonies'").
-		Joins("LEFT JOIN comments ON comments.commentable_id = testimonies.id AND comments.commentable_type = 'testimonies'").
-		Group("testimonies.id")
-
-	return &TestimonyController{
-		query: q,
-	}
+	return &TestimonyController{}
 }
 
 func (t *TestimonyController) GetAllTestimonies() {}
 
-func (t *TestimonyController) GetTestimonies() {}
-
-func (t *TestimonyController) GetTestimony() {}
-
-// Backoffice routes
-func (t *TestimonyController) BackofficeGetTestimonies(c *fiber.Ctx) error {
+func (t *TestimonyController) GetTestimonies(c *fiber.Ctx) error {
 	var total int64
 	limit := c.QueryInt("limit", 10)
 	page := c.QueryInt("page", 1)
@@ -64,7 +49,12 @@ func (t *TestimonyController) BackofficeGetTestimonies(c *fiber.Ctx) error {
 
 	// Query results
 	testimonies := make([]*models.Testimony, 0)
-	if err := t.query.Scopes(models.PaginationScope(c)).
+	if err := database.DB.Table("testimonies").
+		Select("testimonies.*, COUNT(DISTINCT likes.id) AS likes_count, COUNT(DISTINCT comments.id) AS comments_count").
+		Joins("LEFT JOIN likes ON likes.likeable_id = testimonies.id AND likes.likeable_type = 'testimonies'").
+		Joins("LEFT JOIN comments ON comments.commentable_id = testimonies.id AND comments.commentable_type = 'testimonies'").
+		Group("testimonies.id").
+		Scopes(models.PaginationScope(c)).
 		Where("testimonies.title LIKE ? OR testimonies.body LIKE ?", "%"+search+"%", "%"+search+"%").
 		Find(&testimonies).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
@@ -79,6 +69,24 @@ func (t *TestimonyController) BackofficeGetTestimonies(c *fiber.Ctx) error {
 		"items": models.TestimoniesToResourceCollection(testimonies),
 	})
 }
+
+func (t *TestimonyController) GetTestimony(c *fiber.Ctx) error {
+	testimonyId := c.Params("testimonyId", "")
+	testimony := new(models.Testimony)
+
+	if err := database.DB.Table("testimonies").
+		Select("testimonies.*, COUNT(DISTINCT likes.id) AS likes_count, COUNT(DISTINCT comments.id) AS comments_count").
+		Joins("LEFT JOIN likes ON likes.likeable_id = testimonies.id AND likes.likeable_type = 'testimonies'").
+		Joins("LEFT JOIN comments ON comments.commentable_id = testimonies.id AND comments.commentable_type = 'testimonies'").
+		Group("testimonies.id").
+		Where("testimonies.id = ?", testimonyId).Limit(1).Find(&testimony).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(definitions.MessageResponse{Message: "no record found"})
+	}
+
+	return c.JSON(models.TestimonyToResource(testimony))
+}
+
+// Backoffice routes
 
 func (t *TestimonyController) BackofficeCreateTestimony(c *fiber.Ctx) error {
 	user := c.Locals(constants.USER_CONTEXT_KEY).(*models.User)
