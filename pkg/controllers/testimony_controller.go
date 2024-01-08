@@ -53,7 +53,7 @@ func (t *TestimonyController) BackofficeGetTestimonies(c *fiber.Ctx) error {
 	limit := c.QueryInt("limit", 10)
 	page := c.QueryInt("page", 1)
 	search := strings.TrimSpace(c.Query("search", ""))
-	query := t.query.Where("testimonies.title LIKE ? OR testimonies.body LIKE ?", "%"+search+"%", "%"+search+"%")
+	query := database.DB.Model(&models.Testimony{}).Where("testimonies.title LIKE ? OR testimonies.body LIKE ?", "%"+search+"%", "%"+search+"%")
 
 	// Query total
 	if err := query.Count(&total).Error; err != nil {
@@ -64,7 +64,9 @@ func (t *TestimonyController) BackofficeGetTestimonies(c *fiber.Ctx) error {
 
 	// Query results
 	testimonies := make([]*models.Testimony, 0)
-	if err := query.Scopes(models.PaginationScope(c)).Find(&testimonies).Error; err != nil {
+	if err := t.query.Scopes(models.PaginationScope(c)).
+		Where("testimonies.title LIKE ? OR testimonies.body LIKE ?", "%"+search+"%", "%"+search+"%").
+		Find(&testimonies).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(definitions.MessageResponse{
 			Message: err.Error(),
 		})
