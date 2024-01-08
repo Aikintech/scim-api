@@ -37,6 +37,11 @@ require (
 require (
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	github.com/bugsnag/bugsnag-go/v2 v2.2.0 // indirect
+	github.com/bugsnag/panic-monitor v1.1.0 // indirect
+	github.com/bugsnag/panicwrap v1.3.4 // indirect
+	github.com/bugsnag/proc-launcher v1.0.0 // indirect
+	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/pusher/pusher-http-go/v5 v5.1.1 // indirect
 	github.com/tinylib/msgp v1.1.9 // indirect

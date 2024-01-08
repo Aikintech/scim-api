@@ -5,12 +5,14 @@ import (
 	"os"
 
 	"github.com/aikintech/scim-api/pkg/database"
+	"github.com/aikintech/scim-api/pkg/facades"
 	"github.com/aikintech/scim-api/pkg/middlewares"
 
 	"github.com/aikintech/scim-api/pkg/routes"
 	"github.com/aikintech/scim-api/pkg/utils"
 
 	"github.com/aikintech/scim-api/pkg/config"
+	"github.com/bugsnag/bugsnag-go/v2"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -30,6 +32,13 @@ func init() {
 }
 
 func main() {
+	bugsnag.Configure(bugsnag.Configuration{
+		APIKey:          facades.Env().GetString("BUGSNAG_API_KEY"),
+		ReleaseStage:    facades.Env().GetString("BUGSNAG_RELEASE_STAGE"),
+		ProjectPackages: []string{"main", "github.com/aikintech/scim-api"},
+		AppVersion:      "1.0.0",
+	})
+
 	// Instantiate a new fiber app
 	app := fiber.New(fiber.Config{
 		BodyLimit: 64 * 1024 * 1024, // 64MB
