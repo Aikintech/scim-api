@@ -52,8 +52,9 @@ func MountBackOfficeRoutes(app *fiber.App) {
 	users.Get("/", jwtAuthWare, userController.BackofficeGetUsers)
 
 	// Testimonies
-	testimonies.Get("/", jwtAuthWare, testimonyController.BackofficeGetTestimonies)
+	testimonies.Get("/", jwtAuthWare, testimonyController.GetTestimonies)
 	testimonies.Post("/", jwtAuthWare, testimonyController.BackofficeCreateTestimony)
+	testimonies.Get("/:testimonyId", jwtAuthWare, testimonyController.GetTestimony)
 
 	// Files
 	backoffice.Post("/files", fileController.UploadFile)

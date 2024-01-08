@@ -43,7 +43,7 @@ type TestimonyResource struct {
 	ThumbnailKey  *string   `json:"thumbnailKey,omitempty"`
 	Body          string    `json:"description"`
 	Published     bool      `json:"published"`
-	CreatedAt     time.Time `json:"createAt"`
+	CreatedAt     time.Time `json:"createdAt"`
 	CommentsCount *int      `json:"commentsCount"`
 	LikesCount    *int      `json:"likesCount"`
 	LikedByUser   *bool     `json:"likedByUser,omitempty"`
